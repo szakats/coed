@@ -15,7 +15,7 @@ public class CoedCommunicatorFactory {
 	public ICoedCommunicator create(String type) throws UnknownTypeException
 	{
 		if(type.equals(NULL)) {
-			return new Communicator(new NullVersioner(), new Collaborator());
+			return new Communicator(new NullVersioner(), new CollaboratorClient());
 		} else if(type.equals(GIT)) {
 			//return new Communicator(new GitVersioner(), new Collaborator());
 		}
