@@ -1,5 +1,7 @@
 package coed.collab.data;
 
+import coed.base.data.CoedFile;
+
 /**
  * TODO: javadoc
  * @author Izso

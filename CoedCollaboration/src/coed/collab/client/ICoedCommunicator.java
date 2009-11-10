@@ -1,5 +1,6 @@
 package coed.collab.client;
 
+import coed.base.common.ICoedVersioner;
 import coed.collab.data.*;
 
 /**
@@ -8,5 +9,7 @@ import coed.collab.data.*;
  *	
  */
 public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
+	
+	public String getVersionerType();
    
 }

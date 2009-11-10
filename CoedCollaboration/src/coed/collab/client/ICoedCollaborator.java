@@ -1,6 +1,6 @@
 package coed.collab.client;
 
-import coed.collab.data.CoedFile;
+import coed.base.data.CoedFile;
 import coed.collab.data.CoedFileLine;
 import coed.collab.data.CoedFileLock;
 import coed.collab.data.IFileObserver;

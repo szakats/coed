@@ -1,19 +1,25 @@
-package coed.collab.client;
+package coed.base.common;
 
-import coed.collab.data.*;
+import coed.base.data.CoedFile;
+import coed.base.data.CoedProject;
 
 /**
  * TODO: description
- * @author Izso
+ * @author Neobi
  * 
  */
 public interface ICoedVersioner {
+	
+	public final static String NULL = "null";
+	public final static String GIT = "git";
+	
    
    /**
 	* TODO: javadoc
 	* @return
    */
    public String getState();
+   public String getType();
 
    public String getProjectList();
    public CoedProject getProjectInfo(String name);
