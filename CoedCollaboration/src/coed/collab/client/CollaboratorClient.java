@@ -1,18 +1,19 @@
 package coed.collab.client;
 
-import coed.collab.data.CoedFile;
+import coed.base.data.CoedFile;
+import coed.collab.client.config.Config;
 import coed.collab.data.CoedFileLine;
 import coed.collab.data.CoedFileLock;
-import coed.collab.data.CoedProject;
 import coed.collab.data.IFileObserver;
 
 public class CollaboratorClient implements ICoedCollaborator {
 	private String host;
 	private int port;
 	
-	public CollaboratorClient() {
-		host = Config.getInstance().getString("server.host");
-		port = Config.getInstance().getInt("server.port");
+	public CollaboratorClient(Config conf) {
+	
+		host = conf.getString("server.host");
+		port = conf.getInt("server.port");
 	}
 
 	@Override

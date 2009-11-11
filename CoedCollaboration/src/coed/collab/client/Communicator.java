@@ -1,21 +1,24 @@
 package coed.collab.client;
 
-import coed.collab.data.CoedFile;
+import coed.base.common.ICoedVersioner;
+import coed.base.data.CoedFile;
+import coed.base.data.CoedProject;
+import coed.collab.client.config.*;
 import coed.collab.data.CoedFileLine;
 import coed.collab.data.CoedFileLock;
-import coed.collab.data.CoedProject;
 import coed.collab.data.IFileObserver;
-import coed.versioning.client.NullVersioner;
 
 public class Communicator implements ICoedCommunicator {
 
 	private ICoedVersioner v;  // versioner
 	private ICoedCollaborator c; // collaborator
+	private ICoedConfig conf; //configurator, containing information regarding user account 
 	
-	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator)
+	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
 	{
 		this.v = versioner;
 		this.c = collaborator;
+		this.conf = config;
 	}
 	
 	@Override
@@ -110,6 +113,17 @@ public class Communicator implements ICoedCommunicator {
 	public boolean sendChanges(CoedFile file, CoedFileLine line) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public String getVersionerType() {
+		return v.getType();
+	}
+
+	@Override
+	public String getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

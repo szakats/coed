@@ -1,8 +1,9 @@
 package coed.versioning.client;
 
-import coed.collab.client.*;
-import coed.collab.data.CoedFile;
-import coed.collab.data.CoedProject;
+import coed.base.common.ICoedVersioner;
+//import coed.collab.client.*;
+import coed.base.data.CoedFile;
+import coed.base.data.CoedProject;
 
 public class NullVersioner implements ICoedVersioner{
 
@@ -63,6 +64,11 @@ public class NullVersioner implements ICoedVersioner{
 	@Override
 	public String getState() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getType() {
 		return null;
 	}
 
