@@ -1,6 +1,7 @@
 package coed.collab.client;
 
 import coed.versioning.client.NullVersioner;
+import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedVersioner;
 import coed.collab.client.config.Config;
 

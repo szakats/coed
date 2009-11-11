@@ -1,10 +1,11 @@
 package coed.collab.client;
 
+import coed.base.common.ICoedCollaborator;
 import coed.base.data.CoedFile;
+import coed.base.data.CoedFileLine;
+import coed.base.data.CoedFileLock;
+import coed.base.data.IFileObserver;
 import coed.collab.client.config.Config;
-import coed.collab.data.CoedFileLine;
-import coed.collab.data.CoedFileLock;
-import coed.collab.data.IFileObserver;
 
 public class CollaboratorClient implements ICoedCollaborator {
 	private String host;

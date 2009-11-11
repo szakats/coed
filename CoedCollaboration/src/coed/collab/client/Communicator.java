@@ -1,12 +1,14 @@
 package coed.collab.client;
 
+import coed.base.common.ICoedCollaborator;
+import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedVersioner;
 import coed.base.data.CoedFile;
+import coed.base.data.CoedFileLine;
+import coed.base.data.CoedFileLock;
 import coed.base.data.CoedProject;
+import coed.base.data.IFileObserver;
 import coed.collab.client.config.*;
-import coed.collab.data.CoedFileLine;
-import coed.collab.data.CoedFileLock;
-import coed.collab.data.IFileObserver;
 
 public class Communicator implements ICoedCommunicator {
 
