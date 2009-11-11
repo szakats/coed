@@ -1,11 +1,27 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Coed Edtior
-Bundle-SymbolicName: CoedEditor
+Bundle-SymbolicName: CoedEditor;singleton:=true
 Bundle-Version: 0.0.1
-Bundle-Activator: coed.plugin.Activator
+Bundle-Activator: coed.plugin.base.Activator
 Bundle-Vendor: Szakats Istvan, Mynio Robert, Szappanos Norbert, Istvan Zsolt
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui.editors
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.core.resources,
+ org.eclipse.ui
+Export-Package: coed.plugin.base;
+  uses:="org.eclipse.ui.texteditor,
+   coed.collab.data,
+   org.eclipse.ui.plugin,
+   org.osgi.framework,
+   coed.plugin.views",
+ coed.plugin.views;
+  uses:="org.eclipse.core.runtime,
+   org.eclipse.swt.graphics,
+   org.eclipse.jface.viewers,
+   org.eclipse.ui.part,
+   org.eclipse.swt.widgets"

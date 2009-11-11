@@ -5,11 +5,12 @@ import java.util.HashMap;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.collab.client.ICoedCommunicator;
-import coed.collab.data.CoedFile;
-import coed.collab.data.CoedProject;
+import coed.base.common.ICoedCommunicator;
+import coed.base.data.CoedFile;
+import coed.base.data.CoedProject;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
+
 
 public class StandardController implements IPluginController {
 	private ICoedCommunicator communicator;
@@ -70,8 +71,11 @@ public class StandardController implements IPluginController {
 		editors.put(texte, findCoedFileFor(texte));
 		//TODO: set as active ?
 		setAsActive(texte);
-		
+		/*texte.getDocumentProvider().
+			getAnnotationModel(activeEditor.getEditorInput()).
+			addAnnotation(new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, "xxx"), new Position(100, 200));*/
 		//TODO: listen to it, to see if it is focused, then make it current
+		
 	}
 
 	@Override
