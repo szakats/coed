@@ -8,19 +8,18 @@ import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
-import coed.collab.client.config.*;
 
 public class Communicator implements ICoedCommunicator {
 
 	private ICoedVersioner v;  // versioner
 	private ICoedCollaborator c; // collaborator
-	private ICoedConfig conf; //configurator, containing information regarding user account 
+	//private ICoedConfig conf; //configurator, containing information regarding user account 
 	
-	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
+	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator) //, ICoedConfig config)
 	{
 		this.v = versioner;
 		this.c = collaborator;
-		this.conf = config;
+		//this.conf = config;
 	}
 	
 	@Override
@@ -126,6 +125,12 @@ public class Communicator implements ICoedCommunicator {
 	public String getType() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void addChangeListener(IFileObserver obs) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

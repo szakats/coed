@@ -1,13 +1,14 @@
 package coed.base.data;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * TODO: javadoc
  * @author Neobi
  *
  */
-public class CoedFile { 
+public class CoedFile implements Serializable { 
     /**
 	 * Relative path of the file in its project
 	 */
@@ -61,8 +62,5 @@ public class CoedFile {
     public String[] getAllVersions() {
     	return this.allVersions;
     }
-    
-    public File getFile() {
-    	return FileManager.getFileFor(this);
-    }
+
 }

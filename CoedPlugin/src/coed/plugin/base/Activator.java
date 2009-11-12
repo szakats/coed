@@ -30,6 +30,7 @@ public class Activator extends AbstractUIPlugin{
 		super.start(context);
 		plugin = this;
 		controller = new StandardController();
+		//TODO: some images will be added to the registry
 	}
 
 	/*
