@@ -34,6 +34,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		ConnectFuture future1 = connector.connect(new InetSocketAddress(host, port), handler, config);
         future1.join();
         if (!future1.isConnected()) {
+        	System.out.println("failed to connect");
             //return false;
         }
         //session = future1.getSession();
@@ -59,12 +60,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 	}
 
 	@Override
-	public boolean listenToChanges(CoedFile file, IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean releaseLock(CoedFileLock lock) {
 		// TODO Auto-generated method stub
 		return false;
@@ -80,6 +75,25 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public boolean sendChanges(CoedFile file, CoedFileLine line) {
 		new SendChangesMsg(file, line); // TODO: send it
 		return false;
+	}
+
+	@Override
+	public void addChangeListener(IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean addFileChangeListener(CoedFile file,
+			IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeChangeListener(IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

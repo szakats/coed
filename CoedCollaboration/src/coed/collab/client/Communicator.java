@@ -94,12 +94,6 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public boolean listenToChanges(CoedFile file, IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public boolean releaseLock(CoedFileLock lock) {
 		// TODO Auto-generated method stub
 		return false;
@@ -138,6 +132,19 @@ public class Communicator implements ICoedCommunicator {
 	public CoedFile getFileInfo(CoedFile file) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean addFileChangeListener(CoedFile file,
+			IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeChangeListener(IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
