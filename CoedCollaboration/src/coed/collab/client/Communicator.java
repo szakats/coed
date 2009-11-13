@@ -8,6 +8,7 @@ import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
+import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {
 
@@ -15,7 +16,7 @@ public class Communicator implements ICoedCommunicator {
 	private ICoedCollaborator c; // collaborator
 	//private ICoedConfig conf; //configurator, containing information regarding user account 
 	
-	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator) //, ICoedConfig config)
+	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
 	{
 		this.v = versioner;
 		this.c = collaborator;
@@ -131,6 +132,12 @@ public class Communicator implements ICoedCommunicator {
 	public void addChangeListener(IFileObserver obs) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public CoedFile getFileInfo(CoedFile file) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

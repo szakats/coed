@@ -11,18 +11,19 @@ import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.IFileObserver;
+import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.SendChangesMsg;
 
 public class CollaboratorClient implements ICoedCollaborator {
 	private String host;
 	private int port;
 	
-	public CollaboratorClient(){//Config conf) {
+	public CollaboratorClient(ICoedConfig conf) {
 		
 		SocketConnector connector = new SocketConnector();
 	
-		//host = conf.getString("server.host");
-		//port = conf.getInt("server.port");
+		host = conf.getString("server.host");
+		port = conf.getInt("server.port");
 		SocketConnectorConfig config = new SocketConnectorConfig();
 		
 		host = "localhost";
