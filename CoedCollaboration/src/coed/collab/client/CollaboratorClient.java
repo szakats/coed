@@ -1,19 +1,42 @@
 package coed.collab.client;
 
+import java.net.InetSocketAddress;
+
+import org.apache.mina.common.ConnectFuture;
+import org.apache.mina.transport.socket.nio.SocketConnector;
+import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
+
 import coed.base.common.ICoedCollaborator;
 import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.IFileObserver;
+import coed.collab.protocol.SendChangesMsg;
 
 public class CollaboratorClient implements ICoedCollaborator {
 	private String host;
 	private int port;
 	
 	public CollaboratorClient(){//Config conf) {
+		
+		SocketConnector connector = new SocketConnector();
 	
 		//host = conf.getString("server.host");
 		//port = conf.getInt("server.port");
+		SocketConnectorConfig config = new SocketConnectorConfig();
+		
+		host = "localhost";
+		port = 1234;
+		
+		ClientProtocolHandler handler = new ClientProtocolHandler();
+	
+		ConnectFuture future1 = connector.connect(new InetSocketAddress(host, port), handler, config);
+        future1.join();
+        if (!future1.isConnected()) {
+            //return false;
+        }
+        //session = future1.getSession();
+       // session.write("LOGIN " + name);
 	}
 
 	@Override
@@ -54,7 +77,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	@Override
 	public boolean sendChanges(CoedFile file, CoedFileLine line) {
-		// TODO Auto-generated method stub
+		new SendChangesMsg(file, line); // TODO: send it
 		return false;
 	}
 

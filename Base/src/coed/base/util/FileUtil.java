@@ -26,7 +26,7 @@ public class FileUtil {
 
 	    try {
 	        //use buffering
-	        OutputStream file = new FileOutputStream( "quarks.ser" );
+	        OutputStream file = new FileOutputStream( filename );
 	        OutputStream buffer = new BufferedOutputStream( file );
 	        ObjectOutput output = new ObjectOutputStream( buffer );
 	        try {
