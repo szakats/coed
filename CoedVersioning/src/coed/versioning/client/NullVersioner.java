@@ -44,12 +44,6 @@ public class NullVersioner implements ICoedVersioner{
 	}
 
 	@Override
-	public CoedFile getFileInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public CoedProject getProjectInfo(String name) {
 		// TODO Auto-generated method stub
 		return null;
@@ -69,6 +63,12 @@ public class NullVersioner implements ICoedVersioner{
 
 	@Override
 	public String getType() {
+		return null;
+	}
+
+	@Override
+	public CoedFile getFileInfo(CoedFile file) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
