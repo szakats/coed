@@ -34,6 +34,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		ConnectFuture future1 = connector.connect(new InetSocketAddress(host, port), handler, config);
         future1.join();
         if (!future1.isConnected()) {
+        	System.out.println("failed to connect");
             //return false;
         }
         //session = future1.getSession();
