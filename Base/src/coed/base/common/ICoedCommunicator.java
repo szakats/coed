@@ -12,6 +12,4 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	
 	public String getVersionerType();
 	
-	public void addChangeListener(IFileObserver obs);
-   
 }
