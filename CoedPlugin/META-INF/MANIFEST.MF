@@ -26,3 +26,6 @@ Export-Package: coed.plugin.base;
    org.eclipse.jface.viewers,
    org.eclipse.ui.part,
    org.eclipse.swt.widgets"
+Bundle-ClassPath: lib/coed.base.jar,
+ lib/coed.collaborator.jar
+
