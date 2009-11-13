@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="CoedView"
+            name="Sample Category">
+      </category>
+      <view
+            category="CoedView"
+            class="coed.plugin.views.CoedView"
+            icon="icons/coed.png"
+            id="coededitor.views.CoedView"
+            name="Coed View">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="coededitor.views.CoedView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.TaskList">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="CoedEditor.contribution1"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="CoedEditor.menu1"
+               label="Coed Actions"
+               path="additions">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+         <action
+               class="coed.plugin.popup.actions.CoedCommit"
+               enablesFor="+"
+               id="CoedEditor.newAction"
+               label="Commit file(s)"
+               menubarPath="CoedEditor.menu1/group1">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="CoedEditor.commands.category"
+            name="Sample Category">
+      </category>
+      <command
+            categoryId="CoedEditor.commands.category"
+            id="CoedEditor.commands.sampleCommand"
+            name="Sample Command">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="coed.plugin.handlers.SampleHandler"
+            commandId="CoedEditor.commands.sampleCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="CoedEditor.commands.sampleCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               id="CoedEditor.menus.sampleMenu"
+               label="Sample Menu"
+               mnemonic="M">
+            <command
+                  commandId="CoedEditor.commands.sampleCommand"
+                  id="CoedEditor.menus.sampleCommand"
+                  mnemonic="S">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="CoedEditor.toolbars.sampleToolbar">
+            <command
+                  commandId="CoedEditor.commands.sampleCommand"
+                  icon="icons/coed.png"
+                  id="CoedEditor.toolbars.sampleCommand"
+                  style="toggle"
+                  tooltip="Say hello world">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+
+</plugin>
