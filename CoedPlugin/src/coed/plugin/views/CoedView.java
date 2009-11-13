@@ -264,8 +264,8 @@ public class CoedView extends ViewPart {
 				}
 			}
 		};
-		action1.setText("Share this document!");
-		action1.setToolTipText("Action 1 tooltip");
+		action1.setText("Start collaborative session with this document!");
+		action1.setToolTipText("Share this document for editing with co-workers");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		

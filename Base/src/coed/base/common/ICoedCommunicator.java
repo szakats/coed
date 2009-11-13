@@ -1,5 +1,8 @@
 package coed.base.common;
 
+import coed.base.data.CoedFile;
+import coed.base.data.IFileObserver;
+
 /**
  * TODO: javadoc
  * @author Izso
@@ -8,5 +11,7 @@ package coed.base.common;
 public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	
 	public String getVersionerType();
+	
+	public void addChangeListener(IFileObserver obs);
    
 }
