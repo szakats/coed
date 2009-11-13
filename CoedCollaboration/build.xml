@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="CoedCollaboration">
+    <property environment="env"/>
+    <property name="CoedPlugin.location" value="../CoedPlugin"/>
+    <property name="ECLIPSE_HOME" value="../../../egyetem/eclipse"/>
+    <property name="Base.location" value="../Base"/>
+    <property name="CoedVersioning.location" value="../CoedVersioning"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="Base.classpath">
+        <pathelement location="${Base.location}/bin"/>
+    </path>
+    <path id="CoedVersioning.classpath">
+        <pathelement location="${CoedVersioning.location}/bin"/>
+        <path refid="Base.classpath"/>
+    </path>
+    <path id="CoedCollaboration.classpath">
+        <path refid="Base.classpath"/>
+        <path refid="CoedVersioning.classpath"/>
+        <pathelement location="bin"/>
+        <pathelement location="lib/log4j-1.2.15.jar"/>
+        <pathelement location="lib/mina-core-1.1.7.jar"/>
+        <pathelement location="lib/mina-filter-ssl-1.1.7.jar"/>
+        <pathelement location="lib/slf4j-api-1.5.8.jar"/>
+        <pathelement location="lib/slf4j-log4j12-1.5.8.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="${Base.location}/build.xml" dir="${Base.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${CoedVersioning.location}/build.xml" dir="${CoedVersioning.location}" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="${Base.location}/build.xml" dir="${Base.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${CoedVersioning.location}/build.xml" dir="${CoedVersioning.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="CoedCollaboration.classpath"/>
+        </javac>
+    </target>
+	<target depends="init" name="add-jar-to-plugin">
+	        <echo message="${ant.project.name}: ${ant.file}"/>
+	        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+	            <src path="src"/>
+	            <classpath refid="CoedCollaboration.classpath"/>
+	        </javac>
+	    	<jar destfile="${CoedPlugin.location}\lib\coed.collaborator.jar" basedir="bin">
+	    					<manifest>
+	    	  					<attribute name="Main-Class" value="main.Main" />
+	    	  				</manifest>
+	    	</jar>
+	    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="${CoedPlugin.location}/build.xml" dir="${CoedPlugin.location}" inheritAll="false" target="clean"/>
+        <ant antfile="${CoedPlugin.location}/build.xml" dir="${CoedPlugin.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+</project>
