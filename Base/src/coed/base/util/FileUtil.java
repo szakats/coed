@@ -3,7 +3,6 @@ package coed.base.util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,8 +44,8 @@ public class FileUtil {
 
 	/**
 	 * Read a serialized object from a file
-	 * @param filename the file to write from
-	 * @return
+	 * @param filename the file to read from
+	 * @return the object read from the file or null if an error occurred
 	 */
 	public static Object readObjectFromFile(String filename) {
 		//deserialize the the file
