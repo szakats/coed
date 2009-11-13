@@ -1,23 +1,16 @@
 package coed.collab.client;
 
-import coed.versioning.client.NullVersioner;
 import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedVersioner;
+import coed.base.data.exceptions.InvalidConfigFileException;
+import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.config.Config;
+import coed.versioning.client.NullVersioner;
 
 public class CoedCommunicatorFactory {
 	
-	class UnknownTypeException extends Exception
-	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		UnknownTypeException() {}
-	}
-	
-	public ICoedCommunicator create(String type, String configPath) throws UnknownTypeException
+		
+	public ICoedCommunicator create(String type, String configPath) throws UnknownVersionerTypeException, InvalidConfigFileException
 	{
 		Config conf = new Config(configPath);
 		if(type.equals(ICoedVersioner.NULL)) {
@@ -25,6 +18,6 @@ public class CoedCommunicatorFactory {
 		} else if(type.equals(ICoedVersioner.GIT)) {
 			//return new Communicator(new GitVersioner(), new Collaborator());
 		}
-		throw new UnknownTypeException();
+		throw new UnknownVersionerTypeException();
 	}
 }

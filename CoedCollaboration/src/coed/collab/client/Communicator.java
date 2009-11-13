@@ -14,13 +14,13 @@ public class Communicator implements ICoedCommunicator {
 
 	private ICoedVersioner v;  // versioner
 	private ICoedCollaborator c; // collaborator
-	//private ICoedConfig conf; //configurator, containing information regarding user account 
+	private ICoedConfig conf; //configurator, containing information regarding user account 
 	
 	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
 	{
 		this.v = versioner;
 		this.c = collaborator;
-		//this.conf = config;
+		this.conf = config;
 	}
 	
 	@Override
@@ -58,12 +58,6 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public CoedFile getFileInfo() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public CoedProject getProjectInfo(String name) {
 		// TODO Auto-generated method stub
 		return null;
@@ -91,12 +85,6 @@ public class Communicator implements ICoedCommunicator {
 	public CoedFileLine[] getChanges(CoedFile file) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public boolean listenToChanges(CoedFile file, IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override
@@ -138,6 +126,19 @@ public class Communicator implements ICoedCommunicator {
 	public CoedFile getFileInfo(CoedFile file) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean addFileChangeListener(CoedFile file,
+			IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void removeChangeListener(IFileObserver fileObserver) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

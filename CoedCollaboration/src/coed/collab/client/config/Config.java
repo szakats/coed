@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import coed.base.data.exceptions.InvalidConfigFileException;
+
 
 public class Config implements ICoedConfig {
 	
@@ -12,7 +14,7 @@ public class Config implements ICoedConfig {
 	 */
 	Map<String, String> settings = new HashMap<String, String>(); 
 	
-	public Config(String path) { 
+	public Config(String path) throws InvalidConfigFileException { 
 		try { 
 
 			   FileReader fr = new FileReader(path);
@@ -32,7 +34,7 @@ public class Config implements ICoedConfig {
 		    	   }
 		       } 
 		 } catch (IOException e) { 
-		       e.printStackTrace();
+		       throw new InvalidConfigFileException();
 		 }
 
 	}
