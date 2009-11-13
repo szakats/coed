@@ -40,7 +40,19 @@ public interface ICoedCollaborator {
 	    * @param fileObserver
 	    * @return
 	    */
-	   public boolean listenToChanges(CoedFile file, IFileObserver fileObserver);
+	   public boolean addFileChangeListener(CoedFile file, IFileObserver fileObserver);
+	   
+	   /**
+	    * TODO: Description
+	    * @param fileObserver
+	    */
+	   public void addChangeListener(IFileObserver fileObserver);
+	   
+	   /**
+	    * TODO: Description
+	    * @param fileObserver
+	    */
+	   public void removeChangeListener(IFileObserver fileObserver); 
 
 	   /**
 	    * TODO: Description
