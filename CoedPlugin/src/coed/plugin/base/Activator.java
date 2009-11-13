@@ -1,5 +1,7 @@
 package coed.plugin.base;
 
+import org.eclipse.ui.IPageListener;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
