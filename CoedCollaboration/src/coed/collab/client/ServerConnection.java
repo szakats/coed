@@ -28,7 +28,9 @@ public class ServerConnection extends IoHandlerAdapter {
 	
 	private synchronized void setConnected(boolean connected) {
 		this.connected = connected;
-		connWorker.notify();
+		synchronized(connWorker) {
+			connWorker.notify();
+		}
 	}
 	
 	class ConnectionWorker extends Thread {
@@ -63,10 +65,12 @@ public class ServerConnection extends IoHandlerAdapter {
 						continue;
 					}
 	        	} else {
+	        		System.out.println("connected");
 	        		io = future.getSession();
 	        		setConnected(true);
 	        	}
 	        }
+	        System.out.println("conn thread shutting down");
 		}
 	}
 	
@@ -99,6 +103,8 @@ public class ServerConnection extends IoHandlerAdapter {
     
     public void shutdown() {
     	shuttingDown = true;
-    	connWorker.notify();
+    	synchronized(connWorker) {
+    		connWorker.notify();
+    	}
     }
 }

@@ -49,18 +49,6 @@ public class StaticVersioner implements ICoedVersioner {
 	}
 
 	@Override
-	public String getProjectList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getState() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getType() {
 		// TODO Auto-generated method stub
 		return null;
