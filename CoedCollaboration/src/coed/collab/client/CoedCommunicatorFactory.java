@@ -15,9 +15,10 @@ public class CoedCommunicatorFactory {
 		Config conf = new Config(configPath);
 		String type = conf.getString("versioner.type");
 		
-		if(type.equals(ICoedVersioner.NULL)) {
+		//must check for null, because even if the config file exists, it may be corrupt/incomplete
+		if(type!=null && type.equals(ICoedVersioner.NULL)) {
 			return new Communicator(new NullVersioner(), new CollaboratorClient(conf), conf);
-		} else if(type.equals(ICoedVersioner.GIT)) {
+		} else if(type!=null && type.equals(ICoedVersioner.GIT)) {
 			//return new Communicator(new GitVersioner(), new Collaborator());
 		}
 		throw new UnknownVersionerTypeException();
