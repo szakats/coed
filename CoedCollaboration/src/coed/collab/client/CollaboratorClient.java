@@ -3,6 +3,7 @@ package coed.collab.client;
 import java.net.InetSocketAddress;
 
 import org.apache.mina.common.ConnectFuture;
+import org.apache.mina.common.IoSession;
 import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 
@@ -19,26 +20,25 @@ public class CollaboratorClient implements ICoedCollaborator {
 	private int port;
 	
 	public CollaboratorClient(ICoedConfig conf) {
+	
+		//host = conf.getString("server.host");
+		//port = conf.getInt("server.port");
 		
 		SocketConnector connector = new SocketConnector();
-	
-		host = conf.getString("server.host");
-		port = conf.getInt("server.port");
 		SocketConnectorConfig config = new SocketConnectorConfig();
+		ClientProtocolHandler handler = new ClientProtocolHandler();
 		
 		host = "localhost";
 		port = 1234;
-		
-		ClientProtocolHandler handler = new ClientProtocolHandler();
 	
-		ConnectFuture future1 = connector.connect(new InetSocketAddress(host, port), handler, config);
-        future1.join();
-        if (!future1.isConnected()) {
-        	System.out.println("failed to connect");
-            //return false;
-        }
-        //session = future1.getSession();
-       // session.write("LOGIN " + name);
+		ConnectFuture future = connector.connect(new InetSocketAddress(host, port), handler, config);
+		future.join();
+		if (!future.isConnected()) {
+			System.out.println("failed to connect");
+			return;
+		}
+		IoSession session = future.getSession();
+		session.write(new SendChangesMsg(null, null));
 	}
 
 	@Override
