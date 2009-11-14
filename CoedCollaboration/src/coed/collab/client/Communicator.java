@@ -35,74 +35,62 @@ public class Communicator implements ICoedCommunicator {
 
 	@Override
 	public boolean checkoutProject(CoedProject project) {
-		// TODO Auto-generated method stub
-		return false;
+		return v.checkoutProject(project);
 	}
 
 	@Override
 	public boolean commitFile(CoedFile file) {
-		// TODO Auto-generated method stub
-		return false;
+		return v.commitFile(file);
 	}
 
 	@Override
 	public boolean commitFiles(CoedFile[] files) {
-		// TODO Auto-generated method stub
-		return false;
+		return v.commitFiles(files);
 	}
 
 	@Override
 	public boolean commitProject(CoedProject project) {
-		// TODO Auto-generated method stub
-		return false;
+		return v.commitProject(project);
 	}
 
 	@Override
 	public CoedProject getProjectInfo(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.getProjectInfo(name);
 	}
 
 	@Override
 	public String getProjectList() {
-		// TODO Auto-generated method stub
-		return null;
+		return v.getProjectList();
 	}
 
 	@Override
 	public String getState() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String[] getActiveUsers(CoedFile file) {
-		// TODO Auto-generated method stub
-		return null;
+		return c.getActiveUsers(file);
 	}
 
 	@Override
 	public CoedFileLine[] getChanges(CoedFile file) {
-		// TODO Auto-generated method stub
-		return null;
+		return c.getChanges(file);
 	}
 
 	@Override
 	public boolean releaseLock(CoedFileLock lock) {
-		// TODO Auto-generated method stub
-		return false;
+		return c.releaseLock(lock);
 	}
 
 	@Override
 	public boolean requestLock(CoedFileLock lock) {
-		// TODO Auto-generated method stub
-		return false;
+		return c.requestLock(lock);
 	}
 
 	@Override
 	public boolean sendChanges(CoedFile file, CoedFileLine line) {
-		// TODO Auto-generated method stub
-		return false;
+		return c.sendChanges(file, line);
 	}
 
 	@Override
@@ -124,8 +112,7 @@ public class Communicator implements ICoedCommunicator {
 
 	@Override
 	public CoedFile getFileInfo(CoedFile file) {
-		// TODO Auto-generated method stub
-		return null;
+		return v.getFileInfo(file);
 	}
 
 	@Override
