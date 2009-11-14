@@ -14,7 +14,13 @@ public class Communicator implements ICoedCommunicator {
 
 	private ICoedVersioner v;  // versioner
 	private ICoedCollaborator c; // collaborator
-	private ICoedConfig conf; //configurator, containing information regarding user account 
+	private ICoedConfig conf; //configurator, containing information regarding user account
+	
+	/**
+	 * the path relative to which the other paths are given
+	 * eg. the project path
+	 */
+	private String basePath; 
 	
 	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
 	{
@@ -126,6 +132,10 @@ public class Communicator implements ICoedCommunicator {
 	public void removeChangeListener(IFileObserver fileObserver) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public void setBasePath(String path){
+		this.basePath = path;
 	}
 	
 }
