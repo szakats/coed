@@ -3,7 +3,10 @@ package coed.collab.client;
 import java.net.InetSocketAddress;
 
 import org.apache.mina.common.ConnectFuture;
+import org.apache.mina.common.DefaultIoFilterChainBuilder;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.filter.codec.ProtocolCodecFilter;
+import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 
@@ -27,6 +30,10 @@ public class CollaboratorClient implements ICoedCollaborator {
 		SocketConnector connector = new SocketConnector();
 		SocketConnectorConfig config = new SocketConnectorConfig();
 		ClientProtocolHandler handler = new ClientProtocolHandler();
+		
+		DefaultIoFilterChainBuilder chain = config.getFilterChain();
+        chain.addLast("codec", new ProtocolCodecFilter(
+                new ObjectSerializationCodecFactory()));
 		
 		host = "localhost";
 		port = 1234;
