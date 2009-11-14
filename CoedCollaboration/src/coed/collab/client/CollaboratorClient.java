@@ -67,7 +67,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	@Override
 	public boolean sendChanges(CoedFile file, CoedFileLine line) throws NotConnectedToServerException {
 		ensureConnected();
-		new SendChangesMsg(file, line); // TODO: send it
+		conn.send(new SendChangesMsg(file, line));
 		return false;
 	}
 
@@ -99,7 +99,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 	@Override
 	public void removeStateListener(ICollabStateObserver stateObserver) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

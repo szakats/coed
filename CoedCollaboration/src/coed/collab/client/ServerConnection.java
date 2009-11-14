@@ -1,6 +1,7 @@
 package coed.collab.client;
 
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
 
 import org.apache.mina.common.ConnectFuture;
 import org.apache.mina.common.DefaultIoFilterChainBuilder;
@@ -21,6 +22,12 @@ public class ServerConnection extends IoHandlerAdapter {
 	private boolean connected;
 	ConnectionWorker connWorker;
 	private boolean shuttingDown;
+	
+	interface ReceiveListener {
+		void update(CoedMessage msg);
+	}
+	
+	LinkedList<ReceiveListener> receiveListeners = new LinkedList<ReceiveListener>();
 	
 	public synchronized boolean isConnected() {
 		return connected;
@@ -88,7 +95,9 @@ public class ServerConnection extends IoHandlerAdapter {
     }
 
     public void messageReceived(IoSession session, Object message) {
-    
+    	CoedMessage msg = (CoedMessage)message;
+    	for(ReceiveListener listener : receiveListeners)
+    		listener.update(msg);
     }
     
     public void sessionClosed(IoSession session) {
@@ -106,5 +115,50 @@ public class ServerConnection extends IoHandlerAdapter {
     	synchronized(connWorker) {
     		connWorker.notify();
     	}
+    }
+    
+    public void addReceiveListener(ReceiveListener listener) {
+    	receiveListeners.add(listener);
+    }
+    
+    public void removeReceiveListener(ReceiveListener listener) {
+    	receiveListeners.remove(listener);
+    }
+    
+    public CoedMessage sendAndwait(CoedMessage msg, String waitForMsgName, long timeoutMS) throws ClassNotFoundException {
+    	send(msg);
+    	
+    	Class msgClass = Class.forName(waitForMsgName);
+    	Object receiveEvent = new Object();
+    	
+    	class WaitReceiveListener implements ReceiveListener {
+    		public CoedMessage ret;
+    		public Class msgClass;
+    		public Object receiveEvent;
+    		
+    		public void update(CoedMessage msg) {
+    			if(msgClass.isInstance(msg)) {
+    				ret = msg;
+    				synchronized(receiveEvent) {
+    					receiveEvent.notify();
+    				}
+    			}
+    		}
+    	}
+    	
+    	WaitReceiveListener listener = new WaitReceiveListener();
+    	listener.msgClass = msgClass;
+    	listener.receiveEvent = receiveEvent;
+    	
+    	addReceiveListener(listener);
+    	synchronized(receiveEvent) {
+    		try {
+				receiveEvent.wait(timeoutMS);
+			} catch (InterruptedException e) {
+			}
+    	}
+    	removeReceiveListener(listener);
+    	
+    	return listener.ret;
     }
 }
