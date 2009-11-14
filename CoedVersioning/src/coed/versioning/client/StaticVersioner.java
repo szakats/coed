@@ -67,7 +67,7 @@ public class StaticVersioner implements ICoedVersioner {
 	}
 
 	@Override
-	public CoedFile getFileInfo(CoedFile file) {
+	public CoedFile getFileInfo(String file) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -26,7 +26,7 @@ public interface ICoedVersioner {
    public boolean checkoutProject(CoedProject project);
    public boolean commitProject(CoedProject project);
 
-   public CoedFile getFileInfo(CoedFile file);
+   public CoedFile getFileInfo(String fileName);
    public boolean checkoutFile(CoedFile file);
    public boolean checkoutFiles(CoedFile[] files);
    public boolean commitFile(CoedFile file);
