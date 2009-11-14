@@ -169,5 +169,15 @@ public class Communicator implements ICoedCommunicator {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void goOffline() {
+		c.goOffline();
+	}
+
+	@Override
+	public void goOnline() {
+		c.goOnline();
+	}
 	
 }

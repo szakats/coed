@@ -10,6 +10,7 @@ public class ClientMain {
 	public static void main(String[] args) {
 		CollaboratorClient collab;
 		collab = new CollaboratorClient(null);
+		collab.goOnline();
 	}
 
 }

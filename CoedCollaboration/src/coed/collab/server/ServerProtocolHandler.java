@@ -40,6 +40,10 @@ public class ServerProtocolHandler extends IoHandlerAdapter {
     }
     
     public void sessionClosed(IoSession session) throws Exception {
-    	
+    	System.out.println("session closed");
+    }
+    
+    public void sessionCreated(IoSession session) throws Exception {
+    	System.out.println("session created");
     }
 }

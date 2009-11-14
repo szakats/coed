@@ -1,15 +1,5 @@
 package coed.collab.client;
 
-import java.net.InetSocketAddress;
-
-import org.apache.mina.common.ConnectFuture;
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
-import org.apache.mina.transport.socket.nio.SocketConnector;
-import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
-
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICollabStateObserver;
 import coed.base.data.CoedFile;
@@ -21,33 +11,18 @@ import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.SendChangesMsg;
 
 public class CollaboratorClient implements ICoedCollaborator {
-	private String host;
-	private int port;
 	
+	private ServerConnection conn;
+	private boolean isWorkingOnline;
+	
+	String host;
+	int port;
+
 	public CollaboratorClient(ICoedConfig conf) {
-	
+		goOffline();
+		
 		//host = conf.getString("server.host");
 		//port = conf.getInt("server.port");
-		
-		SocketConnector connector = new SocketConnector();
-		SocketConnectorConfig config = new SocketConnectorConfig();
-		ClientProtocolHandler handler = new ClientProtocolHandler();
-		
-		DefaultIoFilterChainBuilder chain = config.getFilterChain();
-        chain.addLast("codec", new ProtocolCodecFilter(
-                new ObjectSerializationCodecFactory()));
-		
-		host = "localhost";
-		port = 1234;
-	
-		ConnectFuture future = connector.connect(new InetSocketAddress(host, port), handler, config);
-		future.join();
-		if (!future.isConnected()) {
-			System.out.println("failed to connect");
-			return;
-		}
-		IoSession session = future.getSession();
-		session.write(new SendChangesMsg(null, null));
 	}
 	
 	public void ensureConnected() throws NotConnectedToServerException {
@@ -71,8 +46,8 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	@Override
 	public String getState() {
-		// TODO Auto-generated method stub
-		return null;
+		if(!isWorkingOnline) return STATUS_OFFLINE;
+		return conn.isConnected() ? STATUS_CONNECTED : STATUS_ERROR;
 	}
 
 	@Override
@@ -125,6 +100,29 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public void removeStateListener(ICollabStateObserver stateObserver) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void goOffline() {
+		isWorkingOnline = false;
+
+		if(conn != null) {
+			conn.shutdown();
+			conn = null;
+		}
+	}
+
+	@Override
+	public void goOnline() {
+		isWorkingOnline = true;
+		conn = new ServerConnection("localhost", 1234);
+		
+		/*try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		
+		conn.send(new SendChangesMsg(null, null));*/
 	}
 
 }

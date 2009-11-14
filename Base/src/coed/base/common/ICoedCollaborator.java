@@ -3,6 +3,7 @@ package coed.base.common;
 import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
+import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 
@@ -58,7 +59,7 @@ public interface ICoedCollaborator {
 	    * @param fileObserver
 	    */
 	   public void removeChangeListener(IFileObserver fileObserver); 
-
+;
 	   /**
 	    * TODO: Description
 	    * @param lock
@@ -75,7 +76,25 @@ public interface ICoedCollaborator {
 	   public boolean releaseLock(CoedFileLock lock)
 	   		throws NotConnectedToServerException;
 	   
+	   /**
+	    * 
+	    * @param stateObserver
+	    */
 	   public void addStateListener(ICollabStateObserver stateObserver);
 	   
+	   /**
+	    * 
+	    * @param stateObserver
+	    */
 	   public void removeStateListener(ICollabStateObserver stateObserver);
+	   
+	   /**
+		*
+	    */
+	   public void goOnline();
+	   
+	   /**
+	    * 
+	    */
+	   public void goOffline();
 }
