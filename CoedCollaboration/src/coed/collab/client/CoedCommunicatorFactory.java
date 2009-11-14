@@ -6,6 +6,7 @@ import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.config.Config;
 import coed.versioning.client.NullVersioner;
+import coed.versioning.client.StaticVersioner;
 
 public class CoedCommunicatorFactory {
 	
@@ -22,8 +23,8 @@ public class CoedCommunicatorFactory {
 		String type = conf.getString("versioner.type");
 		
 		//must check for null, because even if the config file exists, it may be corrupt/incomplete
-		if(type!=null && type.equals(ICoedVersioner.NULL)) {
-			return new Communicator(new NullVersioner(), new CollaboratorClient(conf), conf);
+		if(type!=null && type.equals(ICoedVersioner.STATIC)) {
+			return new Communicator(new StaticVersioner(), new CollaboratorClient(conf), conf);
 		} else if(type!=null && type.equals(ICoedVersioner.GIT)) {
 			//return new Communicator(new GitVersioner(), new Collaborator());
 		}

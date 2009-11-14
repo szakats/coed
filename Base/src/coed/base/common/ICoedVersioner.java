@@ -10,7 +10,7 @@ import coed.base.data.CoedProject;
  */
 public interface ICoedVersioner {
 	
-	public final static String NULL = "null";
+	public final static String STATIC = "static";
 	public final static String GIT = "git";
 	
    
@@ -18,10 +18,8 @@ public interface ICoedVersioner {
 	* TODO: javadoc
 	* @return
    */
-   public String getState();
    public String getType();
 
-   public String getProjectList();
    public CoedProject getProjectInfo(String name);
    public boolean checkoutProject(CoedProject project);
    public boolean commitProject(CoedProject project);

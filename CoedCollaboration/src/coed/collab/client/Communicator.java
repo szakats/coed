@@ -67,8 +67,8 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public String getProjectList() {
-		return v.getProjectList();
+	public String[] getProjectList() {
+		return null;
 	}
 
 	@Override

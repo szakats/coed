@@ -14,4 +14,5 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	public String getVersionerType();
 	
 	public CoedProject createProject(String name);
+	public String[] getProjectList();
 }

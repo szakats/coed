@@ -1,6 +1,7 @@
 package coed.base.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * TODO: javadoc
@@ -11,13 +12,27 @@ public class CoedProject implements Serializable {
    
    private String name;
    private String[] collaborators;
-   private CoedFile[] files;
+   private ArrayList<CoedFile> files; 
    
    public CoedProject(String name){
 	   this.name=name;
 	   this.collaborators=null;
+	   this.files = new ArrayList<CoedFile>();
    }
    
+   public boolean addFile(CoedFile file){
+	   boolean res = true;
+	   if ( files.contains(file) )
+		   res = false;
+	   else
+		   this.files.add(file);
+	   return res;
+   }
+   
+   public void removeFile(CoedFile file){
+	   if (files.contains(file))
+		   files.remove(file);
+   }
    public CoedProject(String name, String[] collaborators){
 	   this.name=name;
 	   this.collaborators=collaborators;
@@ -40,11 +55,12 @@ public class CoedProject implements Serializable {
    }
    
    public CoedFile[] getFiles(){
-	   return files;
+	   return (CoedFile[])files.toArray();
    }
    
    public void setFiles(CoedFile[] files){
-	   this.files=files;
+	   for (int i=0; i<files.length; i++)
+		   this.files.add(files[i]);
    }
    
    public boolean equals(Object proj){
