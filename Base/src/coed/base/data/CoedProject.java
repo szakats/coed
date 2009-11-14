@@ -46,4 +46,8 @@ public class CoedProject implements Serializable {
    public void setFiles(CoedFile[] files){
 	   this.files=files;
    }
+   
+   public boolean equals(Object proj){
+	   return this.name.equals(proj);
+   }
 }

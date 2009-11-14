@@ -7,5 +7,16 @@ package coed.base.data.exceptions;
  *
  */
 public class NoCoedFileFoundException extends NoCoedMatchFoundException {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public NoCoedFileFoundException(){}
+	
+	public NoCoedFileFoundException(String msg){
+		super(msg);
+	}
 
 }

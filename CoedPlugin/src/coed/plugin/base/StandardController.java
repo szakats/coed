@@ -15,6 +15,7 @@ import coed.base.data.CoedFileLine;
 import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.InvalidConfigFileException;
+import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.CoedCommunicatorFactory;
 import coed.plugin.views.IFileTree;
@@ -32,7 +33,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
 		try {
-			this.communicator = new CoedCommunicatorFactory().create(ICoedVersioner.NULL, "");
+			this.communicator = new CoedCommunicatorFactory().create("");
 		} catch (UnknownVersionerTypeException e) {
 			// TODO Auto-generated catch block
 			this.communicator=null;
@@ -126,7 +127,13 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public String[] getCollabUsers(CoedFile file) {
-		return communicator.getActiveUsers(file);
+		try {
+			return communicator.getActiveUsers(file);
+		} catch(NotConnectedToServerException e) {
+			// TODO: handle this
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	@Override
@@ -210,7 +217,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 	
 	private void showChanges(CoedFile file, IDocument doc) throws BadLocationException {
-		CoedFileLine[] lines = communicator.getChanges(file);
+		CoedFileLine[] lines;
+		try {
+			lines = communicator.getChanges(file);
+		} catch(NotConnectedToServerException e) {
+			e.printStackTrace();
+			// TODO: handle this
+			return;
+		}
+		
 		if (lines.length > 0) {
 			for (int i = 0; i < lines.length; i++) {
 				String[] text = lines[i].getText();

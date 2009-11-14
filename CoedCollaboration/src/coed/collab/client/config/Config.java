@@ -50,9 +50,4 @@ public class Config implements ICoedConfig {
 	public double getDouble(String key) {
 		return new Double(settings.get(key));
 	}
-	
-	/*public static void main (String args[]){
-		Config c = new Config("D:\\University\\III YEAR\\1st Semester\\SE\\CoED\\coed\\CoedCollaboration\\src\\coed\\collab\\client\\config\\myfile.txt");
-		System.out.println(c.getString("host"));
-	}*/
 }

@@ -10,9 +10,11 @@ import coed.versioning.client.NullVersioner;
 public class CoedCommunicatorFactory {
 	
 		
-	public ICoedCommunicator create(String type, String configPath) throws UnknownVersionerTypeException, InvalidConfigFileException
+	public ICoedCommunicator create(String configPath) throws UnknownVersionerTypeException, InvalidConfigFileException
 	{
 		Config conf = new Config(configPath);
+		String type = conf.getString("versioner.type");
+		
 		if(type.equals(ICoedVersioner.NULL)) {
 			return new Communicator(new NullVersioner(), new CollaboratorClient(conf), conf);
 		} else if(type.equals(ICoedVersioner.GIT)) {
