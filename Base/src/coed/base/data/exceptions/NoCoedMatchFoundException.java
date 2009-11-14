@@ -9,5 +9,16 @@ import java.io.IOException;
  *
  */
 public class NoCoedMatchFoundException extends IOException {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public NoCoedMatchFoundException(){}
+	
+	public NoCoedMatchFoundException(String msg){
+		super(msg);
+	}
 
 }
