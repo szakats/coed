@@ -3,11 +3,13 @@ package coed.collab.client;
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedVersioner;
+import coed.base.common.ICollabStateObserver;
 import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
+import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {
@@ -75,27 +77,27 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public String[] getActiveUsers(CoedFile file) {
+	public String[] getActiveUsers(CoedFile file) throws NotConnectedToServerException {
 		return c.getActiveUsers(file);
 	}
 
 	@Override
-	public CoedFileLine[] getChanges(CoedFile file) {
+	public CoedFileLine[] getChanges(CoedFile file) throws NotConnectedToServerException {
 		return c.getChanges(file);
 	}
 
 	@Override
-	public boolean releaseLock(CoedFileLock lock) {
+	public boolean releaseLock(CoedFileLock lock) throws NotConnectedToServerException {
 		return c.releaseLock(lock);
 	}
 
 	@Override
-	public boolean requestLock(CoedFileLock lock) {
+	public boolean requestLock(CoedFileLock lock) throws NotConnectedToServerException {
 		return c.requestLock(lock);
 	}
 
 	@Override
-	public boolean sendChanges(CoedFile file, CoedFileLine line) {
+	public boolean sendChanges(CoedFile file, CoedFileLine line) throws NotConnectedToServerException {
 		return c.sendChanges(file, line);
 	}
 
@@ -136,6 +138,18 @@ public class Communicator implements ICoedCommunicator {
 	
 	public void setBasePath(String path){
 		this.basePath = path;
+	}
+
+	@Override
+	public void addStateListener(ICollabStateObserver stateObserver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeStateListener(ICollabStateObserver stateObserver) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
