@@ -119,7 +119,7 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public CoedFile getFileInfo(CoedFile file) {
+	public CoedFile getFileInfo(String file) {
 		return v.getFileInfo(file);
 	}
 
@@ -148,6 +148,24 @@ public class Communicator implements ICoedCommunicator {
 
 	@Override
 	public void removeStateListener(ICollabStateObserver stateObserver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public CoedProject createProject(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CoedFile addFileToProject(String fileName, CoedProject project) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeFileFromProject(CoedFile file) {
 		// TODO Auto-generated method stub
 		
 	}
