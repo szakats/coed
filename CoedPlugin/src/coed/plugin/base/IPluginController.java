@@ -100,7 +100,7 @@ public interface IPluginController {
 	 * @param project
 	 * @return
 	 */
-	public CoedProject requestInfo(CoedProject project);
+	public CoedProject requestInfo(String project);
 	
 	/**
 	 * Lists all users on the coed server

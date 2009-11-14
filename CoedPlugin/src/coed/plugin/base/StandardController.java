@@ -131,13 +131,12 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public CoedFile requestInfo(CoedFile file) {
-		return null;
+		return communicator.getFileInfo(file);
 	}
 
 	@Override
-	public CoedProject requestInfo(CoedProject project) {
-		// TODO Auto-generated method stub
-		return null;
+	public CoedProject requestInfo(String project) {
+		return communicator.getProjectInfo(project);
 	}
 
 	@Override
