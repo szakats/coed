@@ -4,12 +4,13 @@ import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.IFileObserver;
+import coed.base.data.exceptions.NotConnectedToServerException;
 
 public interface ICoedCollaborator {
-	public final String STATUS_CONNECTED="Working online";
+       public final String STATUS_CONNECTED="Working online";
 	   public final String STATUS_ERROR="Could not connect to server";
 	   public final String STATUS_OFFLINE="Working offline";
-
+	   
 	   public String getState();
 	   
 	   /**
@@ -18,21 +19,24 @@ public interface ICoedCollaborator {
 	    * @param line
 	    * @return
 	    */
-	   public boolean sendChanges(CoedFile file, CoedFileLine line);
+	   public boolean sendChanges(CoedFile file, CoedFileLine line)
+	   		throws NotConnectedToServerException;
 	   
 	   /**
 	    * TODO: Description
 	    * @param file
 	    * @return
 	    */
-	   public CoedFileLine[] getChanges(CoedFile file);
+	   public CoedFileLine[] getChanges(CoedFile file)
+	   		throws NotConnectedToServerException;
 	   
 	   /**
 	    * TODO: Description
 	    * @param file
 	    * @return
 	    */
-	   public String[] getActiveUsers(CoedFile file);
+	   public String[] getActiveUsers(CoedFile file)
+	   		throws NotConnectedToServerException;
 	   
 	   /**
 	    * TODO: Description
@@ -40,7 +44,8 @@ public interface ICoedCollaborator {
 	    * @param fileObserver
 	    * @return
 	    */
-	   public boolean addFileChangeListener(CoedFile file, IFileObserver fileObserver);
+	   public boolean addFileChangeListener(CoedFile file, IFileObserver fileObserver)
+	   		throws NotConnectedToServerException;
 	   
 	   /**
 	    * TODO: Description
@@ -59,12 +64,18 @@ public interface ICoedCollaborator {
 	    * @param lock
 	    * @return
 	    */
-	   public boolean requestLock(CoedFileLock lock);
+	   public boolean requestLock(CoedFileLock lock)
+	   		throws NotConnectedToServerException;
 	   
 	   /**
 	    * TODO: Description
 	    * @param lock
 	    * @return
 	    */
-	   public boolean releaseLock(CoedFileLock lock);
+	   public boolean releaseLock(CoedFileLock lock)
+	   		throws NotConnectedToServerException;
+	   
+	   public void addStateListener(ICollabStateObserver stateObserver);
+	   
+	   public void removeStateListener(ICollabStateObserver stateObserver);
 }
