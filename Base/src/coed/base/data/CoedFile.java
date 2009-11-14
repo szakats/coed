@@ -17,50 +17,22 @@ public class CoedFile implements Serializable {
     /**
      * Project of the file (its name)
      */
-    private String project;
-    
-    /**
-     * Current version of the file
-     */
-    private String version;
-    
-    /**
-     * All existing vwersions of the file
-     */
-    private String[] allVersions;
+    private CoedProject project;
     
     //CONSTRUCTORS----------------------------------------
     
-    public CoedFile(String project, String path, String version, String[] allVersions){
+    public CoedFile(CoedProject project, String path){
     	this.project=project;
     	this.path=path;
-    	this.version=version;
-    	this.allVersions=allVersions;
-    }
-    
-    public CoedFile(String project, String path, String version){
-    	this(project,path,version,null);
-    }
-    
-    public CoedFile(String project, String path){
-    	this(project,path,null,null);
     }
     
     //INSTANCE METHODS-------------------------------------
    
-    public String getProject() { 
+    public CoedProject getProject() { 
     	return this.project;
     }
     
     public String getPath() {
     	return this.path;
     }
-    public String getVersion() {
-    	return this.version;
-    }
-    
-    public String[] getAllVersions() {
-    	return this.allVersions;
-    }
-
 }

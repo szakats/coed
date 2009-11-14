@@ -119,7 +119,7 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public CoedFile getFileInfo(CoedFile file) {
+	public CoedFile getFileInfo(String file) {
 		return v.getFileInfo(file);
 	}
 
