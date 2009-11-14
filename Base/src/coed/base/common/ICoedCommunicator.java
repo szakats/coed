@@ -1,6 +1,7 @@
 package coed.base.common;
 
 import coed.base.data.CoedFile;
+import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
 
 /**
@@ -12,4 +13,5 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	
 	public String getVersionerType();
 	
+	public CoedProject createProject(String name);
 }
