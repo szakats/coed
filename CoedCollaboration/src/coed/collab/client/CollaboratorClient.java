@@ -3,10 +3,10 @@ package coed.collab.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import coed.base.common.ICoedCollaborator;
-import coed.base.common.ICoedObject;
-import coed.base.common.ICollabObject;
-import coed.base.common.ICollabStateObserver;
+import coed.base.comm.ICoedCollaborator;
+import coed.base.comm.ICollabStateObserver;
+import coed.base.data.ICoedObject;
+import coed.base.data.ICollabObject;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.CoedMessage;

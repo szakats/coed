@@ -5,10 +5,10 @@ package coed.collab.client;
 
 import java.util.LinkedList;
 
-import coed.base.common.ICoedObject;
-import coed.base.common.ICollabObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
+import coed.base.data.ICoedObject;
+import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.protocol.CoedMessage;

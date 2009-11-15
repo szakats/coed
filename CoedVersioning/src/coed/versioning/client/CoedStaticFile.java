@@ -1,7 +1,7 @@
 package coed.versioning.client;
 
-import coed.base.common.ICoedObject;
-import coed.base.common.IVersionedObject;
+import coed.base.data.ICoedObject;
+import coed.base.data.IVersionedObject;
 
 public class CoedStaticFile implements IVersionedObject {
 	private StaticVersioner ver;

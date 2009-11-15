@@ -1,7 +1,7 @@
 package coed.test.collab.client;
 
-import coed.base.common.CoedObject;
-import coed.base.common.ICollabStateObserver;
+import coed.base.comm.ICollabStateObserver;
+import coed.base.data.CoedObject;
 import coed.collab.client.CollaboratorClient;
 import coed.collab.client.ServerConnection;
 import coed.collab.protocol.SendChangesMsg;
