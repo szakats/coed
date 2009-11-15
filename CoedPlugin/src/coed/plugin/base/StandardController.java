@@ -1,7 +1,9 @@
 package coed.plugin.base;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.eclipse.core.internal.filebuffers.SynchronizableDocument;
 import org.eclipse.core.resources.IFile;
@@ -11,8 +13,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -45,6 +49,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	private IUserList userList;
 	private Thread lastUpdate;
 	private Long ignoreEvent= null;
+	private ArrayList<Annotation> annotations;
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
@@ -63,6 +68,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 		
 		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedObject>();
+		this.annotations = new ArrayList<Annotation>(); 
 		this.activeEditor = null;
 	}
 
@@ -260,7 +266,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, lastUpdate, this);
 			lastUpdate=rnbl;
-			Display.getDefault().asyncExec(rnbl);
+			Display.getDefault().asyncExec(rnbl);		
 		}
 	}
 	
@@ -309,8 +315,6 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		System.out.println("Changed "+event.fModificationStamp);
-		
 		Integer[] lines = new Integer[1];
 		try {
 			lines[0]=activeDocument.getLineOfOffset(event.fOffset);
@@ -320,25 +324,27 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		
 		if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
 			ignoreEvent=null;
-			
+			System.out.println("NOT ALLOWED: Changed "+event.fModificationStamp);
 			try {
+				Annotation ann= new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, "This is line is currently being edited by someone else");
+				annotations.add(ann);
 				activeEditor.getDocumentProvider().getAnnotationModel(activeEditor.getEditorInput()).
-							addAnnotation(
-									new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, 
-														"This is line is currently being edited by someone else"),
-									new Position(activeDocument.getLineOffset(lines[0]),activeDocument.getLineLength(lines[0]))
+							addAnnotation(ann, new Position(activeDocument.getLineOffset(lines[0]),activeDocument.getLineLength(lines[0]))
 							);
 			} catch (BadLocationException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			try {
+				activeDocument.removeDocumentListener(this);
 				event.fDocument.replace(event.fOffset, event.getText().length(), "");
+				activeDocument.addDocumentListener(this);
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else if (lines[0]!=null) {
+			System.out.println("Changed "+event.fModificationStamp);
 			String[] text = {event.fText};
 			try {
 				editors.get(activeEditor).sendChanges(new CoedFileLine(activeDocument.getLineOfOffset(event.fOffset), text, "editing"));
@@ -350,6 +356,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			/*IAnnotationModel am = activeEditor.getDocumentProvider().getAnnotationModel(activeEditor.getEditorInput());
+			Iterator<Annotation> i = annotations.iterator();
+			while (i.hasNext()) {
+				am.removeAnnotation(i.next());
+			}*/
 		}
 			
 	}

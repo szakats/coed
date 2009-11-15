@@ -38,8 +38,7 @@ public class UserListView extends ViewPart implements IUserList {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "coed.plugin.views.Users";
-
-	private Activator activator;
+	
 	private TableViewer viewer;
 	private Action action1;
 	private Action action2;

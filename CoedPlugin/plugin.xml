@@ -5,17 +5,19 @@
          point="org.eclipse.ui.views">
       <category
             id="CoedView"
-            name="Sample Category">
+            name="Coed">
       </category>
       <view
+            allowMultiple="false"
             category="CoedView"
-            class="coed.plugin.views.CoedView"
+            class="coed.plugin.views.FileTreeView"
             icon="icons/coed.png"
-            id="coededitor.views.CoedView"
-            name="Coed View">
+            id="coed.plugin.views.Files"
+            name="Live Files">
       </view>
       <view
-            category="Users"
+            allowMultiple="false"
+            category="CoedView"
             class="coed.plugin.views.UserListView"
             icon="icons/coed.png"
             id="coed.plugin.views.Users"

@@ -37,12 +37,12 @@ import coed.plugin.base.Activator;
  * <p>
  */
 
-public class CoedView extends ViewPart {
+public class FileTreeView extends ViewPart {
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "coededitor.views.CoedView";
+	public static final String ID = "coed.plugin.views.Files";
 
 	private TreeViewer viewer;
 	private DrillDownAdapter drillDownAdapter;
@@ -182,7 +182,7 @@ public class CoedView extends ViewPart {
 	/**
 	 * The constructor.
 	 */
-	public CoedView() {
+	public FileTreeView() {
 	}
 
 	/**
@@ -210,7 +210,7 @@ public class CoedView extends ViewPart {
 		menuMgr.setRemoveAllWhenShown(true);
 		menuMgr.addMenuListener(new IMenuListener() {
 			public void menuAboutToShow(IMenuManager manager) {
-				CoedView.this.fillContextMenu(manager);
+				FileTreeView.this.fillContextMenu(manager);
 			}
 		});
 		Menu menu = menuMgr.createContextMenu(viewer.getControl());
