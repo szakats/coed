@@ -1,5 +1,8 @@
 package coed.plugin.base;
 
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPageListener;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -10,13 +13,16 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin{
-
+	//image descriptiors
+	public static final String IMAGE_USER = "coed.image.user";
+	
 	// The plug-in ID
 	public static final String PLUGIN_ID = "CoedEditor";
 
 	// The shared instance
 	private static Activator plugin;
 	private static IPluginController controller;
+	private static ImageRegistry imageRegistry;
 	
 	/**
 	 * The constructor
@@ -32,7 +38,13 @@ public class Activator extends AbstractUIPlugin{
 		super.start(context);
 		plugin = this;
 		controller = new StandardController();
-		//TODO: some images will be added to the registry
+		imageRegistry = new ImageRegistry();
+		//TODO: add icons
+		/* smthg like:
+		 URL myUrl=	new URL(MyPlugin.getInstance().getDescriptor().getInstallURL(),"images/my_action.gif");
+		 ImageDescriptor id = ImageDescriptor.createFromURL(myUrl);
+		 imageRegisrty.put(name, image);....
+		 */
 	}
 
 	/*
@@ -55,5 +67,9 @@ public class Activator extends AbstractUIPlugin{
 	
 	public static IPluginController getController() {
 		return controller;
+	}
+	
+	public static ImageRegistry getMyImageRegistry(){
+		return imageRegistry;
 	}
 }
