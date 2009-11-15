@@ -1,18 +1,24 @@
 package coed.test.collab.client;
 
 import coed.base.common.CoedObject;
+import coed.base.common.ICollabStateObserver;
 import coed.collab.client.CollaboratorClient;
 import coed.collab.client.ServerConnection;
 import coed.collab.protocol.SendChangesMsg;
 import coed.versioning.client.StaticVersioner;
 
 public class ClientMain {
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		CollaboratorClient collab = new CollaboratorClient(null, "");
+	CollaboratorClient collab;
+	
+	class CollabListenerTest implements ICollabStateObserver {
+		@Override
+		public void update() {
+			System.out.println("If i heard correctly, the server is now " + collab.getState());
+		}
+	}
+	
+	public ClientMain() {
+		collab = new CollaboratorClient(null, "");
 		StaticVersioner vers = new StaticVersioner();
 		
 		CoedObject ret = new CoedObject("sadf", true);
@@ -28,6 +34,15 @@ public class ClientMain {
 		ServerConnection conn = collab.getConn();
 	
 		conn.send(new SendChangesMsg(null, null));
+		
+		collab.addStateListener(new CollabListenerTest());
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		ClientMain main = new ClientMain();
 	}
 
 }
