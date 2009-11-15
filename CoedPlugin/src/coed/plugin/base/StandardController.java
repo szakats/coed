@@ -9,10 +9,9 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.common.ICoedCommunicator;
+import coed.base.common.ICoedObject;
 import coed.base.common.ICoedVersioner;
-import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
-import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedToServerException;
@@ -24,7 +23,7 @@ import coed.plugin.views.IUserList;
 
 public class StandardController implements IPluginController, IPartListener, IFileObserver {
 	private ICoedCommunicator communicator;
-	private HashMap<AbstractDecoratedTextEditor,CoedFile> editors;
+	private HashMap<AbstractDecoratedTextEditor,ICoedObject> editors;
 	private AbstractDecoratedTextEditor activeEditor;
 	private IDocument activeDocument;
 	private IFileTree fileTree;
@@ -44,7 +43,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			e.printStackTrace();
 		}
 		
-		this.editors = new HashMap<AbstractDecoratedTextEditor, CoedFile>();
+		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedObject>();
 		this.activeEditor = null;
 	}
 
@@ -75,21 +74,22 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		if (this.userList.equals(userl)) this.userList=null;
 	}
 	
-	private CoedFile findCoedFileFor(AbstractDecoratedTextEditor texte){
+	private ICoedObject findICoedObjectFor(AbstractDecoratedTextEditor texte){
 		return null;
 	}
 	
 	private void setAsActive(AbstractDecoratedTextEditor texte){
 		activeEditor=texte;
 		activeDocument=activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput());
-		communicator.addChangeListener(this);
+		//TODO: communicator.getObject(worspace_path).addChangeListener(this);
+		//communicator.addChangeListener(this);
 		//TODO: should update based on changes
 		//TODO: need to listen for user input 
 	}
 	
 	@Override
 	public void startCollabFor(AbstractDecoratedTextEditor texte) {
-		editors.put(texte, findCoedFileFor(texte));
+		editors.put(texte, findICoedObjectFor(texte));
 		//TODO: set as active ?
 		setAsActive(texte);
 		/*DEBUG*/System.out.println("Going collab for: "+texte);
@@ -126,34 +126,18 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 
 	@Override
-	public String[] getCollabUsers(CoedFile file) {
+	public String[] getCollabUsers(ICoedObject file) {
 		try {
-			return communicator.getActiveUsers(file);
+			return file.getActiveUsers();
 		} catch(NotConnectedToServerException e) {
 			// TODO: handle this
 			e.printStackTrace();
 		}
 		return null;
 	}
-
+	
 	@Override
-	public CoedFile requestInfo(CoedFile file) {
-		return communicator.getFileInfo(file);
-	}
-
-	@Override
-	public CoedProject requestInfo(String project) {
-		return communicator.getProjectInfo(project);
-	}
-
-	@Override
-	public boolean requestVersionAction(String action, CoedFile file) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean requestVersionAction(String action, CoedProject project) {
+	public boolean requestVersionAction(String action, ICoedObject file) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -204,7 +188,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
-	public void update(CoedFile file) {
+	public void update(ICoedObject file) {
 		//TODO: real equality checking
 		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			try {
@@ -216,10 +200,10 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 	}
 	
-	private void showChanges(CoedFile file, IDocument doc) throws BadLocationException {
+	private void showChanges(ICoedObject file, IDocument doc) throws BadLocationException {
 		CoedFileLine[] lines;
 		try {
-			lines = communicator.getChanges(file);
+			lines = file.getChanges();
 		} catch(NotConnectedToServerException e) {
 			e.printStackTrace();
 			// TODO: handle this
@@ -236,6 +220,12 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			}
 		}
 
+	}
+
+	@Override
+	public boolean requestVersionAction(String action) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
