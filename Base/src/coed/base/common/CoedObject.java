@@ -45,7 +45,7 @@ public class CoedObject implements ICoedObject {
 
 	@Override
 	public void addChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
+		co.addChangeListener(fileObserver);
 		
 	}
 

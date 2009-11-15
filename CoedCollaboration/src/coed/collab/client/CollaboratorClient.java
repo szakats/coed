@@ -1,6 +1,7 @@
 package coed.collab.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedObject;
@@ -18,13 +19,19 @@ public class CollaboratorClient implements ICoedCollaborator {
 	private ServerConnection conn;
 	private int nrOnlineFiles;
 	private ArrayList<ICollabStateObserver> stateListeners;
+	/// cache for storing path-CoedObject pairs
+	private HashMap<String,ICollabObject> cache;
+	
+	private String basePath;
 	
 	String host;
 	int port;
 
-	public CollaboratorClient(ICoedConfig conf) {
+	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
 		stateListeners = new ArrayList<ICollabStateObserver>();
+		cache = new HashMap<String,ICollabObject>();
+		this.basePath = basePath;
 		//goOffline();
 		
 		//host = conf.getString("server.host");
@@ -59,11 +66,13 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	@Override
 	public ICollabObject makeCollabObject(ICoedObject obj) {
-		
-		if(obj.isFile()) {
-			return new CoedCollabFile(obj, this);
-		} else
-			return new CoedCollabFolder(obj, this);
+		if (! cache.containsKey(obj.getPath() )){
+			if(obj.isFile()) {
+				return new CoedCollabFile(obj, this);
+			} else
+				return new CoedCollabFolder(obj, this);
+		}
+		else return cache.get(obj.getPath());
 	}
 	
 	public void incNrOnline() {
@@ -82,5 +91,13 @@ public class CollaboratorClient implements ICoedCollaborator {
 				conn = null;
 			}
 		}
+	}
+	
+	public String getBasePath(){
+		return this.basePath;
+	}
+	
+	public void setBasePath(String basePath){
+		this.basePath = basePath;
 	}
 }

@@ -19,6 +19,7 @@ public class CoedCollabFile implements ICollabObject {
 	private CollaboratorClient coll;
 	private ICoedObject obj;
 	private boolean isWorkingOnline;
+	private IFileObserver fileObserver;
 	
 	public CoedCollabFile(ICoedObject obj, CollaboratorClient coll) {
 		this.obj = obj;
@@ -63,7 +64,7 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public void addChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
+		this.fileObserver = fileObserver;
 		
 	}
 
@@ -75,7 +76,7 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public void removeChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
+		this.fileObserver = null;
 		
 	}
 
