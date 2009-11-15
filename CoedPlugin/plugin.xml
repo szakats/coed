@@ -14,6 +14,13 @@
             id="coededitor.views.CoedView"
             name="Coed View">
       </view>
+      <view
+            category="Users"
+            class="coed.plugin.views.UserListView"
+            icon="icons/coed.png"
+            id="coed.plugin.views.Users"
+            name="Users">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
