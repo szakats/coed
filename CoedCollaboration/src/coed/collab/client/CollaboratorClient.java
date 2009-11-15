@@ -51,8 +51,8 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	@Override
 	public ICollabObject makeCollabObject(ICoedObject obj) {
-		boolean isFile = true; // TODO: this
-		if(isFile) {
+		
+		if(obj.isFile()) {
 			return new CoedCollabFile(obj, this);
 		} else
 			return new CoedCollabFolder(obj, this);

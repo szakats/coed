@@ -3,6 +3,8 @@
  */
 package coed.base.data;
 
+import java.io.File;
+
 import coed.base.common.ICoedObject;
 import coed.base.common.ICollabObject;
 import coed.base.common.IVersionedObject;
@@ -105,8 +107,12 @@ public class CoedObject implements ICoedObject {
 
 	@Override
 	public String getPath() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.path;
+	}
+	
+	public boolean isFile(){
+		File f = new File(path);
+		return f.isFile();
 	}
 
 }
