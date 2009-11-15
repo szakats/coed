@@ -3,6 +3,6 @@ package coed.base.common;
 
 public interface IVersionedObject {
 
-	public boolean commitFile();
-	public boolean checkoutFile();
+	public boolean commit();
+	public boolean checkout();
 }

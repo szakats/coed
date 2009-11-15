@@ -16,4 +16,12 @@ public interface ICoedVersioner {
 	* @return
    */
    public String getType();
+   
+   
+   /**
+    * 
+    * @param obj
+    * @return
+    */
+   public IVersionedObject makeVersionedObject(ICoedObject obj);
 }

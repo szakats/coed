@@ -1,42 +1,27 @@
 /**
  * 
  */
-package coed.base.data;
+package coed.collab.client;
 
 import coed.base.common.ICoedObject;
 import coed.base.common.ICollabObject;
-import coed.base.common.IVersionedObject;
+import coed.base.data.CoedFileLine;
+import coed.base.data.CoedFileLock;
+import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 
 /**
- * @author Neobi
+ * @author Neobi008
  *
  */
-public class CoedObject implements ICoedObject {
+public class CoedCollabFolder implements ICollabObject {
 	
-	private IVersionedObject vo;
-	private ICollabObject co;
-	private String path;
+	private CollaboratorClient coll;
+	private ICoedObject obj;
 	
-	public CoedObject(String path) {
-		this.path = path;
-	}
-	
-	public void init(IVersionedObject vo, ICollabObject co) {
-		this.co = co;
-		this.vo = vo;
-	}
-
-	@Override
-	public boolean checkout() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean commit() {
-		// TODO Auto-generated method stub
-		return false;
+	public CoedCollabFolder(ICoedObject obj, CollaboratorClient coll) {
+		this.obj = obj;
+		this.coll = coll;
 	}
 
 	@Override
@@ -65,6 +50,18 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
+	public void goOffline() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void goOnline() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public boolean releaseLock(CoedFileLock lock)
 			throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
@@ -90,23 +87,4 @@ public class CoedObject implements ICoedObject {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
-	@Override
-	public void goOffline() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void goOnline() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String getPath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

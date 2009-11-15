@@ -31,4 +31,11 @@ public interface ICoedCollaborator {
 	    * @param stateObserver
 	    */
 	   public void removeStateListener(ICollabStateObserver stateObserver);
+
+	   /**
+	    * 
+	    * @param obj
+	    * @return
+	    */
+	   public ICollabObject makeCollabObject(ICoedObject obj);
 }

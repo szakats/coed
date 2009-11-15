@@ -4,9 +4,12 @@ import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedObject;
 import coed.base.common.ICoedVersioner;
+import coed.base.common.ICollabObject;
 import coed.base.common.ICollabStateObserver;
+import coed.base.common.IVersionedObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
+import coed.base.data.CoedObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
@@ -76,7 +79,19 @@ public class Communicator implements ICoedCommunicator {
 	@Override
 	public ICoedObject getObject(String path) {
 		// TODO Auto-generated method stub
-		return null;
+		CoedObject ret = new CoedObject(path);
+		ret.init(makeVersionedObject(ret), makeCollabObject(ret));
+		return ret;
+	}
+
+	@Override
+	public IVersionedObject makeVersionedObject(ICoedObject obj) {
+		return v.makeVersionedObject(obj);
+	}
+
+	@Override
+	public ICollabObject makeCollabObject(ICoedObject obj) {
+		return c.makeCollabObject(obj);
 	}
 	
 }
