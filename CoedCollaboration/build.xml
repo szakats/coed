@@ -53,7 +53,7 @@
                 <propertyref name="build.compiler"/>
             </propertyset>
         </ant>
-        <ant antfile="${CoedVersioning.location}/build.xml" dir="${CoedVersioning.location}" inheritAll="false" target="build-project">
+        <ant antfile="${CoedVersioning.location}/build.xml" dir="${CoedVersioning.location}" inheritAll="false" target="add-jar-to-plugin">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
