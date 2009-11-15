@@ -3,8 +3,6 @@
  */
 package coed.base.common;
 
-import java.io.File;
-
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.IFileObserver;

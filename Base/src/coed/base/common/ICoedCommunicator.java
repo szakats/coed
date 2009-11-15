@@ -1,7 +1,5 @@
 package coed.base.common;
 
-import coed.base.data.IFileObserver;
-
 /**
  * TODO: javadoc
  * @author Izso

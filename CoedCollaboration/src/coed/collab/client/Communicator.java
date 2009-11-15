@@ -10,10 +10,6 @@ import coed.base.common.ICoedVersioner;
 import coed.base.common.ICollabObject;
 import coed.base.common.ICollabStateObserver;
 import coed.base.common.IVersionedObject;
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
-import coed.base.data.IFileObserver;
-import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {
