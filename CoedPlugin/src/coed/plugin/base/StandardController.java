@@ -1,29 +1,38 @@
 package coed.plugin.base;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.common.ICoedCommunicator;
-import coed.base.common.ICoedObject;
-import coed.base.common.ICoedVersioner;
+import coed.base.data.CoedFile;
 import coed.base.data.CoedFileLine;
+import coed.base.data.CoedProject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.CoedCommunicatorFactory;
+import coed.plugin.exceptions.GetFileInEditorException;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
 
 
-public class StandardController implements IPluginController, IPartListener, IFileObserver {
+public class StandardController implements IPluginController, IPartListener, IFileObserver, IDocumentListener {
+	private String configLocation;
 	private ICoedCommunicator communicator;
-	private HashMap<AbstractDecoratedTextEditor,ICoedObject> editors;
+	private HashMap<AbstractDecoratedTextEditor,CoedFile> editors;
 	private AbstractDecoratedTextEditor activeEditor;
 	private IDocument activeDocument;
 	private IFileTree fileTree;
@@ -31,8 +40,9 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
+		configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
 		try {
-			this.communicator = new CoedCommunicatorFactory().create("");
+			this.communicator = new CoedCommunicatorFactory().create(configLocation);
 		} catch (UnknownVersionerTypeException e) {
 			// TODO Auto-generated catch block
 			this.communicator=null;
@@ -41,9 +51,10 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			// TODO Auto-generated catch block
 			this.communicator=null;
 			e.printStackTrace();
+			MessageDialog.openError(null, "Coed Plugin - Startup exception", "The configuration file contains errors!\nEither disable this plugin, or fix the config file (workspace\\.coed\\config.ini)");
 		}
 		
-		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedObject>();
+		this.editors = new HashMap<AbstractDecoratedTextEditor, CoedFile>();
 		this.activeEditor = null;
 	}
 
@@ -74,26 +85,70 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		if (this.userList.equals(userl)) this.userList=null;
 	}
 	
-	private ICoedObject findICoedObjectFor(AbstractDecoratedTextEditor texte){
-		return null;
+	private CoedFile findCoedFileFor(AbstractDecoratedTextEditor texte) throws GetFileInEditorException{
+		IFile file =null;
+	    try {
+	    	
+	    	//ugliest hack ever.
+	    	//please find better method for getting the file in the editor.
+			Field feiField = (texte.getActiveSaveables()[0]).getClass().getDeclaredField("fEditorInput");
+			feiField.setAccessible(true);
+			FileEditorInput fileEditorInput = (FileEditorInput) feiField.get(texte.getActiveSaveables()[0]);
+			Field fileField = fileEditorInput.getClass().getDeclaredField("file");
+			fileField.setAccessible(true);
+     		file = (IFile) fileField.get(fileEditorInput);
+     		
+		} catch (SecurityException e) {
+			e.printStackTrace();
+			
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+			
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+			
+		}
+	    
+		if (communicator!=null && file!=null) {
+			return communicator.getFileInfo(file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
+		} else {
+			throw new GetFileInEditorException();
+		} 
 	}
 	
 	private void setAsActive(AbstractDecoratedTextEditor texte){
 		activeEditor=texte;
 		activeDocument=activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput());
-		//TODO: communicator.getObject(worspace_path).addChangeListener(this);
-		//communicator.addChangeListener(this);
+		activeDocument.addDocumentListener(this);
+		//DEBUG ONLY communicator.addChangeListener(this);
 		//TODO: should update based on changes
 		//TODO: need to listen for user input 
 	}
 	
 	@Override
 	public void startCollabFor(AbstractDecoratedTextEditor texte) {
-		editors.put(texte, findICoedObjectFor(texte));
-		//TODO: set as active ?
-		setAsActive(texte);
-		/*DEBUG*/System.out.println("Going collab for: "+texte);
-		texte.getSite().getPage().addPartListener(this);
+		/* DEBUG ONLY
+		if (communicator==null || communicator.getState()==ICoedCommunicator.STATUS_OFFLINE) {
+			reconnectDialog();
+			return;
+		}
+		*/
+		try {
+			editors.put(texte, findCoedFileFor(texte));
+			setAsActive(texte);
+			/*DEBUG*/System.out.println("Going collab for: "+texte);
+			texte.getSite().getPage().addPartListener(this);
+		} catch (GetFileInEditorException e) {
+			MessageDialog.openError(null, "Coed Plugin - File Error", "There had been an error when determining the location of the file you are" +
+					"currently editing.\nPlease refresh the editor, or reopen the file and try again!");
+		}
+		
 		/*texte.getDocumentProvider().
 			getAnnotationModel(activeEditor.getEditorInput()).
 			addAnnotation(new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, "xxx"), new Position(100, 200));*/
@@ -109,6 +164,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		/*DEBUG*/System.out.println("Ending collab for: "+texte);
 		
 		if (activeEditor!=null && activeEditor.equals(texte)) {
+			activeDocument.removeDocumentListener(this);
 			activeDocument=null;
 			activeEditor=null;
 		}
@@ -126,18 +182,34 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 
 	@Override
-	public String[] getCollabUsers(ICoedObject file) {
+	public String[] getCollabUsers(CoedFile file) {
 		try {
-			return file.getActiveUsers();
+			return communicator.getActiveUsers(file);
 		} catch(NotConnectedToServerException e) {
-			// TODO: handle this
 			e.printStackTrace();
+			reconnectDialog();
 		}
 		return null;
 	}
-	
+
 	@Override
-	public boolean requestVersionAction(String action, ICoedObject file) {
+	public CoedFile requestFileInfo(String file) {
+		return communicator.getFileInfo(file);
+	}
+
+	@Override
+	public CoedProject requestProjectInfo(String project) {
+		return communicator.getProjectInfo(project);
+	}
+
+	@Override
+	public boolean requestVersionAction(String action, CoedFile file) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean requestVersionAction(String action, CoedProject project) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -173,6 +245,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	@Override
 	public void partDeactivated(IWorkbenchPart part) {
 		if (part.equals(activeEditor)){
+			activeDocument.removeDocumentListener(this);
 			activeEditor=null;
 			activeDocument=null;
 			/*DEBUG*/System.out.println("Paused : "+part);
@@ -188,7 +261,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
-	public void update(ICoedObject file) {
+	public void update(CoedFile file) {
 		//TODO: real equality checking
 		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			try {
@@ -200,13 +273,13 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 	}
 	
-	private void showChanges(ICoedObject file, IDocument doc) throws BadLocationException {
+	private void showChanges(CoedFile file, IDocument doc) throws BadLocationException {
 		CoedFileLine[] lines;
 		try {
-			lines = file.getChanges();
+			lines = communicator.getChanges(file);
 		} catch(NotConnectedToServerException e) {
 			e.printStackTrace();
-			// TODO: handle this
+			reconnectDialog();
 			return;
 		}
 		
@@ -221,11 +294,47 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 
 	}
+	
+	private void reconnectDialog(){
+		while ((communicator==null || communicator.getState()!=ICoedCommunicator.STATUS_CONNECTED) && MessageDialog.openQuestion(
+				null,
+				"Coed Plugin",
+				"The server could not be contacted.\n\nDo you want to try connecting again?")
+			) {
+			
+			try {
+				this.communicator = new CoedCommunicatorFactory().create(configLocation);
+			} catch (UnknownVersionerTypeException e) {
+				// TODO Auto-generated catch block
+				this.communicator=null;
+				e.printStackTrace();
+			} catch (InvalidConfigFileException e) {
+				// TODO Auto-generated catch block
+				this.communicator=null;
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@Override
-	public boolean requestVersionAction(String action) {
+	public void documentAboutToBeChanged(DocumentEvent event) {
 		// TODO Auto-generated method stub
-		return false;
+		System.out.println("About to be changed");
+		
+	}
+
+	@Override
+	public void documentChanged(DocumentEvent event) {
+		// TODO Auto-generated method stub
+		if (event.getText().length()>0){
+			System.out.println("Changed");
+			try {
+				event.fDocument.replace(event.fOffset, event.getText().length(), "");
+			} catch (BadLocationException e) {
+			// 	TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
