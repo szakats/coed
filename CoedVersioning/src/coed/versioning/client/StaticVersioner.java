@@ -11,22 +11,6 @@ public class StaticVersioner implements ICoedVersioner {
 		// TODO Auto-generated method stub
 		return STATIC;
 	}
-	
-	class CoedStaticObject implements IVersionedObject {
-
-		@Override
-		public boolean checkout() {
-			// TODO Auto-generated method stub
-			return true;
-		}
-
-		@Override
-		public boolean commit() {
-			// TODO Auto-generated method stub
-			return true;
-		}
-
-	}
 
 	@Override
 	public IVersionedObject makeVersionedObject(ICoedObject obj) {

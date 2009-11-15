@@ -98,4 +98,9 @@ public class CoedCollabFolder implements ICollabObject {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public ICoedObject getParent() {
+		return obj;
+	}
 }

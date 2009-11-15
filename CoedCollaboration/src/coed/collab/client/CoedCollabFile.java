@@ -29,6 +29,7 @@ public class CoedCollabFile implements ICollabObject {
 		this.coll = coll;
 	}
 	
+	@Override
 	public ICoedObject getParent() {
 		return obj;
 	}

@@ -138,7 +138,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		
 		public void handleMessage(SendChangesMsg msg) {
 			ICollabObject obj = cache.get(msg.getFile());
-			assert obj instanceof CoedCollabFile; 
+			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
 		}

@@ -1,8 +1,5 @@
 package coed.base.common;
 
-
-public interface IVersionedObject {
-
-	public boolean commit();
-	public boolean checkout();
+public interface IVersionedObject extends IVersionedPart {
+	public ICoedObject getParent();
 }

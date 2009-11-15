@@ -24,4 +24,9 @@ public class CoedStaticFile implements IVersionedObject {
 		return false;
 	}
 
+	@Override
+	public ICoedObject getParent() {
+		return obj;
+	}
+
 }
