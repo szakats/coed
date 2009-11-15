@@ -87,8 +87,7 @@ public class UserListView extends ViewPart implements IUserList {
 	 * The constructor.
 	 */
 	public UserListView() {
-		Activator.getDefault();
-		Activator.getController().attachUserList(this);
+		Activator.getDefault().getController().attachUserList(this);
 	}
 
 	/**
