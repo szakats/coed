@@ -31,14 +31,12 @@ public class CoedObject implements ICoedObject {
 
 	@Override
 	public boolean checkout() {
-		// TODO Auto-generated method stub
-		return false;
+		return vo.checkout();
 	}
 
 	@Override
 	public boolean commit() {
-		// TODO Auto-generated method stub
-		return false;
+		return vo.commit();
 	}
 
 	@Override
@@ -56,53 +54,45 @@ public class CoedObject implements ICoedObject {
 
 	@Override
 	public String[] getActiveUsers() throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return null;
+		return co.getActiveUsers();
 	}
 
 	@Override
 	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return null;
+		return co.getChanges();
 	}
 
 	@Override
 	public boolean releaseLock(CoedFileLock lock)
 			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return false;
+		return co.releaseLock(lock);
 	}
 
 	@Override
 	public void removeChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		
+		co.removeChangeListener(fileObserver);
 	}
 
 	@Override
 	public boolean requestLock(CoedFileLock lock)
 			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return false;
+		return co.requestLock(lock);
 	}
 
 	@Override
 	public boolean sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return false;
+		return co.sendChanges(line);
 	}
 
 	@Override
 	public void goOffline() {
-		// TODO Auto-generated method stub
-		
+		co.goOffline();
 	}
 
 	@Override
 	public void goOnline() {
-		// TODO Auto-generated method stub
-		
+		co.goOnline();
 	}
 
 	@Override

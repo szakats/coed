@@ -81,12 +81,21 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	public void decNrOnline() {
 		nrOnlineFiles--;
+		
 		if(nrOnlineFiles == 0) {
 			if(conn != null) {
 				conn.shutdown();
 				conn = null;
 			}
 		}
+	}
+	
+	/**
+	 * For debugging purposes only!
+	 * @return
+	 */
+	public ServerConnection getConn() {
+		return conn;
 	}
 	
 	public String getBasePath(){

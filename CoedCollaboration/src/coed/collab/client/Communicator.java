@@ -92,5 +92,4 @@ public class Communicator implements ICoedCommunicator {
 	public ICollabObject makeCollabObject(ICoedObject obj) {
 		return c.makeCollabObject(obj);
 	}
-	
 }
