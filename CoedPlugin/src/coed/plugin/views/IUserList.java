@@ -6,5 +6,6 @@ package coed.plugin.views;
  *
  */
 public interface IUserList {
-	//TODO: all
+	
+	public void displayUsers(String[] users);
 }

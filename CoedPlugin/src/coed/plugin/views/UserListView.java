@@ -10,6 +10,9 @@ import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
+import coed.plugin.base.Activator;
+import coed.plugin.base.StandardController;
+
 
 /**
  * This sample class demonstrates how to plug-in a new
@@ -36,6 +39,7 @@ public class UserListView extends ViewPart implements IUserList {
 	 */
 	public static final String ID = "coed.plugin.views.Users";
 
+	private Activator activator;
 	private TableViewer viewer;
 	private Action action1;
 	private Action action2;
@@ -52,12 +56,16 @@ public class UserListView extends ViewPart implements IUserList {
 	 */
 	 
 	class ViewContentProvider implements IStructuredContentProvider {
+		private String[] users;
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 		public void dispose() {
 		}
+		public void setElements(String[] users) {
+			this.users=users;
+		}
 		public Object[] getElements(Object parent) {
-			return new String[] { "One", "Two", "Three" };
+			return users;
 		}
 	}
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -79,6 +87,8 @@ public class UserListView extends ViewPart implements IUserList {
 	 * The constructor.
 	 */
 	public UserListView() {
+		Activator.getDefault();
+		Activator.getController().attachUserList(this);
 	}
 
 	/**
@@ -105,33 +115,12 @@ public class UserListView extends ViewPart implements IUserList {
 	}
 	
 	/**
-	 * Copy of content provider class
-	 * used in order to display users
-	 * has method setElements which sets the users
-	 * @author Robert
-	 *
-	 */
-	class ViewContentProvider2 implements IStructuredContentProvider {
-		private String[] users;
-		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		}
-		public void dispose() {
-		}
-		public void setElements(String[] users) {
-			this.users=users;
-		}
-		public Object[] getElements(Object parent) {
-			return users;
-		}
-	}
-	
-	/**
 	 * Method for displaying the user list in the view.
 	 * Must be called whenever the list of users changes
 	 * @param users - array of strings containing the users
 	 */
 	public void displayUsers(String[] users) {
-		ViewContentProvider2 v = new ViewContentProvider2();
+		ViewContentProvider v = new ViewContentProvider();
 		v.setElements(users);
 		viewer.setContentProvider(v);
 		viewer.setInput(getViewSite());
