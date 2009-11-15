@@ -23,11 +23,13 @@ public class ServerConnection extends IoHandlerAdapter {
 	ConnectionWorker connWorker;
 	private boolean shuttingDown;
 	
-	interface ReceiveListener {
-		void update(CoedMessage msg);
+	public interface Listener {
+		void received(CoedMessage msg);
+		void connected();
+		void disconnected();
 	}
 	
-	LinkedList<ReceiveListener> receiveListeners = new LinkedList<ReceiveListener>();
+	LinkedList<Listener> listeners = new LinkedList<Listener>();
 	
 	public synchronized boolean isConnected() {
 		return connected;
@@ -35,6 +37,13 @@ public class ServerConnection extends IoHandlerAdapter {
 	
 	private synchronized void setConnected(boolean connected) {
 		this.connected = connected;
+		
+		for(Listener listener : listeners)
+			if(connected)
+				listener.connected();
+			else
+				listener.disconnected();
+				
 		synchronized(connWorker) {
 			connWorker.notify();
 		}
@@ -96,8 +105,8 @@ public class ServerConnection extends IoHandlerAdapter {
 
     public void messageReceived(IoSession session, Object message) {
     	CoedMessage msg = (CoedMessage)message;
-    	for(ReceiveListener listener : receiveListeners)
-    		listener.update(msg);
+    	for(Listener listener : listeners)
+    		listener.received(msg);
     }
     
     public void sessionClosed(IoSession session) {
@@ -117,12 +126,12 @@ public class ServerConnection extends IoHandlerAdapter {
     	}
     }
     
-    public void addReceiveListener(ReceiveListener listener) {
-    	receiveListeners.add(listener);
+    public void addListener(Listener listener) {
+    	listeners.add(listener);
     }
     
-    public void removeReceiveListener(ReceiveListener listener) {
-    	receiveListeners.remove(listener);
+    public void removeListener(Listener listener) {
+    	listeners.remove(listener);
     }
     
     public CoedMessage sendAndwait(CoedMessage msg, String waitForMsgName, long timeoutMS) throws ClassNotFoundException {
@@ -131,33 +140,44 @@ public class ServerConnection extends IoHandlerAdapter {
     	Class msgClass = Class.forName(waitForMsgName);
     	Object receiveEvent = new Object();
     	
-    	class WaitReceiveListener implements ReceiveListener {
+    	class WaitListener implements Listener {
     		public CoedMessage ret;
     		public Class msgClass;
     		public Object receiveEvent;
-    		
-    		public void update(CoedMessage msg) {
+
+			@Override
+			public void connected() {
+				
+			}
+
+			@Override
+			public void disconnected() {
+
+			}
+
+			@Override
+			public void received(CoedMessage msg) {
     			if(msgClass.isInstance(msg)) {
     				ret = msg;
     				synchronized(receiveEvent) {
     					receiveEvent.notify();
     				}
     			}
-    		}
+			}
     	}
     	
-    	WaitReceiveListener listener = new WaitReceiveListener();
+    	WaitListener listener = new WaitListener();
     	listener.msgClass = msgClass;
     	listener.receiveEvent = receiveEvent;
     	
-    	addReceiveListener(listener);
+    	addListener(listener);
     	synchronized(receiveEvent) {
     		try {
 				receiveEvent.wait(timeoutMS);
 			} catch (InterruptedException e) {
 			}
     	}
-    	removeReceiveListener(listener);
+    	removeListener(listener);
     	
     	return listener.ret;
     }
