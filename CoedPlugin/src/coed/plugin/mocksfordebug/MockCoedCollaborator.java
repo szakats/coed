@@ -50,7 +50,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	@Override
 	public IVersionedObject makeVersionedObject(ICoedObject obj) {
 		// TODO Auto-generated method stub
-		return new MockCoedObject(obj.getPath());
+		return (IVersionedObject) new MockCoedObject(obj.getPath());
 	}
 
 	@Override

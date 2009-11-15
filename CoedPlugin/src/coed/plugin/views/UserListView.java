@@ -98,12 +98,9 @@ public class UserListView extends ViewPart implements IUserList {
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
-		
-		//test to see if method works
-		//String[] userlist= new String[] {"Pista" , "Emese"};
-		//displayUsers(userlist);
-		
+		//viewer.setInput(getViewSite());
+		String[] x= {"a","d"};
+		displayUsers(x);
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "coed.plugin.viewer");
 		makeActions();
