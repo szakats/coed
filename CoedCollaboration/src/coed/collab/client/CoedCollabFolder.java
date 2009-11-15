@@ -3,7 +3,10 @@
  */
 package coed.collab.client;
 
+import java.io.File;
+
 import coed.base.common.ICoedObject;
+import coed.base.common.CoedObject;
 import coed.base.common.ICollabObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
@@ -26,8 +29,23 @@ public class CoedCollabFolder implements ICollabObject {
 
 	@Override
 	public void addChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
+	    recursiveAddChangeListener(fileObserver, obj.getPath());
+	   
+	}
+	
+	public void recursiveAddChangeListener(IFileObserver fileObserver, String path){
+		File f = new File(coll.getBasePath()+ path);
 		
+		File[] listOfFiles = f.listFiles();
+
+	    for (int i = 0; i < listOfFiles.length; i++) {
+	      if (listOfFiles[i].isFile()) {
+	        coll.makeCollabObject(new CoedObject(path+"\\"+listOfFiles[i].getName(),true));
+	      } else if (listOfFiles[i].isDirectory()) {
+	    	    recursiveAddChangeListener(fileObserver, path+"\\"+listOfFiles[i].getName());
+	        System.out.println("Directory " + listOfFiles[i].getName());
+	      }
+	    }
 	}
 
 	@Override
