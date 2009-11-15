@@ -6,12 +6,8 @@ import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedObject;
 import coed.base.common.ICollabObject;
 import coed.base.common.ICollabStateObserver;
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
-import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
-import coed.collab.protocol.SendChangesMsg;
 
 public class CollaboratorClient implements ICoedCollaborator {
 	

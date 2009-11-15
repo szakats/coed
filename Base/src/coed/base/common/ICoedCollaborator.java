@@ -1,10 +1,5 @@
 package coed.base.common;
 
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
-import coed.base.data.IFileObserver;
-import coed.base.data.exceptions.NotConnectedToServerException;
-
 public interface ICoedCollaborator {
        public final String STATUS_CONNECTED="Working online";
 	   public final String STATUS_ERROR="Could not connect to server";
