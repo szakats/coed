@@ -9,7 +9,7 @@ public interface ICollabObject {
 	
 	public boolean sendChanges(CoedFileLine line)
   		throws NotConnectedToServerException;
-  
+	
   /**
    * TODO: Description
    * @param file
