@@ -1,13 +1,13 @@
 /**
  * 
  */
-package coed.base.data;
+package coed.base.common;
 
 import java.io.File;
 
-import coed.base.common.ICoedObject;
-import coed.base.common.ICollabObject;
-import coed.base.common.IVersionedObject;
+import coed.base.data.CoedFileLine;
+import coed.base.data.CoedFileLock;
+import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 
 /**
@@ -19,9 +19,11 @@ public class CoedObject implements ICoedObject {
 	private IVersionedObject vo;
 	private ICollabObject co;
 	private String path;
+	private boolean isFile;
 	
-	public CoedObject(String path) {
+	public CoedObject(String path, boolean isFile) {
 		this.path = path;
+		this.isFile = isFile;
 	}
 	
 	public void init(IVersionedObject vo, ICollabObject co) {
@@ -111,8 +113,7 @@ public class CoedObject implements ICoedObject {
 	}
 	
 	public boolean isFile(){
-		File f = new File(path);
-		return f.isFile();
+		return this.isFile;
 	}
 
 }

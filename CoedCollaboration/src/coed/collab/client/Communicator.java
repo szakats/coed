@@ -1,5 +1,8 @@
 package coed.collab.client;
 
+import java.io.File;
+
+import coed.base.common.CoedObject;
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedCommunicator;
 import coed.base.common.ICoedObject;
@@ -9,7 +12,6 @@ import coed.base.common.ICollabStateObserver;
 import coed.base.common.IVersionedObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
-import coed.base.data.CoedObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.collab.client.config.ICoedConfig;
@@ -79,7 +81,8 @@ public class Communicator implements ICoedCommunicator {
 	@Override
 	public ICoedObject getObject(String path) {
 		// TODO Auto-generated method stub
-		CoedObject ret = new CoedObject(path);
+		File f = new File(basePath+path);
+		CoedObject ret = new CoedObject(path, f.isFile());
 		ret.init(makeVersionedObject(ret), makeCollabObject(ret));
 		return ret;
 	}
