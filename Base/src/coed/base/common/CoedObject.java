@@ -46,13 +46,6 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean addFileChangeListener(IFileObserver fileObserver)
-			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public String[] getActiveUsers() throws NotConnectedToServerException {
 		return co.getActiveUsers();
 	}

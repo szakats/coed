@@ -28,15 +28,6 @@ public interface ICollabObject {
   
   /**
    * TODO: Description
-   * @param file
-   * @param fileObserver
-   * @return
-   */
-  public boolean addFileChangeListener(IFileObserver fileObserver)
-  		throws NotConnectedToServerException;
-  
-  /**
-   * TODO: Description
    * @param fileObserver
    */
   public void addChangeListener(IFileObserver fileObserver);

@@ -132,9 +132,15 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 		@Override
 		public void received(CoedMessage msg) {
-			if(msg instanceof SendChangesMsg) {
-				
-			}
+			if(msg instanceof SendChangesMsg)
+				handleMessage((SendChangesMsg)msg);
+		}
+		
+		public void handleMessage(SendChangesMsg msg) {
+			ICollabObject obj = cache.get(msg.getFile());
+			assert obj instanceof CoedCollabFile; 
+			CoedCollabFile file = (CoedCollabFile)obj;
+			file.notifyChangeListeners(file.getParent());
 		}
 	}
 }

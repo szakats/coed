@@ -24,6 +24,8 @@ public class ClientMain {
 		CoedObject ret = new CoedObject("sadf", true);
 		ret.init(vers.makeVersionedObject(ret), collab.makeCollabObject(ret));
 		
+		collab.addStateListener(new CollabListenerTest());
+		
 		ret.goOnline();
 		
 		try {
@@ -32,10 +34,9 @@ public class ClientMain {
 		}
 		
 		ServerConnection conn = collab.getConn();
+		if(conn == null) return;
 	
 		conn.send(new SendChangesMsg(null, null));
-		
-		collab.addStateListener(new CollabListenerTest());
 	}
 
 	/**

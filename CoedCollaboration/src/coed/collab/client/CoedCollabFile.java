@@ -3,12 +3,15 @@
  */
 package coed.collab.client;
 
+import java.util.LinkedList;
+
 import coed.base.common.ICoedObject;
 import coed.base.common.ICollabObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.collab.protocol.CoedMessage;
 
 /**
  * @author Neobi008
@@ -19,11 +22,15 @@ public class CoedCollabFile implements ICollabObject {
 	private CollaboratorClient coll;
 	private ICoedObject obj;
 	private boolean isWorkingOnline;
-	private IFileObserver fileObserver;
+	private LinkedList<IFileObserver> fileObservers;
 	
 	public CoedCollabFile(ICoedObject obj, CollaboratorClient coll) {
 		this.obj = obj;
 		this.coll = coll;
+	}
+	
+	public ICoedObject getParent() {
+		return obj;
 	}
 	
 	
@@ -64,20 +71,12 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public void addChangeListener(IFileObserver fileObserver) {
-		this.fileObserver = fileObserver;
-		
-	}
-
-	@Override
-	public boolean addFileChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		return false;
+		fileObservers.add(fileObserver);
 	}
 
 	@Override
 	public void removeChangeListener(IFileObserver fileObserver) {
-		this.fileObserver = null;
-		
+		fileObservers.remove(fileObserver);
 	}
 
 	@Override
@@ -91,7 +90,10 @@ public class CoedCollabFile implements ICollabObject {
 	public void goOnline() {
 		isWorkingOnline = true;
 		coll.incNrOnline();
-		
-
+	}
+	
+	public void notifyChangeListeners(ICoedObject obj) {
+		for(IFileObserver obs : fileObservers)
+			obs.update(obj);
 	}
 }
