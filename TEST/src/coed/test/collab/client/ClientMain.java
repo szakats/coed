@@ -12,7 +12,7 @@ public class ClientMain {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		CollaboratorClient collab = new CollaboratorClient(null);
+		CollaboratorClient collab = new CollaboratorClient(null, "");
 		StaticVersioner vers = new StaticVersioner();
 		
 		CoedObject ret = new CoedObject("sadf", true);
