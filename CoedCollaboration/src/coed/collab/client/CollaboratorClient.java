@@ -1,5 +1,7 @@
 package coed.collab.client;
 
+import java.util.ArrayList;
+
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedObject;
 import coed.base.common.ICollabObject;
@@ -15,12 +17,14 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	private ServerConnection conn;
 	private int nrOnlineFiles;
+	private ArrayList<ICollabStateObserver> stateListeners;
 	
 	String host;
 	int port;
 
 	public CollaboratorClient(ICoedConfig conf) {
 		nrOnlineFiles = 0;
+		stateListeners = new ArrayList<ICollabStateObserver>();
 		//goOffline();
 		
 		//host = conf.getString("server.host");
@@ -40,13 +44,17 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	@Override
 	public void addStateListener(ICollabStateObserver stateObserver) {
-		// TODO Auto-generated method stub
+		stateListeners.add(stateObserver);
 		
 	}
 
 	@Override
 	public void removeStateListener(ICollabStateObserver stateObserver) {
-		// TODO Auto-generated method stub
+		stateListeners.remove(stateObserver);
+	}
+	
+	public void notifyObservers(){
+		
 	}
 
 	@Override
