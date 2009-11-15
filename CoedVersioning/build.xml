@@ -7,6 +7,7 @@
 <project basedir="." default="build" name="CoedVersioning">
     <property environment="env"/>
     <property name="CoedCollaboration.location" value="../CoedCollaboration"/>
+	<property name="CoedPlugin.location" value="../CoedPlugin"/>
     <property name="ECLIPSE_HOME" value="../../../egyetem/eclipse"/>
     <property name="Base.location" value="../Base"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -34,6 +35,13 @@
     <target depends="clean" name="cleanall">
         <ant antfile="${Base.location}/build.xml" dir="${Base.location}" inheritAll="false" target="clean"/>
     </target>
+	<target depends="build-subprojects,build-project" name="add-jar-to-plugin">
+		<jar destfile="${CoedPlugin.location}\lib\coed.versioning.jar" basedir="bin">
+			    					<manifest>
+			    	  					<attribute name="Main-Class" value="main.Main" />
+			    	  				</manifest>
+			    	</jar>
+	</target>
     <target depends="build-subprojects,build-project" name="build"/>
     <target name="build-subprojects">
         <ant antfile="${Base.location}/build.xml" dir="${Base.location}" inheritAll="false" target="build-project">

@@ -5,8 +5,7 @@ package coed.plugin.base;
 
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.data.CoedFile;
-import coed.base.data.CoedProject;
+import coed.base.common.ICoedObject;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
 
@@ -73,34 +72,15 @@ public interface IPluginController {
 	 * @param file
 	 * @return success
 	 */
-	public boolean requestVersionAction(String action, CoedFile file);
+	public boolean requestVersionAction(String action, ICoedObject file);
 	
 	/**
 	 * Method for requesting a given action for a project.
 	 * This method will be invoked by menus/buttons in the context menu, button bar
 	 * @param action
-	 * @param project
 	 * @return
 	 */
-	public boolean requestVersionAction(String action, CoedProject project);
-	
-	/**
-	 * This is a method for asking for information about a given file.
-	 * The method is invoked with an incomplete CoedFile (having only path and project), 
-	 * and it will complete it and return it as a result.
-	 * @param file
-	 * @return
-	 */
-	public CoedFile requestInfo(CoedFile file);
-	
-	/**
-	 * This is a method for asking for information about a given file.
-	 * The method is invoked with an incomplete CoedProject, 
-	 * and it will complete it and return it as a result.
-	 * @param project
-	 * @return
-	 */
-	public CoedProject requestInfo(CoedProject project);
+	public boolean requestVersionAction(String action);
 	
 	/**
 	 * Lists all users on the coed server
@@ -113,6 +93,6 @@ public interface IPluginController {
 	 * @param file
 	 * @return
 	 */
-	public String[] getCollabUsers(CoedFile file);
+	public String[] getCollabUsers(ICoedObject file);
 	
 }

@@ -1,13 +1,15 @@
 package coed.collab.client;
 
+import java.io.File;
+
+import coed.base.common.CoedObject;
 import coed.base.common.ICoedCollaborator;
 import coed.base.common.ICoedCommunicator;
+import coed.base.common.ICoedObject;
 import coed.base.common.ICoedVersioner;
-import coed.base.data.CoedFile;
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
-import coed.base.data.CoedProject;
-import coed.base.data.IFileObserver;
+import coed.base.common.ICollabObject;
+import coed.base.common.ICollabStateObserver;
+import coed.base.common.IVersionedObject;
 import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {
@@ -30,73 +32,13 @@ public class Communicator implements ICoedCommunicator {
 	}
 	
 	@Override
-	public boolean checkoutFile(CoedFile file) {
-		return v.checkoutFile(file);
-	}
-
-	@Override
-	public boolean checkoutFiles(CoedFile[] files) {
-		return v.checkoutFiles(files);
-	}
-
-	@Override
-	public boolean checkoutProject(CoedProject project) {
-		return v.checkoutProject(project);
-	}
-
-	@Override
-	public boolean commitFile(CoedFile file) {
-		return v.commitFile(file);
-	}
-
-	@Override
-	public boolean commitFiles(CoedFile[] files) {
-		return v.commitFiles(files);
-	}
-
-	@Override
-	public boolean commitProject(CoedProject project) {
-		return v.commitProject(project);
-	}
-
-	@Override
-	public CoedProject getProjectInfo(String name) {
-		return v.getProjectInfo(name);
-	}
-
-	@Override
-	public String getProjectList() {
-		return v.getProjectList();
+	public String[] getProjectList() {
+		return null;
 	}
 
 	@Override
 	public String getState() {
 		return null;
-	}
-
-	@Override
-	public String[] getActiveUsers(CoedFile file) {
-		return c.getActiveUsers(file);
-	}
-
-	@Override
-	public CoedFileLine[] getChanges(CoedFile file) {
-		return c.getChanges(file);
-	}
-
-	@Override
-	public boolean releaseLock(CoedFileLock lock) {
-		return c.releaseLock(lock);
-	}
-
-	@Override
-	public boolean requestLock(CoedFileLock lock) {
-		return c.requestLock(lock);
-	}
-
-	@Override
-	public boolean sendChanges(CoedFile file, CoedFileLine line) {
-		return c.sendChanges(file, line);
 	}
 
 	@Override
@@ -110,32 +52,45 @@ public class Communicator implements ICoedCommunicator {
 		return null;
 	}
 
-	@Override
-	public void addChangeListener(IFileObserver obs) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public CoedFile getFileInfo(CoedFile file) {
-		return v.getFileInfo(file);
-	}
-
-	@Override
-	public boolean addFileChangeListener(CoedFile file,
-			IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void removeChangeListener(IFileObserver fileObserver) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	public void setBasePath(String path){
 		this.basePath = path;
+	}
+
+	@Override
+	public void addStateListener(ICollabStateObserver stateObserver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeStateListener(ICollabStateObserver stateObserver) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ICoedObject addObject(String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ICoedObject getObject(String path) {
+		// TODO Auto-generated method stub
+		File f = new File(basePath+path);
+		CoedObject ret = new CoedObject(path, f.isFile());
+		ret.init(makeVersionedObject(ret), makeCollabObject(ret));
+		return ret;
+	}
+
+	@Override
+	public IVersionedObject makeVersionedObject(ICoedObject obj) {
+		return v.makeVersionedObject(obj);
+	}
+
+	@Override
+	public ICollabObject makeCollabObject(ICoedObject obj) {
+		return c.makeCollabObject(obj);
 	}
 	
 }
