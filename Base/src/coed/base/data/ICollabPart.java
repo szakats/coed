@@ -1,8 +1,5 @@
-package coed.base.common;
+package coed.base.data;
 
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
-import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 
 public interface ICollabPart {

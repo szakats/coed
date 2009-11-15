@@ -24,10 +24,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.common.ICoedCommunicator;
+import coed.base.comm.ICoedCommunicator;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
-import coed.base.common.ICoedObject;
+import coed.base.data.ICoedObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedToServerException;

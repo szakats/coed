@@ -1,4 +1,4 @@
-package coed.base.common;
+package coed.base.comm;
 
 public interface ICollabStateObserver {
 	public void update();

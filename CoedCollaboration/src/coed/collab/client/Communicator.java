@@ -2,14 +2,14 @@ package coed.collab.client;
 
 import java.io.File;
 
-import coed.base.common.CoedObject;
-import coed.base.common.ICoedCollaborator;
-import coed.base.common.ICoedCommunicator;
-import coed.base.common.ICoedObject;
-import coed.base.common.ICoedVersioner;
-import coed.base.common.ICollabObject;
-import coed.base.common.ICollabStateObserver;
-import coed.base.common.IVersionedObject;
+import coed.base.comm.ICoedCollaborator;
+import coed.base.comm.ICoedCommunicator;
+import coed.base.comm.ICoedVersioner;
+import coed.base.comm.ICollabStateObserver;
+import coed.base.data.CoedObject;
+import coed.base.data.ICoedObject;
+import coed.base.data.ICollabObject;
+import coed.base.data.IVersionedObject;
 import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {

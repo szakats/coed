@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 import org.eclipse.swt.widgets.Display;
 
-import coed.base.common.ICoedObject;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
+import coed.base.data.ICoedObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
 
@@ -49,13 +49,6 @@ public class MockCoedObject implements ICoedObject {
 		// TODO Auto-generated method stub
 		listeners.add(fileObserver);
 		new Changer(this).start();
-	}
-
-	@Override
-	public boolean addFileChangeListener(IFileObserver fileObserver)
-			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	@Override

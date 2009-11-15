@@ -1,4 +1,4 @@
-package coed.base.common;
+package coed.base.data;
 
 public interface IVersionedPart {
 	public boolean commit();

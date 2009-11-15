@@ -5,7 +5,7 @@ package coed.plugin.base;
 
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.common.ICoedObject;
+import coed.base.data.ICoedObject;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
 

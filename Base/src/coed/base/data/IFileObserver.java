@@ -1,6 +1,5 @@
 package coed.base.data;
 
-import coed.base.common.ICoedObject;
 
 
 /**

@@ -1,7 +1,7 @@
 package coed.collab.client;
 
-import coed.base.common.ICoedCommunicator;
-import coed.base.common.ICoedVersioner;
+import coed.base.comm.ICoedCommunicator;
+import coed.base.comm.ICoedVersioner;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.config.Config;

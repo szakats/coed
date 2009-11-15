@@ -1,4 +1,7 @@
-package coed.base.common;
+package coed.base.comm;
+
+import coed.base.data.ICoedObject;
+import coed.base.data.ICollabObject;
 
 public interface ICoedCollaborator {
        public final String STATUS_CONNECTED="Working online";

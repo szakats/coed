@@ -1,4 +1,5 @@
-package coed.base.common;
+package coed.base.data;
+
 
 public interface ICoedObject extends IVersionedPart, ICollabPart {
 	
