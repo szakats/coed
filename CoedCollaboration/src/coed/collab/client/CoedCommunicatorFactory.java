@@ -5,7 +5,6 @@ import coed.base.common.ICoedVersioner;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.config.Config;
-import coed.versioning.client.NullVersioner;
 import coed.versioning.client.StaticVersioner;
 
 public class CoedCommunicatorFactory {

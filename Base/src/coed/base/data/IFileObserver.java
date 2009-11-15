@@ -1,5 +1,7 @@
 package coed.base.data;
 
+import coed.base.common.ICoedObject;
+
 
 /**
  * TODO: javadoc
@@ -8,6 +10,6 @@ package coed.base.data;
  */
 public interface IFileObserver {
    
-   public void update(CoedFile file);
+   public void update(ICoedObject file);
    
 }
