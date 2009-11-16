@@ -11,6 +11,7 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.IFuture;
 import coed.collab.protocol.CoedMessage;
 
 /**
@@ -36,14 +37,14 @@ public class CoedCollabFile implements ICollabObject {
 	
 	
 	@Override
-	public String[] getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
 		coll.ensureConnected();
 
 		return null;
 	}
 
 	@Override
-	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
+	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
 		return null;

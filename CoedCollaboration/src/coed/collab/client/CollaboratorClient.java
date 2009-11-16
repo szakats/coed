@@ -8,6 +8,7 @@ import coed.base.comm.ICollabStateObserver;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.IFuture;
 import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.SendChangesMsg;
@@ -142,5 +143,11 @@ public class CollaboratorClient implements ICoedCollaborator {
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
 		}
+	}
+
+	@Override
+	public IFuture<ICollabObject[]> getAllOnlineFiles() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

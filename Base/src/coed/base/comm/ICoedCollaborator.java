@@ -2,6 +2,7 @@ package coed.base.comm;
 
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
+import coed.base.util.IFuture;
 
 public interface ICoedCollaborator {
        public final String STATUS_CONNECTED="Working online";
@@ -36,4 +37,6 @@ public interface ICoedCollaborator {
 	    * @return
 	    */
 	   public ICollabObject makeCollabObject(ICoedObject obj);
+	   
+	   public IFuture<ICollabObject[]> getAllOnlineFiles();
 }

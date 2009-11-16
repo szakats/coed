@@ -1,6 +1,7 @@
 package coed.base.data;
 
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.IFuture;
 
 public interface ICollabPart {
 
@@ -12,7 +13,7 @@ public interface ICollabPart {
    * @param file
    * @return
    */
-	public CoedFileLine[] getChanges()
+	public IFuture<CoedFileLine[]> getChanges()
   		throws NotConnectedToServerException;
   
   /**
@@ -20,7 +21,7 @@ public interface ICollabPart {
    * @param file
    * @return
    */
-	public String[] getActiveUsers()
+	public IFuture<String[]> getActiveUsers()
   		throws NotConnectedToServerException;
   
   /**

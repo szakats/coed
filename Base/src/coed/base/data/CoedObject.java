@@ -4,6 +4,7 @@
 package coed.base.data;
 
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.IFuture;
 
 /**
  * @author Neobi
@@ -43,12 +44,12 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public String[] getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
 		return co.getActiveUsers();
 	}
 
 	@Override
-	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
+	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		return co.getChanges();
 	}
 

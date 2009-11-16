@@ -10,6 +10,7 @@ import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
+import coed.base.util.IFuture;
 import coed.collab.client.config.ICoedConfig;
 
 public class Communicator implements ICoedCommunicator {
@@ -91,5 +92,10 @@ public class Communicator implements ICoedCommunicator {
 	@Override
 	public ICollabObject makeCollabObject(ICoedObject obj) {
 		return c.makeCollabObject(obj);
+	}
+
+	@Override
+	public IFuture<ICollabObject[]> getAllOnlineFiles() {
+		return c.getAllOnlineFiles();
 	}
 }
