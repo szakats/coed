@@ -11,5 +11,5 @@ import coed.base.data.CoedObject;
  */
 public interface IFileTree {
 	
-	public void displayFileTree(CoedObject[] projects);
+	public void displayFileTree(CoedObject[] files);
 }
