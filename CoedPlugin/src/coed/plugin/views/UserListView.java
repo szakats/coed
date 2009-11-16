@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
 import coed.plugin.base.Activator;
-import coed.plugin.base.StandardController;
 
 
 /**
@@ -85,6 +84,7 @@ public class UserListView extends ViewPart implements IUserList {
 	/**
 	 * The constructor.
 	 */
+	@SuppressWarnings("static-access")
 	public UserListView() {
 		Activator.getDefault().getController().attachUserList(this);
 	}
@@ -99,8 +99,17 @@ public class UserListView extends ViewPart implements IUserList {
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
 		//viewer.setInput(getViewSite());
+		
+		
+		//initializations used for test
 		String[] x= {"a","d"};
 		displayUsers(x);
+		/* TODO: displayUsers(null) does not work
+		 * FIND proper initialization
+		 * 
+		 */
+		
+		
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "coed.plugin.viewer");
 		makeActions();

@@ -16,7 +16,11 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 import org.eclipse.core.runtime.IAdaptable;
 
+import coed.base.data.CoedObject;
+import coed.base.data.ICoedObject;
 import coed.plugin.base.Activator;
+import coed.plugin.mocksfordebug.MockCoedObject;
+import coed.plugin.views.UserListView.ViewContentProvider;
 
 
 /**
@@ -37,7 +41,7 @@ import coed.plugin.base.Activator;
  * <p>
  */
 
-public class FileTreeView extends ViewPart {
+public class FileTreeView extends ViewPart implements IFileTree{
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -116,7 +120,7 @@ public class FileTreeView extends ViewPart {
 		}
 		public Object[] getElements(Object parent) {
 			if (parent.equals(getViewSite())) {
-				if (invisibleRoot==null) initialize();
+				//if (invisibleRoot==null) initialize();
 				return getChildren(invisibleRoot);
 			}
 			return getChildren(parent);
@@ -138,30 +142,58 @@ public class FileTreeView extends ViewPart {
 				return ((TreeParent)parent).hasChildren();
 			return false;
 		}
-/*
- * We will set up a dummy model to initialize tree heararchy.
- * In a real code, you will connect to a real model and
- * expose its hierarchy.
- */
-		private void initialize() {
-			TreeObject to1 = new TreeObject("Leaf 1");
-			TreeObject to2 = new TreeObject("Leaf 2");
-			TreeObject to3 = new TreeObject("Leaf 3");
-			TreeParent p1 = new TreeParent("Parent 1");
-			p1.addChild(to1);
-			p1.addChild(to2);
-			p1.addChild(to3);
-			
-			TreeObject to4 = new TreeObject("Leaf 4");
-			TreeParent p2 = new TreeParent("Parent 2");
-			p2.addChild(to4);
-			
-			TreeParent root = new TreeParent("Root");
-			root.addChild(p1);
-			root.addChild(p2);
-			
+		
+		/**
+		 * Method that converts a string containing the path of the file
+		 * into an array of strings (the folders and the file)
+		 * @param file - the path of the file
+		 * @return array of strings containing folders and the file
+		 */
+		private String[] processString(String file) {
+			String[] result=file.split("\\/");
+			return result;
+		}
+		
+		private TreeObject getParentTree(TreeParent root, TreeObject parent){
+			TreeObject[] all=root.getChildren();
+			for(int i=0;i<all.length;i++)
+				if(all[i].getName().equals(parent.getName())) 
+					return all[i];
+			return null;
+		}
+		/**
+		 * Function that processes the array of files and creates a tree structure
+		 * @param files - array containing all files
+		 */
+		private void initialize(ICoedObject[] files) {
+			int nrOfFiles=files.length;
+			String[] temp=null;
+			TreeObject parent,file;
+			TreeParent root;
 			invisibleRoot = new TreeParent("");
-			invisibleRoot.addChild(root);
+			for(int i=0;i<nrOfFiles;i++) {
+				temp=processString(files[i].getPath());
+				file = new TreeObject(temp[temp.length-1]);
+				
+				if(temp.length==1) 
+					//TODO: exception ?!
+					temp=null;
+				else {
+					root = new TreeParent(temp[0]);
+					if(getParentTree(invisibleRoot,root)==null)
+						invisibleRoot.addChild(root);
+					for(int j=1;j<(temp.length-1);j++) {
+						parent = new TreeParent(temp[j]);
+						if(getParentTree(root,parent)==null)
+							root.addChild(parent);
+						else parent.setParent((TreeParent)getParentTree(root,parent));
+						root=(TreeParent)parent;
+					}
+					root.addChild(file);
+					
+				}
+				
+			}
 		}
 	}
 	class ViewLabelProvider extends LabelProvider {
@@ -182,7 +214,9 @@ public class FileTreeView extends ViewPart {
 	/**
 	 * The constructor.
 	 */
+	@SuppressWarnings("static-access")
 	public FileTreeView() {
+		Activator.getDefault().getController().attachFileTree(this);
 	}
 
 	/**
@@ -195,7 +229,17 @@ public class FileTreeView extends ViewPart {
 		viewer.setContentProvider(new ViewContentProvider());
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
-		viewer.setInput(getViewSite());
+		//viewer.setInput(getViewSite());
+		
+		MockCoedObject obj1 = new MockCoedObject("Base/src/coed/common/ICoedCollaborator.java");
+		MockCoedObject obj2 = new MockCoedObject("Base/src/coed/common/ICoedComm.java");
+		MockCoedObject obj3 = new MockCoedObject("Base/src/coed/sex/Pina.java");
+		MockCoedObject obj4 = new MockCoedObject("Base/src/coed/Lofasz.java");
+		MockCoedObject obj5 = new MockCoedObject("Coed/src/coed/common/Slut.java");
+		MockCoedObject[] objects={obj1,obj2,obj3,obj4,obj5};
+		displayFileTree(objects);
+		
+		
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "CoedEditor.viewer");
@@ -205,6 +249,17 @@ public class FileTreeView extends ViewPart {
 		contributeToActionBars();
 	}
 
+	/**
+	 * Method used to display the File Tree in a view
+	 * @param files - ICoedObject array containing the files that will be displayed
+	 */
+	public void displayFileTree(ICoedObject[] files) {
+		ViewContentProvider v = new ViewContentProvider();
+		v.initialize(files);
+		viewer.setContentProvider(v);
+		viewer.setInput(getViewSite());
+	}
+	
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);

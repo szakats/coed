@@ -1,5 +1,7 @@
 package coed.plugin.views;
 
+import coed.base.data.ICoedObject;
+
 /**
  * Interface for a view which will display files that are edited 
  * in a collaborative way. It is treeview, because one should see projects,
@@ -8,5 +10,6 @@ package coed.plugin.views;
  *
  */
 public interface IFileTree {
-	//TODO: well, obviously, everything
+	
+	public void displayFileTree(ICoedObject[] files);
 }
