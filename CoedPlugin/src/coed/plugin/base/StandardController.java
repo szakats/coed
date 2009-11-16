@@ -4,8 +4,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 
-import org.eclipse.core.internal.filebuffers.SynchronizableDocument;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -13,7 +14,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
@@ -22,6 +22,7 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.part.WorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
@@ -38,18 +39,59 @@ import coed.plugin.mocksfordebug.MockCoedCollaborator;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
 
-
+/**
+ * Class that controls all actions in plugin.
+ * Views and menus of the plugin register with this class in order to operate. 
+ * @author Izso
+ *
+ */
 public class StandardController implements IPluginController, IPartListener, IFileObserver, IDocumentListener {
+	/**
+	 * Location of the config file. Will be an absolute path.
+	 */
 	private String configLocation;
+	
+	/**
+	 * An instance of the ICoedCommunictor, used to communicate with the server
+	 */
 	private ICoedCommunicator communicator;
+	
+	/**
+	 * Currently managed editors, coupled with their ICoedObjects
+	 */
 	private HashMap<AbstractDecoratedTextEditor,ICoedObject> editors;
+	
+	/**
+	 * The editor which is on-top at the moment
+	 */
 	private AbstractDecoratedTextEditor activeEditor;
+	
+	/**
+	 * The document part of the active editor
+	 */
 	private IDocument activeDocument;
-	private IFileTree fileTree;
-	private IUserList userList;
-	private Thread lastUpdate;
-	private Long ignoreEvent= null;
+	
+	/**
+	 * List of annotations made to the document by the plugin.
+	 */
 	private ArrayList<Annotation> annotations;
+	
+	/**
+	 * Reference to the attached file view. It shows the online documents on the server.
+	 */
+	private IFileTree fileTree;
+	
+	/**
+	 * Reference to the users view. It shows the online users on the server.
+	 */
+	private IUserList userList;
+	
+	/**
+	 * Index of the event to ignore in the IDocumentListener part
+	 */
+	private Long ignoreEvent= null;
+	
+	private Thread lastUpdate;
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
@@ -101,34 +143,9 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	
 	private ICoedObject findCoedFileFor(AbstractDecoratedTextEditor texte) throws GetFileInEditorException{
 		IFile file =null;
-	    try {
 	    	
-	    	//ugliest hack ever.
-	    	//please find better method for getting the file in the editor.
-			Field feiField = (texte.getActiveSaveables()[0]).getClass().getDeclaredField("fEditorInput");
-			feiField.setAccessible(true);
-			FileEditorInput fileEditorInput = (FileEditorInput) feiField.get(texte.getActiveSaveables()[0]);
-			Field fileField = fileEditorInput.getClass().getDeclaredField("file");
-			fileField.setAccessible(true);
-     		file = (IFile) fileField.get(fileEditorInput);
-     		
-		} catch (SecurityException e) {
-			e.printStackTrace();
-			
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
-			
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			
-		} catch (ClassCastException e) {
-			e.printStackTrace();
-			
-		}
-	    
+	   file = (IFile) texte.getEditorInput().getAdapter(IFile.class);
+     
 		if (communicator!=null && file!=null) {
 			return communicator.getObject(file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
 		} else {
@@ -301,9 +318,12 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		// TODO Auto-generated method stub
 		System.out.println("About to be changed "+event.fModificationStamp);
 		try {
+			ArrayList<Integer> affLines = new ArrayList<Integer>(); 
+			Integer fline = activeDocument.getLineOfOffset(event.fOffset);
+			affLines.add(fline);
+			
 			Integer[] lines ={activeDocument.getLineOfOffset(event.fOffset)};
 			if (!editors.get(activeEditor).requestLock(new CoedFileLock(lines))) ignoreEvent=event.fModificationStamp+1;
 		} catch (BadLocationException e) {
@@ -345,22 +365,21 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			}
 		} else if (lines[0]!=null) {
 			System.out.println("Changed "+event.fModificationStamp);
+			//build coedFileLines
+			//ArrayList<CoedFileLine> lines= new ArrayList<CoedFileLine>();
+			
 			String[] text = {event.fText};
+			
+			
 			try {
 				editors.get(activeEditor).sendChanges(new CoedFileLine(activeDocument.getLineOfOffset(event.fOffset), text, "editing"));
 				editors.get(activeEditor).releaseLock(new CoedFileLock(lines));
 			} catch (NotConnectedToServerException e) {
-				// TODO Auto-generated catch block
+				reconnectDialog();
 				e.printStackTrace();
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			/*IAnnotationModel am = activeEditor.getDocumentProvider().getAnnotationModel(activeEditor.getEditorInput());
-			Iterator<Annotation> i = annotations.iterator();
-			while (i.hasNext()) {
-				am.removeAnnotation(i.next());
-			}*/
 		}
 			
 	}
@@ -392,9 +411,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				for (int i = 0; i < lines.length; i++) {
 					String[] text = lines[i].getText();
 					Integer lineNum = lines[i].getLine();
-					for (int j = 0; j < text.length; j++) {
-						doc.replace(doc.getLineOffset(lineNum+j), 0, text[j]);
-					}
+					Integer curOffs = doc.getLineOffset(lineNum);
+					doc.replace(curOffs, doc.getLineLength(lineNum), (text==null || text[0]==null) ? "" : text[0]+"\n");
+					if (text!=null && text[0]!=null) {
+						curOffs+=text[0].length()+1;
+						for (int j = 1; j < text.length; j++) {
+							doc.replace(curOffs, 0, text[j]+"\n");
+							curOffs+=text[j].length()+1;
+						}
+					} 
 				}
 			}
 		}
@@ -403,7 +428,12 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		public void run() {
 			if (waitOn!=null){
 				while(waitOn.isAlive()) {
-					//SLEEP
+					try {
+						this.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 			try {
@@ -417,7 +447,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			} finally {
 				doc.addDocumentListener(outer);
 			}
+			this.notifyAll();
 		}
 	}
-
 }
