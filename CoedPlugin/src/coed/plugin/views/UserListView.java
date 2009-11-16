@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 
 import coed.plugin.base.Activator;
-import coed.plugin.base.StandardController;
 
 
 /**
@@ -85,6 +84,7 @@ public class UserListView extends ViewPart implements IUserList {
 	/**
 	 * The constructor.
 	 */
+	@SuppressWarnings("static-access")
 	public UserListView() {
 		Activator.getDefault().getController().attachUserList(this);
 	}
