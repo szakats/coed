@@ -1,6 +1,6 @@
 package coed.plugin.views;
 
-import coed.base.data.CoedObject;
+import coed.base.data.ICoedObject;
 
 /**
  * Interface for a view which will display files that are edited 
@@ -11,5 +11,5 @@ import coed.base.data.CoedObject;
  */
 public interface IFileTree {
 	
-	public void displayFileTree(CoedObject[] files);
+	public void displayFileTree(ICoedObject[] files);
 }
