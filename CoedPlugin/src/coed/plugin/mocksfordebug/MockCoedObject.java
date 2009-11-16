@@ -61,7 +61,7 @@ public class MockCoedObject implements ICoedObject {
 	@Override
 	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
-		String[] s = {"x"};
+		String[] s = {"xxxx","yyyy"};
 		CoedFileLine[] cfl={new CoedFileLine(1, s, "")};
 		return cfl;
 	}

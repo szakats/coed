@@ -8,4 +8,9 @@ package coed.plugin.exceptions;
  */
 public class GetFileInEditorException extends UnsupportedOperationException{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6276421097662374501L;
+
 }

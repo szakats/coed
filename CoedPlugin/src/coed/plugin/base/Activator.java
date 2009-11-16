@@ -13,7 +13,7 @@ import org.osgi.framework.BundleContext;
  * The activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin{
-	//image descriptiors
+	//image descriptors
 	public static final String IMAGE_USER = "coed.image.user";
 	
 	// The plug-in ID
