@@ -186,7 +186,10 @@ public class FileTreeView extends ViewPart implements IFileTree{
 						aux=sorted[i];
 						sorted[i]=sorted[i+1];
 						sorted[i+1]=aux;
-					}
+					}	
+			}while(ok==0);
+			do {
+				ok=1;
 				for(i=0;i<sorted.length-1;i++)
 					if(sorted[i].length()<sorted[i+1].length()) {
 						ok=0;
@@ -194,7 +197,6 @@ public class FileTreeView extends ViewPart implements IFileTree{
 						sorted[i]=sorted[i+1];
 						sorted[i+1]=aux;
 					}
-						
 			}while(ok==0);
 			return sorted;
 		}
