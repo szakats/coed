@@ -1,5 +1,6 @@
 package coed.plugin.base;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.part.WorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
@@ -180,7 +182,13 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		if (communicator==null || communicator.getState()==ICoedCommunicator.STATUS_OFFLINE) {
 			return;
 		}
-		try {
+		
+		if (editors.get(texte)!=null) {
+			setAsActive(texte);
+			return;
+		} 
+		
+		try {			
 			editors.put(texte, findCoedFileFor(texte));
 			setAsActive(texte);
 			/*DEBUG*/System.out.println("Going collab for: "+texte);
