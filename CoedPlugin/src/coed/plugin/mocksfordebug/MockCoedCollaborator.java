@@ -10,6 +10,7 @@ import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
+import coed.base.util.IFuture;
 
 public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 
@@ -25,6 +26,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 
 	@Override
 	public ICoedObject getObject(String path) {
+		System.out.println("Mock created for:"+path);
 		return new MockCoedObject(path);
 	}
 
@@ -75,6 +77,12 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	public void removeStateListener(ICollabStateObserver stateObserver) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public IFuture<ICollabObject[]> getAllOnlineFiles() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
