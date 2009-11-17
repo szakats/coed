@@ -1,6 +1,7 @@
 package coed.collab.client;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.apache.mina.common.ConnectFuture;
@@ -12,12 +13,16 @@ import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactor
 import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 
+import coed.base.util.CoedFuture;
+import coed.base.util.IFuture;
 import coed.collab.protocol.*;
 
 public class ServerConnection extends IoHandlerAdapter {
 	private String host;
 	private int port;
 	private IoSession io;
+	
+	private long curSequenceID;
 	
 	private boolean connected;
 	ConnectionWorker connWorker;
@@ -29,7 +34,13 @@ public class ServerConnection extends IoHandlerAdapter {
 		void disconnected();
 	}
 	
-	LinkedList<Listener> listeners = new LinkedList<Listener>();
+	/**
+	 * allListeners contains listeners that listen for all incoming
+	 * messages which seqListeners contains those which wait for
+	 * the continuation of a particular sequence.
+	 */
+	LinkedList<Listener> allListeners = new LinkedList<Listener>();
+	HashMap<Long, Listener> seqListeners = new HashMap<Long, Listener>();
 	
 	public synchronized boolean isConnected() {
 		return connected;
@@ -38,7 +49,7 @@ public class ServerConnection extends IoHandlerAdapter {
 	private synchronized void setConnected(boolean connected) {
 		this.connected = connected;
 		
-		for(Listener listener : listeners)
+		for(Listener listener : allListeners)
 			if(connected)
 				listener.connected();
 			else
@@ -95,6 +106,7 @@ public class ServerConnection extends IoHandlerAdapter {
 		this.port = port;
 		connected = false;
 		shuttingDown = false;
+		curSequenceID = 0;
 		connWorker = new ConnectionWorker();
 		connWorker.start();
 	}
@@ -104,9 +116,19 @@ public class ServerConnection extends IoHandlerAdapter {
     }
 
     public void messageReceived(IoSession session, Object message) {
+    	assert(session != null && message != null);
     	CoedMessage msg = (CoedMessage)message;
-    	for(Listener listener : listeners)
-    		listener.received(msg);
+    	for(Listener l : allListeners)
+    		l.received(msg);
+    	long id = msg.getSequenceID();
+    	
+    	Listener l;
+    	synchronized(this) {
+	    	l = seqListeners.remove(new Long(id));
+    	}
+    	
+	    if(l != null)
+	    	l.received(msg);
     }
     
     public void sessionClosed(IoSession session) {
@@ -114,9 +136,11 @@ public class ServerConnection extends IoHandlerAdapter {
     	setConnected(false);
     }
     
-    public void send(CoedMessage msg) {
+    public synchronized void send(CoedMessage msg) {
     	assert(io != null);
+    	msg.setSequenceID(curSequenceID);
     	io.write(msg);
+    	curSequenceID++;
     }
     
     public void shutdown() {
@@ -127,23 +151,25 @@ public class ServerConnection extends IoHandlerAdapter {
     }
     
     public void addListener(Listener listener) {
-    	listeners.add(listener);
+    	allListeners.add(listener);
     }
     
     public void removeListener(Listener listener) {
-    	listeners.remove(listener);
+    	allListeners.remove(listener);
     }
     
-    public CoedMessage sendAndwait(CoedMessage msg, String waitForMsgName, long timeoutMS) throws ClassNotFoundException {
+    public IFuture<CoedMessage> sendF(CoedMessage msg) {
     	send(msg);
+    	long id = msg.getSequenceID();
     	
-    	Class msgClass = Class.forName(waitForMsgName);
-    	Object receiveEvent = new Object();
+    	CoedFuture<CoedMessage> future = new CoedFuture<CoedMessage>();
     	
     	class WaitListener implements Listener {
-    		public CoedMessage ret;
-    		public Class msgClass;
-    		public Object receiveEvent;
+    		CoedFuture<CoedMessage> future;
+    		
+    		public WaitListener(CoedFuture<CoedMessage> future) {
+    			this.future = future;
+    		}
 
 			@Override
 			public void connected() {
@@ -157,28 +183,15 @@ public class ServerConnection extends IoHandlerAdapter {
 
 			@Override
 			public void received(CoedMessage msg) {
-    			if(msgClass.isInstance(msg)) {
-    				ret = msg;
-    				synchronized(receiveEvent) {
-    					receiveEvent.notify();
-    				}
-    			}
+				future.set(msg);
 			}
     	}
     	
-    	WaitListener listener = new WaitListener();
-    	listener.msgClass = msgClass;
-    	listener.receiveEvent = receiveEvent;
-    	
-    	addListener(listener);
-    	synchronized(receiveEvent) {
-    		try {
-				receiveEvent.wait(timeoutMS);
-			} catch (InterruptedException e) {
-			}
+    	synchronized(this) {
+    		seqListeners.put(new Long(id), new WaitListener(future));
     	}
-    	removeListener(listener);
+
     	
-    	return listener.ret;
+    	return future;
     }
 }

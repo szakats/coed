@@ -51,7 +51,7 @@ public class CoedFuture<T> implements IFuture<T> {
 	}
 
 	@Override
-	public void addListener(IFutureListener<T> listener) {
+	public void add(IFutureListener<T> listener) {
 		assert(listener != null);
 		if(listeners == null)
 			listeners = new LinkedList<IFutureListener<T>>();
