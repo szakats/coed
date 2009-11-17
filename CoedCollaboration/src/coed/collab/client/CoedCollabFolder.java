@@ -110,4 +110,10 @@ public class CoedCollabFolder implements ICollabObject {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

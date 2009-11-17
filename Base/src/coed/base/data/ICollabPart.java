@@ -25,7 +25,7 @@ public interface ICollabPart {
 	
   /**
    * Get the changes that have been done to this file since the last call
-   * to either getCurrentContent or getChanges.
+   * to either getCurrentContent, getChanges or goOnline.
    * @return a future containing the lines that changed
    * @throws NotConnectedToServerException
    */
@@ -43,7 +43,7 @@ public interface ICollabPart {
   /**
    * Add a listener for the changed state of this file.
    * The listener will be notified only the first time the file changes
-   * since the last call to getChanges or getCurrentContent.
+   * since the last call to getChanges, getCurrentContent or goOnline.
    * @param fileObserver the listener to add to the set of change listeners
    */
   public void addChangeListener(IFileObserver fileObserver);
@@ -71,13 +71,32 @@ public interface ICollabPart {
   		throws NotConnectedToServerException;
   
   /**
-   * Turn on the collaborative editing mode for this file.
-   * This method takes the local version of the file and
+   * Turn on the collaborative editing mode for this file,
+   * only works if the object is a file.
+   * The method takes the local version of the file and
    * returns its remote version. If the file has not
    * been registered as online yet or the content happens
    * to be the same, the method's input and output will match.
+   * @param contents a string  local contents of the file 
+   * 	(does not need to be the one saved to the hard disk)
+   * @return a string representing 
    */
   public IFuture<String> goOnline(String contents);
+  
+  /**
+   * Turn on the collaborative mode for one or more files,
+   * depending on the type of this object.
+   * If this object is a file, the method will put only this
+   * file online and it will return an array containing only 
+   * itself.
+   * If it is a folder, the method will recursively put all
+   * descendant files online.
+   * This method reads the local version of the file[s] from
+   * the hard disk and replaces it if necessary with the
+   * remote version.
+   * @return the list of files now put online as ICoedObjects
+   */
+  public IFuture<ICoedObject[]> goOnline();
   
   /**
    * Turn off the collaborative mode for this file.

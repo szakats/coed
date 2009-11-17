@@ -101,4 +101,10 @@ public class CoedObject implements ICoedObject {
 		return co.getCurrentContent();
 	}
 
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
