@@ -180,20 +180,21 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			String aux;
 			do {
 				ok=1;
-				for(i=0;i<sorted.length-1;i++) {
+				for(i=0;i<sorted.length-1;i++)
 					if(sorted[i].compareTo(sorted[i+1])>0){
 						ok=0;
 						aux=sorted[i];
 						sorted[i]=sorted[i+1];
 						sorted[i+1]=aux;
 					}
+				for(i=0;i<sorted.length-1;i++)
 					if(sorted[i].length()<sorted[i+1].length()) {
 						ok=0;
 						aux=sorted[i];
 						sorted[i]=sorted[i+1];
 						sorted[i+1]=aux;
 					}
-				}		
+						
 			}while(ok==0);
 			return sorted;
 		}
