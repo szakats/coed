@@ -71,7 +71,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
 		return co.sendChanges(line);
 	}

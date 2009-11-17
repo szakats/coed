@@ -50,12 +50,7 @@ public class Communicator implements ICoedCommunicator {
 	public String getState() {
 		return null;
 	}
-
-	@Override
-	public String getVersionerType() {
-		return v.getType();
-	}
-
+	
 	@Override
 	public String getType() {
 		// TODO Auto-generated method stub
