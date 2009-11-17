@@ -82,8 +82,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void goOnline() {
-		co.goOnline();
+	public IFuture<Boolean> goOnline() {
+		return co.goOnline();
 	}
 
 	@Override
@@ -91,8 +91,14 @@ public class CoedObject implements ICoedObject {
 		return this.path;
 	}
 	
+	@Override
 	public boolean isFile(){
 		return this.isFile;
+	}
+
+	@Override
+	public IFuture<String[]> getCurrentContent() {
+		return co.getCurrentContent();
 	}
 
 }

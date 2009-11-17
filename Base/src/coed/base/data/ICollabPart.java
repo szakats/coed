@@ -8,6 +8,8 @@ public interface ICollabPart {
 	public boolean sendChanges(CoedFileLine line)
   		throws NotConnectedToServerException;
 	
+	public IFuture<String> getCurrentContent();
+	
   /**
    * TODO: Description
    * @param file
@@ -56,7 +58,7 @@ public interface ICollabPart {
   /**
 	*
    */
-  public void goOnline();
+  public IFuture<Boolean> goOnline();
   
   /**
    * 

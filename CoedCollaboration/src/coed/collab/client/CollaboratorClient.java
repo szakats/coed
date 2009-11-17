@@ -56,7 +56,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		}
 		// must not synchronize the rest (observers are allowed to call getState)
 		for(ICollabStateObserver stateObs : stateListeners)
-			stateObs.update();
+			stateObs.collabStateChanged(state);
 	}
 	
 	@Override

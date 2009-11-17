@@ -13,11 +13,11 @@ public class CoedMessage implements Serializable {
 	 * input the client requests something from the server with
 	 * a message having a new sequence ID and the server will
 	 * reply to it with a message having the same ID (but
-	 * difference class and contents ofcourse).
+	 * difference class and contents of course).
 	 * This is necessary because multiple requests of the same
 	 * type from the same client are allowed to arrive at the 
 	 * server and the responses may arrive back in any order.
-	 * This can also be used as part of an acknowledgement 
+	 * This can also be used as part of an acknowledgment 
 	 * algorithm so that when a message is resent, the other
 	 * party can tell if it had already received it or not.
 	 */

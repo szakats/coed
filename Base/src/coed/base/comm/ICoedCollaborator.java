@@ -38,5 +38,9 @@ public interface ICoedCollaborator {
 	    */
 	   public ICollabObject makeCollabObject(ICoedObject obj);
 	   
+	   /**
+	    * 
+	    * @return
+	    */
 	   public IFuture<ICollabObject[]> getAllOnlineFiles();
 }

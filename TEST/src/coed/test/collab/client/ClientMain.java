@@ -12,7 +12,7 @@ public class ClientMain {
 	
 	class CollabListenerTest implements ICollabStateObserver {
 		@Override
-		public void update() {
+		public void collabStateChanged(String to) {
 			System.out.println("If i heard correctly, the server is now " + collab.getState());
 		}
 	}
