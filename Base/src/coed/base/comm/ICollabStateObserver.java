@@ -1,5 +1,9 @@
 package coed.base.comm;
 
 public interface ICollabStateObserver {
-	public void update();
+	/**
+	 * Called when the connection state of the collaborator changes.
+	 * @param to the new state
+	 */
+	public void collabStateChanged(String to);
 }

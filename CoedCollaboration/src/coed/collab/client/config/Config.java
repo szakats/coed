@@ -6,6 +6,14 @@ import java.util.Map;
 
 import coed.base.data.exceptions.InvalidConfigFileException;
 
+/**
+ * Class that represents a Configurator object. It creates a map of certain 
+ * configuration options read from a config file. The format of the config file should be 
+ * the usual .ini . Access methods are provided.
+ * 
+ * @author Neobi008
+ *
+ */
 
 public class Config implements ICoedConfig {
 	
@@ -35,6 +43,7 @@ public class Config implements ICoedConfig {
 		       } 
 		 } catch (IOException e) { 
 		       throw new InvalidConfigFileException();
+		       //if file not found, InvalidConfigFIleException is thrown
 		 }
 
 	}

@@ -11,7 +11,10 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
-import coed.collab.protocol.CoedMessage;
+import coed.base.util.CoedFuture;
+import coed.base.util.IFuture;
+import coed.base.util.IFutureListener;
+import coed.collab.protocol.*;
 
 /**
  * @author Neobi008
@@ -36,17 +39,28 @@ public class CoedCollabFile implements ICollabObject {
 	
 	
 	@Override
-	public String[] getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
 		coll.ensureConnected();
 
 		return null;
 	}
 
 	@Override
-	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
+	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
-		return null;
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<CoedFileLine[]> ret = new CoedFuture<CoedFileLine[]>();
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof GetChangesResultMsg)
+					ret.set(((GetChangesResultMsg)result).getLines());
+			}
+		}
+		
+		FListener fl = new FListener();
+		coll.getConn().sendF(new GetChangesMsg()).add(fl);
+		return fl.ret;
 	}
 	
 	@Override
@@ -64,10 +78,10 @@ public class CoedCollabFile implements ICollabObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line) throws NotConnectedToServerException {
+	public IFuture<Boolean> sendChanges(CoedFileLine line) throws NotConnectedToServerException {
 		coll.ensureConnected();
 		//conn.send(new SendChangesMsg(null, line));
-		return false;
+		return null;
 	}
 
 	@Override
@@ -84,17 +98,30 @@ public class CoedCollabFile implements ICollabObject {
 	public void goOffline() {
 		isWorkingOnline = false;
 		coll.decNrOnline();
-
 	}
 
+	
 	@Override
-	public void goOnline() {
+	public IFuture<String> goOnline(String contents) {
 		isWorkingOnline = true;
 		coll.incNrOnline();
+		return null;
 	}
 	
 	public void notifyChangeListeners(ICoedObject obj) {
 		for(IFileObserver obs : fileObservers)
 			obs.update(obj);
+	}
+
+	@Override
+	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

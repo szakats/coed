@@ -9,8 +9,6 @@ import coed.base.data.ICoedObject;
  */
 public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	
-	public String getVersionerType();
-	
 	public String[] getProjectList();
 	
 	public ICoedObject getObject(String path);

@@ -4,6 +4,7 @@
 package coed.base.data;
 
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.IFuture;
 
 /**
  * @author Neobi
@@ -43,12 +44,12 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public String[] getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
 		return co.getActiveUsers();
 	}
 
 	@Override
-	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
+	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		return co.getChanges();
 	}
 
@@ -70,7 +71,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
 		return co.sendChanges(line);
 	}
@@ -81,8 +82,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void goOnline() {
-		co.goOnline();
+	public IFuture<String> goOnline(String contents) {
+		return co.goOnline(contents);
 	}
 
 	@Override
@@ -90,8 +91,20 @@ public class CoedObject implements ICoedObject {
 		return this.path;
 	}
 	
+	@Override
 	public boolean isFile(){
 		return this.isFile;
+	}
+
+	@Override
+	public IFuture<String> getCurrentContent() {
+		return co.getCurrentContent();
+	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

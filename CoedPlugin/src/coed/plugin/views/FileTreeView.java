@@ -350,7 +350,19 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		
 		action2 = new Action() {
 			public void run() {
-				showMessage("Action 2 executed");
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (window != null) {
+				    IWorkbenchPage page = window.getActivePage();
+				    if (page != null) {
+				        IEditorPart editor = page.getActiveEditor();
+				        try {
+				        	AbstractDecoratedTextEditor textEditor = (AbstractDecoratedTextEditor) editor;
+				        	Activator.getController().endCollabFor(textEditor);
+				        } catch (Exception e) {
+				        	e.printStackTrace();
+				        }
+				    }
+				}
 			}
 		};
 		action2.setText("Action 2");

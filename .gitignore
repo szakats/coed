@@ -1,3 +1,5 @@
 .metadata/*
 *.class
 CoedPlugin/lib/*
+*.orig
+*.prefs
