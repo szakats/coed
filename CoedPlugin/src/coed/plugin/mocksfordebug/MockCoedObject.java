@@ -10,9 +10,12 @@ import coed.base.data.CoedFileLock;
 import coed.base.data.ICoedObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.CoedFuture;
+import coed.base.util.IFuture;
 
 public class MockCoedObject implements ICoedObject {
 	private String path;
+	private CoedFileLine change = new CoedFileLine(1, null, "");
 	private ArrayList<IFileObserver> listeners;
 	
 	public MockCoedObject(String path){
@@ -48,22 +51,26 @@ public class MockCoedObject implements ICoedObject {
 	public void addChangeListener(IFileObserver fileObserver) {
 		// TODO Auto-generated method stub
 		listeners.add(fileObserver);
-		new Changer(this).start();
 	}
 
 	@Override
-	public String[] getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
 		String[] s = {"111","22222","3333"};
-		return s;
+		CoedFuture<String[]> fs = new CoedFuture<String[]>();
+		fs.set(s);
+		return fs;
 	}
 
 	@Override
-	public CoedFileLine[] getChanges() throws NotConnectedToServerException {
+	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
-		String[] s = {"xxxx","yyyy"};
-		CoedFileLine[] cfl={new CoedFileLine(1, s, "")};
-		return cfl;
+		
+		System.out.println("SENGING CHANGES...");
+		CoedFileLine[] cfl={change}; //{new CoedFileLine(1, s, "")};
+		CoedFuture<CoedFileLine[]> cflf = new CoedFuture<CoedFileLine[]>();
+		cflf.set(cfl);
+		return cflf;
 	}
 
 	@Override
@@ -73,9 +80,12 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void goOnline() {
+	public IFuture<Boolean> goOnline() {
 		// TODO Auto-generated method stub
 		System.out.println("GOING ONLINE "+path);
+		CoedFuture<Boolean> bf =new CoedFuture<Boolean>();
+		bf.set(true);
+		return bf;
 	}
 
 	@Override
@@ -101,7 +111,8 @@ public class MockCoedObject implements ICoedObject {
 	@Override
 	public boolean sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
-		// TODO Auto-generated method stub
+		change=new CoedFileLine(1, line.getText(), "");
+		(new Changer(this)).start();
 		return true;
 	}
 	
@@ -113,17 +124,21 @@ public class MockCoedObject implements ICoedObject {
 		}
 		
 		public void run(){
-			int i=0;
-			for (i=0; i<2000000 && listeners.size()>0; i++) {
-				listeners.get(0).update(outer);
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			listeners.get(0).update(outer);
+			
 		}
+	}
+
+	@Override
+	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
