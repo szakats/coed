@@ -30,6 +30,7 @@ public final class DBConnector{
     
     public void connect(String configPath) throws InvalidConfigFileException, DBConnectionException{
     	Config config = new Config(configPath);
+    	//TODO these informations will be obtained from the configFile!!!
 	    String url = "jdbc:mysql://localhost:3306/";
 	    String dbName = config.getString("db.databaseName");
 	    String userName = config.getString("db.userName"); 

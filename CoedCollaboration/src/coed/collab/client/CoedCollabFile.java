@@ -78,10 +78,10 @@ public class CoedCollabFile implements ICollabObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line) throws NotConnectedToServerException {
+	public IFuture<Boolean> sendChanges(CoedFileLine line) throws NotConnectedToServerException {
 		coll.ensureConnected();
 		//conn.send(new SendChangesMsg(null, line));
-		return false;
+		return null;
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class CoedCollabFile implements ICollabObject {
 
 	
 	@Override
-	public IFuture<Boolean> goOnline() {
+	public IFuture<String> goOnline(String contents) {
 		isWorkingOnline = true;
 		coll.incNrOnline();
 		return null;
@@ -115,6 +115,12 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
 		// TODO Auto-generated method stub
 		return null;
 	}

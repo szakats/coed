@@ -7,5 +7,9 @@ package coed.plugin.views;
  */
 public interface IUserList {
 	
+	/**
+	 * Method receives a string containing the users and displays them in a view
+	 * @param users - string of users
+	 */
 	public void displayUsers(String[] users);
 }

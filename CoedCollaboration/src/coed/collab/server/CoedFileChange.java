@@ -14,16 +14,17 @@ public class CoedFileChange {
 	
 	private int lineNr;
 	private String[] text;
-	private int sessionID;
+	private String userName;
 	private Date time;
 	
-	public CoedFileChange(int lineNr, String[] text, int sessionID, Date time){
+	public CoedFileChange(int lineNr, String[] text, String userName, Date time){
 		this.lineNr = lineNr;
 		this.text = text;
-		this.sessionID = sessionID;
+		this.userName = userName;
 		this.time = time;
 	}
 
+	
 	public int getLineNr() {
 		return lineNr;
 	}
@@ -40,12 +41,12 @@ public class CoedFileChange {
 		this.text = text;
 	}
 
-	public int getSessionID() {
-		return sessionID;
+	public String getUserName() {
+		return userName;
 	}
 
-	public void setSessionID(int sessionID) {
-		this.sessionID = sessionID;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 	public Date getTime() {
@@ -55,5 +56,5 @@ public class CoedFileChange {
 	public void setTime(Date time) {
 		this.time = time;
 	}
-
+	
 }

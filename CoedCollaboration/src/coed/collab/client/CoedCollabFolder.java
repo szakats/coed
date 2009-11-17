@@ -68,7 +68,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<Boolean> goOnline() {
+	public IFuture<String> goOnline(String contents) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -94,10 +94,10 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override
@@ -107,6 +107,12 @@ public class CoedCollabFolder implements ICollabObject {
 
 	@Override
 	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -13,6 +13,14 @@ import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.SendChangesMsg;
 
+/**
+ * The CollaboratorClient is the Client side of the collaborative editing system.
+ * It manages the connection to the collaborative server, keeps track of all the files
+ * that a client edits in online mode. It has also a state that specifies if the 
+ * Collaborative editing is on, or off.
+ * @author Neobi
+ *
+ */
 public class CollaboratorClient implements ICoedCollaborator {
 	
 	private ServerConnection conn;
@@ -68,7 +76,15 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public void removeStateListener(ICollabStateObserver stateObserver) {
 		stateListeners.remove(stateObserver);
 	}
-
+	
+	/**
+	 * Creates a CollabObject from a CoedObject, if called for first time.
+	 * If the collabObject is already present in the system, then a reference to
+	 * it is returned. Else, the object is created, stored in the cache memory 
+	 * of the CollaboratorClient, and the reference is returned. Polymorphically 
+	 * creates CollebFile or CollabFolder, depending or wether or not the argument 
+	 * given was a file or folder.
+	 */
 	@Override
 	public ICollabObject makeCollabObject(ICoedObject obj) {
 		if (! cache.containsKey(obj.getPath() )){
@@ -80,6 +96,10 @@ public class CollaboratorClient implements ICoedCollaborator {
 		else return cache.get(obj.getPath());
 	}
 	
+	/**
+	 * Increments the numer of online files. If no file was online until the
+	 * method is called, it also initiates a connection to the Collaborative server. 
+	 */
 	public void incNrOnline() {
 		if(nrOnlineFiles == 0) {
 			setState(STATUS_ERROR);
@@ -90,6 +110,10 @@ public class CollaboratorClient implements ICoedCollaborator {
 		nrOnlineFiles++;
 	}
 	
+	/**
+	 * Decrements number of online files. If no file remained online, the method
+	 * closes the connection to the Collaborative server as a last action.
+	 */
 	public void decNrOnline() {
 		nrOnlineFiles--;
 		

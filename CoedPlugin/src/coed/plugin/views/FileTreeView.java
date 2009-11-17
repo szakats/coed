@@ -3,10 +3,8 @@ package coed.plugin.views;
 import java.util.ArrayList;
 
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.*;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.jface.action.*;
@@ -16,11 +14,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
 import org.eclipse.core.runtime.IAdaptable;
 
-import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.plugin.base.Activator;
 import coed.plugin.mocksfordebug.MockCoedObject;
-import coed.plugin.views.UserListView.ViewContentProvider;
 
 
 /**
@@ -154,22 +150,33 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			return result;
 		}
 		
+		/**
+		 * Method used in the initialize method
+		 * It checks to see if a root in the tree contains a given parent
+		 * Method helps when a directory already exists, and doesn't need to be created
+		 * @param root - the parent in which we are searching
+		 * @param parent - the object that is searched
+		 * @return
+		 */
 		private TreeObject getParentTree(TreeParent root, TreeObject parent){
+			if(root==null) return null;
 			TreeObject[] all=root.getChildren();
 			for(int i=0;i<all.length;i++)
 				if(all[i].getName().equals(parent.getName())) 
 					return all[i];
 			return null;
 		}
+		
 		/**
-		 * Function that processes the array of files and creates a tree structure
+		 * Function that processes the array of files and creates the tree structure
 		 * @param files - array containing all files
 		 */
 		private void initialize(ICoedObject[] files) {
 			int nrOfFiles=files.length;
 			String[] temp=null;
+			int j;
 			TreeObject parent,file;
-			TreeParent root;
+			TreeParent root,realParent,realRoot;
 			invisibleRoot = new TreeParent("");
 			for(int i=0;i<nrOfFiles;i++) {
 				temp=processString(files[i].getPath());
@@ -180,19 +187,36 @@ public class FileTreeView extends ViewPart implements IFileTree{
 					temp=null;
 				else {
 					root = new TreeParent(temp[0]);
-					if(getParentTree(invisibleRoot,root)==null)
+					realRoot=(TreeParent)getParentTree(invisibleRoot,root);
+					if(realRoot==null){
 						invisibleRoot.addChild(root);
-					for(int j=1;j<(temp.length-1);j++) {
-						parent = new TreeParent(temp[j]);
-						if(getParentTree(root,parent)==null)
+						for(j=1;j<(temp.length-1);j++) {
+							parent = new TreeParent(temp[j]);
 							root.addChild(parent);
-						else parent.setParent((TreeParent)getParentTree(root,parent));
-						root=(TreeParent)parent;
+							root=(TreeParent)parent;
+						}
+						root.addChild(file);
 					}
-					root.addChild(file);
-					
+					else{
+						for(j=1;j<(temp.length-1);j++) {
+							parent = new TreeParent(temp[j]);
+							realParent = (TreeParent)getParentTree(realRoot,parent);
+							if(realParent==null){
+								realRoot.addChild(parent);
+								root=(TreeParent)parent;
+								for(int k=j+1;k<(temp.length-1);k++){
+									parent = new TreeParent(temp[j]);
+									root.addChild(parent);
+									root=(TreeParent)parent;
+								}
+								root.addChild(file);
+								break;
+							}
+							else realRoot=realParent;
+						}
+						if(j>=temp.length-1) realRoot.addChild(file);
+					}				
 				}
-				
 			}
 		}
 	}
@@ -326,19 +350,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		
 		action2 = new Action() {
 			public void run() {
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				if (window != null) {
-				    IWorkbenchPage page = window.getActivePage();
-				    if (page != null) {
-				        IEditorPart editor = page.getActiveEditor();
-				        try {
-				        	AbstractDecoratedTextEditor textEditor = (AbstractDecoratedTextEditor) editor;
-				        	Activator.getController().endCollabFor(textEditor);
-				        } catch (Exception e) {
-				        	e.printStackTrace();
-				        }
-				    }
-				}
+				showMessage("Action 2 executed");
 			}
 		};
 		action2.setText("Action 2");

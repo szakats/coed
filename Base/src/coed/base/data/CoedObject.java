@@ -71,7 +71,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(CoedFileLine line)
 			throws NotConnectedToServerException {
 		return co.sendChanges(line);
 	}
@@ -82,8 +82,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<Boolean> goOnline() {
-		return co.goOnline();
+	public IFuture<String> goOnline(String contents) {
+		return co.goOnline(contents);
 	}
 
 	@Override
@@ -99,6 +99,12 @@ public class CoedObject implements ICoedObject {
 	@Override
 	public IFuture<String> getCurrentContent() {
 		return co.getCurrentContent();
+	}
+
+	@Override
+	public IFuture<ICoedObject[]> goOnline() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
