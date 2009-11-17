@@ -13,6 +13,15 @@ import coed.base.data.IVersionedObject;
 import coed.base.util.IFuture;
 import coed.collab.client.config.ICoedConfig;
 
+/**
+ * This represents an object that will deal with all kinds of communication between 
+ * plugin and client. Contains ICoedVersioner and ICoedCollaborator instances, and
+ * the collaborative and versioning actions are delegated. All the settings needed 
+ * to configure the instances are provided by a Config object. 
+ * 
+ * @author Neobi
+ *
+ */
 public class Communicator implements ICoedCommunicator {
 
 	private ICoedVersioner v;  // versioner
@@ -52,11 +61,21 @@ public class Communicator implements ICoedCommunicator {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	/**
+	 * Set the base path of the communicator(i.e. the path to which we
+	 * give the relative paths). This usually should be the path of
+	 * our workspace
+	 * @param path
+	 */
 	public void setBasePath(String path){
 		this.basePath = path;
 	}
-
+	
+	/**
+	 * Adding a state listener to this communicator. The listener will signal
+	 * every change occured in the state of the communicator.
+	 */
 	@Override
 	public void addStateListener(ICollabStateObserver stateObserver) {
 		// TODO Auto-generated method stub
@@ -74,7 +93,10 @@ public class Communicator implements ICoedCommunicator {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	/**
+	 * Returns an ICoedObject given by the relative path
+	 */
 	@Override
 	public ICoedObject getObject(String path) {
 		// TODO Auto-generated method stub
