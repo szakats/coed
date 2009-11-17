@@ -68,9 +68,9 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public void goOnline() {
+	public IFuture<Boolean> goOnline() {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
@@ -103,5 +103,11 @@ public class CoedCollabFolder implements ICollabObject {
 	@Override
 	public ICoedObject getParent() {
 		return obj;
+	}
+
+	@Override
+	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

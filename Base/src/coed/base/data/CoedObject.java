@@ -97,7 +97,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String[]> getCurrentContent() {
+	public IFuture<String> getCurrentContent() {
 		return co.getCurrentContent();
 	}
 

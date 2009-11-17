@@ -98,17 +98,24 @@ public class CoedCollabFile implements ICollabObject {
 	public void goOffline() {
 		isWorkingOnline = false;
 		coll.decNrOnline();
-
 	}
 
+	
 	@Override
-	public void goOnline() {
+	public IFuture<Boolean> goOnline() {
 		isWorkingOnline = true;
 		coll.incNrOnline();
+		return null;
 	}
 	
 	public void notifyChangeListeners(ICoedObject obj) {
 		for(IFileObserver obs : fileObservers)
 			obs.update(obj);
+	}
+
+	@Override
+	public IFuture<String> getCurrentContent() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
