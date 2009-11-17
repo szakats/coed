@@ -15,12 +15,12 @@ public class ServerFile {
 
 	private String path;
 	private File file;
-	private ChangeStack stack;
+	private ChangeQueue queue;
 	//TODO: listeners and locks come here
 	
 	public ServerFile(String path){
 		this.path = path;
-		this.stack = new ChangeStack(ChangeStack.MAX_CAPACITY);
+		this.queue = new ChangeQueue(ChangeQueue.MAX_CAPACITY);
 	}
 
 	public String getPath() {

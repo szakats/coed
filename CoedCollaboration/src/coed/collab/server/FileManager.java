@@ -31,9 +31,11 @@ public class FileManager {
 	public ServerFile[] getAllLiveFiles(){
 		ServerFile[] result = new ServerFile[files.size()];
 		int i = 0;
-		for(Map.Entry<String, ServerFile> entry: files.entrySet()){
-			result[i] = entry.getValue();
-			i++;
+		synchronized(files) {
+			for(Map.Entry<String, ServerFile> entry: files.entrySet()){
+				result[i] = entry.getValue();
+				i++;
+			}
 		}
 		return result;
 			

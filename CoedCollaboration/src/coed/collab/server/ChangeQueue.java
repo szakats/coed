@@ -3,7 +3,8 @@
  */
 package coed.collab.server;
 
-import java.util.Vector;
+import java.util.LinkedList;
+
 
 
 /**
@@ -12,26 +13,26 @@ import java.util.Vector;
  * @author Neobi
  *
  */
-public class ChangeStack {
+public class ChangeQueue{
 	
 	public static final int MAX_CAPACITY = 300;
-	private Vector<CoedFileChange> changes;
+	private LinkedList<CoedFileChange> changes;
 	private int top = -1; //pointer to the top of the stack
 	
-	public ChangeStack(int initCapacity){
-		changes = new Vector<CoedFileChange>(initCapacity);
+	public ChangeQueue(int initCapacity){
+		changes = new LinkedList<CoedFileChange>();
 		top = -1;
 	}
 	
-	public void pushChange(CoedFileChange change){
+	public synchronized void pushChange(CoedFileChange change){
 		changes.add(change);
 		top++;
 	}
 	
-	public CoedFileChange popChange(){
+	public synchronized CoedFileChange popChange(){
 		if (top >= 0){
 		    top--;
-		    return changes.remove(top+1);
+		    return changes.removeFirst();
 		}
 		else return null;
 	}
@@ -42,11 +43,11 @@ public class ChangeStack {
 	 * @return position if found, -1 if not found
 	 */
 	
-	public int getPosition(int ID){
+	public synchronized int getPosition(String userName){
 		int pos = top;
-		while ((changes.get(pos).getSessionID() != ID) && (pos > 0))
+		while ((changes.get(pos).getUserName() != userName) && (pos > 0))
 			pos --;
-		if (changes.get(pos).getSessionID() == ID) return pos;
+		if (changes.get(pos).getUserName() == userName) return pos;
 			else return -1;
 	}
 	
