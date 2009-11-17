@@ -11,5 +11,11 @@ import coed.base.data.ICoedObject;
  */
 public interface IFileTree {
 	
+	/**
+	 * Method receives an array of ICoedObject files,
+	 * extracts the path of the files and builds a file tree
+	 * containing directories,subdirectories and the respective files
+	 * @param files - array of coed objects
+	 */
 	public void displayFileTree(ICoedObject[] files);
 }
