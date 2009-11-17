@@ -25,7 +25,7 @@ public class ClientMain {
 		
 		collab.addStateListener(new CollabListenerTest());
 		
-		ret.goOnline();
+		ret.goOnline("asfd");
 		
 		try {
 			Thread.sleep(1000);

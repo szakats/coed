@@ -82,8 +82,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<Boolean> goOnline() {
-		return co.goOnline();
+	public IFuture<String> goOnline(String contents) {
+		return co.goOnline(contents);
 	}
 
 	@Override
