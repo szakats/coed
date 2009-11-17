@@ -8,17 +8,16 @@ import coed.collab.protocol.SendChangesMsg;
 import coed.versioning.client.StaticVersioner;
 
 public class ClientMain {
-	CollaboratorClient collab;
 	
 	class CollabListenerTest implements ICollabStateObserver {
 		@Override
 		public void collabStateChanged(String to) {
-			System.out.println("If i heard correctly, the server is now " + collab.getState());
+			System.out.println("If i heard correctly, the connection state is: " + to);
 		}
 	}
 	
 	public ClientMain() {
-		collab = new CollaboratorClient(null, "");
+		CollaboratorClient collab = new CollaboratorClient(null, "");
 		StaticVersioner vers = new StaticVersioner();
 		
 		CoedObject ret = new CoedObject("sadf", true);
