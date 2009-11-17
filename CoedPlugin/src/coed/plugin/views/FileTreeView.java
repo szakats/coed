@@ -168,18 +168,53 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		}
 		
 		/**
+		 * Method that does double-sorting
+		 * 1. Sorts lexicographically (folders and files in alphabetical order)
+		 * 2. Sorts according to length(this way folders will precede files)
+		 * @param string - array containing all paths
+		 * @return - sorted paths
+		 */
+		private String[] sort(String[] string) {
+			String[] sorted = string;
+			int ok,i;
+			String aux;
+			do {
+				ok=1;
+				for(i=0;i<sorted.length-1;i++) {
+					if(sorted[i].compareTo(sorted[i+1])>0){
+						ok=0;
+						aux=sorted[i];
+						sorted[i]=sorted[i+1];
+						sorted[i+1]=aux;
+					}
+					if(sorted[i].length()<sorted[i+1].length()) {
+						ok=0;
+						aux=sorted[i];
+						sorted[i]=sorted[i+1];
+						sorted[i+1]=aux;
+					}
+				}		
+			}while(ok==0);
+			return sorted;
+		}
+		/**
 		 * Function that processes the array of files and creates the tree structure
 		 * @param files - array containing all files
 		 */
 		private void initialize(ICoedObject[] files) {
 			int nrOfFiles=files.length;
 			String[] temp=null;
+			String[] paths= new String[files.length];
+			String[] sortedpaths=null;
 			int j;
+			for(j=0;j<nrOfFiles;j++)
+				paths[j]=files[j].getPath();
+			sortedpaths=sort(paths);
 			TreeObject parent,file;
 			TreeParent root,realParent,realRoot;
 			invisibleRoot = new TreeParent("");
 			for(int i=0;i<nrOfFiles;i++) {
-				temp=processString(files[i].getPath());
+				temp=processString(sortedpaths[i]);
 				file = new TreeObject(temp[temp.length-1]);
 				
 				if(temp.length==1) 
