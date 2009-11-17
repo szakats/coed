@@ -1,12 +1,12 @@
 package coed.plugin.base;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 
+import javax.swing.text.Document;
+
+import org.eclipse.core.internal.filebuffers.SynchronizableDocument;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -16,16 +16,14 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.jface.text.source.IAnnotationModel;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.part.WorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
+import coed.base.comm.ICollabStateObserver;
 import coed.base.data.CoedFileLine;
 import coed.base.data.CoedFileLock;
 import coed.base.data.ICoedObject;
@@ -33,7 +31,7 @@ import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
-import coed.collab.client.CoedCommunicatorFactory;
+import coed.base.util.IFuture;
 import coed.plugin.exceptions.GetFileInEditorException;
 import coed.plugin.mocksfordebug.MockCoedCollaborator;
 import coed.plugin.views.IFileTree;
@@ -45,7 +43,7 @@ import coed.plugin.views.IUserList;
  * @author Izso
  *
  */
-public class StandardController implements IPluginController, IPartListener, IFileObserver, IDocumentListener {
+public class StandardController implements IPluginController, IPartListener, IFileObserver, IDocumentListener, ICollabStateObserver {
 	/**
 	 * Location of the config file. Will be an absolute path.
 	 */
@@ -91,7 +89,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 */
 	private Long ignoreEvent= null;
 	
+	/**
+	 * Keeping last thread to be able to wait for its completion
+	 */
 	private Thread lastUpdate;
+	
+	/**
+	 * Reference to currently locked lines for the user - in form of an array of line numbers
+	 */
+	private Integer[] lockedLines;
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
@@ -142,15 +148,18 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 	
 	private ICoedObject findCoedFileFor(AbstractDecoratedTextEditor texte) throws GetFileInEditorException{
-		IFile file =null;
+	   IFile file =null;
 	    	
 	   file = (IFile) texte.getEditorInput().getAdapter(IFile.class);
-     
-		if (communicator!=null && file!=null) {
-			return communicator.getObject(file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
-		} else {
-			throw new GetFileInEditorException();
-		} 
+	   
+	   if (file!=null) {
+		   if (communicator!=null && file!=null) {
+			   return communicator.getObject(file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
+		   } else {
+			   throw new GetFileInEditorException();
+		   }
+	   }
+	   throw new GetFileInEditorException();
 	}
 	
 	private void setAsActive(AbstractDecoratedTextEditor texte){
@@ -164,8 +173,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	
 	@Override
 	public void startCollabFor(AbstractDecoratedTextEditor texte) {
+		if (texte==null) {
+			MessageDialog.openError(null, "Coed Plugin", "Can not start collaborative editing if no editor is open!");
+			return;
+		}
 		if (communicator==null || communicator.getState()==ICoedCommunicator.STATUS_OFFLINE) {
-			reconnectDialog();
 			return;
 		}
 		try {
@@ -211,10 +223,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	@Override
 	public String[] getCollabUsers(ICoedObject file) {
 		try {
-			return file.getActiveUsers();
+			return file.getActiveUsers().get();
 		} catch(NotConnectedToServerException e) {
 			e.printStackTrace();
-			reconnectDialog();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -286,106 +303,96 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			Display.getDefault().asyncExec(rnbl);		
 		}
 	}
-	
-	
-	protected void reconnectDialogWithRestart(Thread tor){
-		if (reconnectDialog()==true) tor.start();
-	}
-	
-	private boolean reconnectDialog(){
-		while ((communicator==null || communicator.getState()!=ICoedCommunicator.STATUS_CONNECTED) && MessageDialog.openQuestion(
-				null,
-				"Coed Plugin",
-				"The server could not be contacted.\n\nDo you want to try connecting again?")
-			) {
-			
-			try {
-				this.communicator = new MockCoedCollaborator();//new CoedCommunicatorFactory().create(configLocation);
-			} catch (UnknownVersionerTypeException e) {
-				// TODO Auto-generated catch block
-				this.communicator=null;
-				e.printStackTrace();
-				return false;
-			} catch (InvalidConfigFileException e) {
-				// TODO Auto-generated catch block
-				this.communicator=null;
-				e.printStackTrace();
-				return false;
-			}
-		}
-		return true;
-	}
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		System.out.println("About to be changed "+event.fModificationStamp);
-		try {
-			ArrayList<Integer> affLines = new ArrayList<Integer>(); 
-			Integer fline = activeDocument.getLineOfOffset(event.fOffset);
-			affLines.add(fline);
-			
-			Integer[] lines ={activeDocument.getLineOfOffset(event.fOffset)};
-			if (!editors.get(activeEditor).requestLock(new CoedFileLock(lines))) ignoreEvent=event.fModificationStamp+1;
-		} catch (BadLocationException e) {
-			e.printStackTrace();
-		} catch (NotConnectedToServerException e) {
-			e.printStackTrace();
-		}
+		lockedLines = TextLinesHelper.getAffectedLines(activeDocument, event.fOffset, event.fLength);
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		Integer[] lines = new Integer[1];
-		try {
-			lines[0]=activeDocument.getLineOfOffset(event.fOffset);
-		} catch (BadLocationException e2){// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		
-		if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
-			ignoreEvent=null;
-			System.out.println("NOT ALLOWED: Changed "+event.fModificationStamp);
-			try {
-				Annotation ann= new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, "This is line is currently being edited by someone else");
-				annotations.add(ann);
-				activeEditor.getDocumentProvider().getAnnotationModel(activeEditor.getEditorInput()).
-							addAnnotation(ann, new Position(activeDocument.getLineOffset(lines[0]),activeDocument.getLineLength(lines[0]))
-							);
-			} catch (BadLocationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			try {
-				activeDocument.removeDocumentListener(this);
-				event.fDocument.replace(event.fOffset, event.getText().length(), "");
-				activeDocument.addDocumentListener(this);
-			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} else if (lines[0]!=null) {
-			System.out.println("Changed "+event.fModificationStamp);
-			//build coedFileLines
-			//ArrayList<CoedFileLine> lines= new ArrayList<CoedFileLine>();
-			
-			String[] text = {event.fText};
-			
-			
-			try {
-				editors.get(activeEditor).sendChanges(new CoedFileLine(activeDocument.getLineOfOffset(event.fOffset), text, "editing"));
-				editors.get(activeEditor).releaseLock(new CoedFileLock(lines));
-			} catch (NotConnectedToServerException e) {
-				reconnectDialog();
-				e.printStackTrace();
-			} catch (BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
-			
+		Thread t = new InputProcessor(this, lockedLines, event);
+		//t.start();
+		Display.getCurrent().asyncExec(t);
 	}
 	
+	/**
+	 * Inner class for handling and reverting inputs to the document.
+	 * Work is needed here....
+	 * @author Izso
+	 *
+	 */
+	class InputProcessor extends Thread {
+		StandardController outer;
+		DocumentEvent event;
+		Integer[] locklines;
+		
+		public InputProcessor (StandardController outer, Integer[] locklines, DocumentEvent event){
+			this.outer=outer;
+			this.event=event;
+			this.locklines=locklines;
+		}
+		
+		public void run(){
+			try {
+				if (!editors.get(activeEditor).requestLock(new CoedFileLock(locklines))) {
+					ignoreEvent=event.fModificationStamp;
+				} else {
+					lockedLines = locklines;
+				}
+			} catch (NotConnectedToServerException e) {
+				e.printStackTrace();
+			}
+			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
+				
+				ignoreEvent=null;
+				try {
+					Annotation ann= new Annotation("org.eclipse.ui.workbench.texteditor.spelling", true, "This is line is currently being edited by someone else");
+					annotations.add(ann);
+					Integer eLine;
+					eLine = event.fDocument.getLineOffset(event.fOffset);
+					activeEditor.getDocumentProvider().getAnnotationModel(activeEditor.getEditorInput()).
+								addAnnotation(ann, new Position(activeDocument.getLineOffset(eLine),activeDocument.getLineLength(eLine))
+								);
+				} catch (BadLocationException e1) {
+					System.out.print("StandardController:InputProcessor");e1.printStackTrace();
+				}
+				try {
+					//clean up the mess :)
+					activeDocument.removeDocumentListener(outer);
+					synchronized (event.fDocument) {
+						event.fDocument.replace(event.fOffset, event.getText().length(), "");
+					}
+					activeDocument.addDocumentListener(outer);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+				
+			} else if (lockedLines!=null) {
+				//if I've got something to send:
+				try {
+					CoedFileLine[] fla = null;
+					fla = TextLinesHelper.getCoedFileLines(activeDocument, lockedLines, event.fText);
+					if (fla!=null )
+						for (int i=0; i<fla.length; i++) {
+							editors.get(activeEditor).sendChanges(fla[i]);
+						}
+					editors.get(activeEditor).releaseLock(new CoedFileLock(lockedLines));
+					lockedLines=null;
+				} catch (NotConnectedToServerException e) {
+					e.printStackTrace();
+				}
+			}
+				
+		
+		}
+	}
 	
-	
+	/**
+	 * Class for displaying the changes of a document
+	 * @author Izso
+	 *
+	 */
 	class DocumentUpdater extends Thread {
 		private ICoedObject file;
 		private IDocument doc;
@@ -400,26 +407,27 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 		
 		public void showChanges(ICoedObject file, IDocument doc) throws BadLocationException, NotConnectedToServerException {
-			CoedFileLine[] lines;
+			IFuture<CoedFileLine[]> linesF;
+			CoedFileLine[] lines = null;
 			try {
-				lines = file.getChanges();
+				linesF = file.getChanges();
+				lines = linesF.get();
 			} catch(NotConnectedToServerException e) {
 				e.printStackTrace();
 				throw e;
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			if (lines.length > 0) {
+			if (lines!=null && lines.length > 0) {
 				for (int i = 0; i < lines.length; i++) {
-					String[] text = lines[i].getText();
-					Integer lineNum = lines[i].getLine();
-					Integer curOffs = doc.getLineOffset(lineNum);
-					doc.replace(curOffs, doc.getLineLength(lineNum), (text==null || text[0]==null) ? "" : text[0]+"\n");
-					if (text!=null && text[0]!=null) {
-						curOffs+=text[0].length()+1;
-						for (int j = 1; j < text.length; j++) {
-							doc.replace(curOffs, 0, text[j]+"\n");
-							curOffs+=text[j].length()+1;
-						}
-					} 
+					doc.removeDocumentListener(outer);
+					TextLinesHelper.doAsReplace(doc, lines[i]);
+					doc.addDocumentListener(outer);
+					
 				}
 			}
 		}
@@ -431,23 +439,24 @@ public class StandardController implements IPluginController, IPartListener, IFi
 					try {
 						this.wait();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
 			}
 			try {
-				doc.removeDocumentListener(outer);
 				showChanges(file, doc);
 			} catch (NotConnectedToServerException e) {
 				e.printStackTrace();
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} finally {
-				doc.addDocumentListener(outer);
 			}
 			this.notifyAll();
 		}
+	}
+
+	@Override
+	public void collabStateChanged(String to) {
+		// TODO Auto-generated method stub
+		
 	}
 }
