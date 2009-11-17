@@ -102,10 +102,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 		}
 	}
 	
-	/**
-	 * For debugging purposes only!
-	 * @return
-	 */
 	public ServerConnection getConn() {
 		return conn;
 	}

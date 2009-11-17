@@ -11,8 +11,10 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
 import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
-import coed.collab.protocol.CoedMessage;
+import coed.base.util.IFutureListener;
+import coed.collab.protocol.*;
 
 /**
  * @author Neobi008
@@ -47,7 +49,18 @@ public class CoedCollabFile implements ICollabObject {
 	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
-		return null;
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<CoedFileLine[]> ret = new CoedFuture<CoedFileLine[]>();
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof GetChangesResultMsg)
+					ret.set(((GetChangesResultMsg)result).getLines());
+			}
+		}
+		
+		FListener fl = new FListener();
+		coll.getConn().sendF(new GetChangesMsg()).add(fl);
+		return fl.ret;
 	}
 	
 	@Override
