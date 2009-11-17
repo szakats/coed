@@ -8,12 +8,9 @@ import java.util.concurrent.TimeoutException;
 public class CoedFuture<T> implements IFuture<T> {
 	private LinkedList<IFutureListener<T>> listeners;
 	private T result;
+	private boolean done = false;
 	
 	private static final TimeoutException timeoutException = new TimeoutException();
-	
-	public CoedFuture() {
-
-	}
 
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
@@ -23,8 +20,10 @@ public class CoedFuture<T> implements IFuture<T> {
 
 	@Override
 	public synchronized T get() throws InterruptedException, ExecutionException {
-		this.wait();
-		assert(isDone());
+		if(!isDone()) {
+			this.wait();
+			assert(isDone());
+		}
 		
 		return result;
 	}
@@ -32,9 +31,12 @@ public class CoedFuture<T> implements IFuture<T> {
 	@Override
 	public synchronized T get(long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
-		this.wait(unit.toMillis(timeout));
-		if(!isDone())
-			throw timeoutException;
+		assert(unit != null);
+		if(!isDone()) {
+			this.wait(unit.toMillis(timeout));
+			if(!isDone())
+				throw timeoutException;
+		}
 		
 		return result;
 	}
@@ -47,23 +49,33 @@ public class CoedFuture<T> implements IFuture<T> {
 
 	@Override
 	public synchronized boolean isDone() {
-		return result != null;
+		return done;
 	}
 
 	@Override
-	public void add(IFutureListener<T> listener) {
+	public synchronized void add(IFutureListener<T> listener) {
 		assert(listener != null);
-		if(listeners == null)
-			listeners = new LinkedList<IFutureListener<T>>();
-		listeners.add(listener);
+		if(!isDone()) {
+			if(listeners == null)
+				listeners = new LinkedList<IFutureListener<T>>();
+			listeners.add(listener);
+		} else
+			listener.got(result);
 	}
 	
 	public synchronized void set(T result) {
+		assert(!isDone());
+		// result is allowed to be null
 		this.result = result;
+		done = true;
+		notifyListeners();
+		notifyAll();
+	}
+	
+	private synchronized void notifyListeners() {
 		if(listeners != null)
 			for(IFutureListener<T> listener : listeners)
 				listener.got(result);
-		
-		notifyAll();
+		listeners = null;
 	}
 }
