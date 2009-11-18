@@ -5,11 +5,11 @@ package coed.collab.client;
 
 import java.util.LinkedList;
 
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
+import coed.base.data.TextModification;
+import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
@@ -46,11 +46,11 @@ public class CoedCollabFile implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
 		class FListener implements IFutureListener<CoedMessage> {
-			public CoedFuture<CoedFileLine[]> ret = new CoedFuture<CoedFileLine[]>();
+			public CoedFuture<TextModification[]> ret = new CoedFuture<TextModification[]>();
 			@Override
 			public void got(CoedMessage result) {
 				if(result instanceof GetChangesResultMsg)
@@ -64,21 +64,21 @@ public class CoedCollabFile implements ICollabObject {
 	}
 	
 	@Override
-	public boolean releaseLock(CoedFileLock lock) throws NotConnectedToServerException {
+	public boolean releaseLock(TextPortion lock) throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
 		return false;
 	}
 
 	@Override
-	public boolean requestLock(CoedFileLock lock) throws NotConnectedToServerException {
+	public boolean requestLock(TextPortion lock) throws NotConnectedToServerException {
 		coll.ensureConnected();
 		
 		return false;
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(CoedFileLine line) throws NotConnectedToServerException {
+	public IFuture<Boolean> sendChanges(TextModification line) throws NotConnectedToServerException {
 		coll.ensureConnected();
 		//conn.send(new SendChangesMsg(null, line));
 		return null;

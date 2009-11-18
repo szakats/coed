@@ -1,8 +1,11 @@
 package coed.collab.protocol;
 
-import coed.base.data.CoedFileLine;
 
+/**
+ * ADD CLASS DESCRIPTION
+ */
 public class SendChangesMsg extends CoedMessage {
+	//TODO: fix this class. to work with TextPortion and TextModification
 	private String file;
 	private CoedFileLine line;
 	

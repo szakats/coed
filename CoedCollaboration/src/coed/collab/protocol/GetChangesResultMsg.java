@@ -1,8 +1,10 @@
 package coed.collab.protocol;
 
-import coed.base.data.CoedFileLine;
-
+/**
+ * Add class description
+ */
 public class GetChangesResultMsg extends CoedMessage {
+	//TODO: fix this class. to work with TextPortion and TextModification
 	private CoedFileLine[] lines;
 	
 	public GetChangesResultMsg(CoedFileLine[] lines) {
