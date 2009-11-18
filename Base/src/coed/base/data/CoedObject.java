@@ -49,12 +49,12 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
 		return co.getChanges();
 	}
 
 	@Override
-	public boolean releaseLock(CoedFileLock lock)
+	public boolean releaseLock(TextPortion lock)
 			throws NotConnectedToServerException {
 		return co.releaseLock(lock);
 	}
@@ -65,13 +65,13 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean requestLock(CoedFileLock lock)
+	public boolean requestLock(TextPortion lock)
 			throws NotConnectedToServerException {
 		return co.requestLock(lock);
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(TextModification line)
 			throws NotConnectedToServerException {
 		return co.sendChanges(line);
 	}

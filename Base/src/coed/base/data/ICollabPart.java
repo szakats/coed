@@ -14,7 +14,7 @@ public interface ICollabPart {
 	 * 			TODO: maybe throw an exception with the exact reason of the failure ?
 	 * @throws NotConnectedToServerException
 	 */
-	public IFuture<Boolean> sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(TextModification line)
   		throws NotConnectedToServerException;
 	
 	/**
@@ -29,7 +29,7 @@ public interface ICollabPart {
    * @return a future containing the lines that changed
    * @throws NotConnectedToServerException
    */
-	public IFuture<CoedFileLine[]> getChanges()
+	public IFuture<TextModification[]> getChanges()
   		throws NotConnectedToServerException;
   
   /**
@@ -59,7 +59,7 @@ public interface ICollabPart {
    * @param lock
    * @return
    */
-  public boolean requestLock(CoedFileLock lock)
+  public boolean requestLock(TextPortion lock)
   		throws NotConnectedToServerException;
   
   /**
@@ -67,7 +67,7 @@ public interface ICollabPart {
    * @param lock
    * @return
    */
-  public boolean releaseLock(CoedFileLock lock)
+  public boolean releaseLock(TextPortion lock)
   		throws NotConnectedToServerException;
   
   /**

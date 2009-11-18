@@ -2,9 +2,7 @@ package coed.plugin.mocksfordebug;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
-import coed.base.comm.ICoedVersioner;
 import coed.base.comm.ICollabStateObserver;
-import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
@@ -35,12 +33,6 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 		// TODO Auto-generated method stub
 		String[] x= {"aaa","bbb"};
 		return x;
-	}
-
-	@Override
-	public String getVersionerType() {
-		// TODO Auto-generated method stub
-		return ICoedVersioner.STATIC;
 	}
 
 	@Override

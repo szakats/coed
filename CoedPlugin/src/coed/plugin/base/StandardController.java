@@ -1,13 +1,9 @@
 package coed.plugin.base;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.text.Document;
-
-import org.eclipse.core.internal.filebuffers.SynchronizableDocument;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -17,19 +13,17 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.part.WorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateObserver;
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
 import coed.base.data.ICoedObject;
 import coed.base.data.IFileObserver;
+import coed.base.data.TextModification;
+import coed.base.data.TextPortion;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
@@ -99,7 +93,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	/**
 	 * Reference to currently locked lines for the user - in form of an array of line numbers
 	 */
-	private Integer[] lockedLines;
+	private TextPortion lockedLines;
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
@@ -314,7 +308,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		lockedLines = TextLinesHelper.getAffectedLines(activeDocument, event.fOffset, event.fLength);
+		lockedLines = new TextPortion(event.fOffset, event.fLength);
 	}
 
 	@Override
@@ -333,21 +327,20 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	class InputProcessor extends Thread {
 		StandardController outer;
 		DocumentEvent event;
-		Integer[] locklines;
+		TextPortion lock;
 		
-		public InputProcessor (StandardController outer, Integer[] locklines, DocumentEvent event){
+		public InputProcessor (StandardController outer, TextPortion lock, DocumentEvent event){
 			this.outer=outer;
 			this.event=event;
-			this.locklines=locklines;
+			this.lock=lock;
 		}
 		
 		public void run(){
 			try {
-				if (!editors.get(activeEditor).requestLock(new CoedFileLock(locklines))) {
+				if (!editors.get(activeEditor).requestLock(lock)) {
 					ignoreEvent=event.fModificationStamp;
-				} else {
-					lockedLines = locklines;
-				}
+					lock=null;
+				} 
 			} catch (NotConnectedToServerException e) {
 				e.printStackTrace();
 			}
@@ -376,16 +369,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 					e.printStackTrace();
 				}
 				
-			} else if (lockedLines!=null) {
+			} else if (lock!=null) {
 				//if I've got something to send:
 				try {
-					CoedFileLine[] fla = null;
-					fla = TextLinesHelper.getCoedFileLines(activeDocument, lockedLines, event.fText);
-					if (fla!=null )
-						for (int i=0; i<fla.length; i++) {
-							editors.get(activeEditor).sendChanges(fla[i]);
-						}
-					editors.get(activeEditor).releaseLock(new CoedFileLock(lockedLines));
+					editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText));
+					editors.get(activeEditor).releaseLock(lock);
 					lockedLines=null;
 				} catch (NotConnectedToServerException e) {
 					e.printStackTrace();
@@ -415,11 +403,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 		
 		public void showChanges(ICoedObject file, IDocument doc) throws BadLocationException, NotConnectedToServerException {
-			IFuture<CoedFileLine[]> linesF;
-			CoedFileLine[] lines = null;
+			IFuture<TextModification[]> modsF;
+			TextModification[] mods = null;
 			try {
-				linesF = file.getChanges();
-				lines = linesF.get();
+				modsF = file.getChanges();
+				mods = modsF.get();
 			} catch(NotConnectedToServerException e) {
 				e.printStackTrace();
 				throw e;
@@ -430,10 +418,10 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if (lines!=null && lines.length > 0) {
-				for (int i = 0; i < lines.length; i++) {
+			if (mods!=null && mods.length > 0) {
+				for (int i = 0; i < mods.length; i++) {
 					doc.removeDocumentListener(outer);
-					TextLinesHelper.doAsReplace(doc, lines[i]);
+					doc.replace(mods[i].getOffset(), mods[i].getLength(), mods[i].getText());
 					doc.addDocumentListener(outer);
 					
 				}

@@ -5,12 +5,12 @@ package coed.collab.client;
 
 import java.io.File;
 
-import coed.base.data.CoedFileLine;
-import coed.base.data.CoedFileLock;
 import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileObserver;
+import coed.base.data.TextModification;
+import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.util.IFuture;
 
@@ -56,7 +56,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<CoedFileLine[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -74,7 +74,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public boolean releaseLock(CoedFileLock lock)
+	public boolean releaseLock(TextPortion lock)
 			throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
 		return false;
@@ -86,15 +86,18 @@ public class CoedCollabFolder implements ICollabObject {
 		
 	}
 
+	/**
+	 * REVIEW!!!! Needs serious rethinking
+	 */
 	@Override
-	public boolean requestLock(CoedFileLock lock)
+	public boolean requestLock(TextPortion lock)
 			throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(CoedFileLine line)
+	public IFuture<Boolean> sendChanges(TextModification line)
 			throws NotConnectedToServerException {
 		// TODO Auto-generated method stub
 		return null;
