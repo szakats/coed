@@ -1,4 +1,4 @@
- package coed.collab.client.config;
+ package coed.base.config;
 
  /**
   * Interface for defining the functionalities of a Config.

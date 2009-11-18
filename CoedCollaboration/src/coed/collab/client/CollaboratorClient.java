@@ -5,11 +5,11 @@ import java.util.HashMap;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICollabStateObserver;
+import coed.base.config.ICoedConfig;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.util.IFuture;
-import coed.collab.client.config.ICoedConfig;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.SendChangesMsg;
 

@@ -2,9 +2,9 @@ package coed.collab.client;
 
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICoedVersioner;
+import coed.base.config.Config;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
-import coed.collab.client.config.Config;
 import coed.versioning.client.StaticVersioner;
 
 public class CoedCommunicatorFactory {

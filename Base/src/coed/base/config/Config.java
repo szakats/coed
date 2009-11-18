@@ -1,4 +1,4 @@
-package coed.collab.client.config;
+package coed.base.config;
 
 import java.io.*;
 import java.util.HashMap;

@@ -9,8 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import coed.base.config.Config;
 import coed.base.data.exceptions.InvalidConfigFileException;
-import coed.collab.client.config.Config;
 
 
 

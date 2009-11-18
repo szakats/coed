@@ -6,12 +6,12 @@ import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICoedVersioner;
 import coed.base.comm.ICollabStateObserver;
+import coed.base.config.ICoedConfig;
 import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
 import coed.base.util.IFuture;
-import coed.collab.client.config.ICoedConfig;
 
 /**
  * This represents an object that will deal with all kinds of communication between 
