@@ -53,7 +53,7 @@ public interface ICollabPart {
    * @param fileObserver the listener to remove
    */
   public void removeChangeListener(IFileObserver fileObserver); 
-;
+
   /**
    * TODO: Description
    * @param lock

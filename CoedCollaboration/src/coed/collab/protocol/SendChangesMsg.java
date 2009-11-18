@@ -1,5 +1,7 @@
 package coed.collab.protocol;
 
+import coed.base.data.TextModification;
+
 
 /**
  * ADD CLASS DESCRIPTION
@@ -7,11 +9,11 @@ package coed.collab.protocol;
 public class SendChangesMsg extends CoedMessage {
 	//TODO: fix this class. to work with TextPortion and TextModification
 	private String file;
-	private CoedFileLine line;
+	private TextModification[] mods;
 	
-	public SendChangesMsg(String file, CoedFileLine line) {
+	public SendChangesMsg(String file, TextModification[] mods) {
 		this.setFile(file);
-		this.setLine(line);
+		this.setMods(mods);
 	}
 
 	/**
@@ -29,16 +31,16 @@ public class SendChangesMsg extends CoedMessage {
 	}
 
 	/**
-	 * @param line the line to set
+	 * @param mods the mods to set
 	 */
-	public void setLine(CoedFileLine line) {
-		this.line = line;
+	public void setMods(TextModification[] mods) {
+		this.mods = mods;
 	}
 
 	/**
-	 * @return the line
+	 * @return the mods
 	 */
-	public CoedFileLine getLine() {
-		return line;
+	public TextModification[] getMods() {
+		return mods;
 	}
 }

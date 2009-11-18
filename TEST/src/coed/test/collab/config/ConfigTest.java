@@ -1,7 +1,7 @@
 package coed.test.collab.config;
 
 import coed.base.data.exceptions.InvalidConfigFileException;
-import coed.collab.client.config.Config;
+import coed.base.config.Config;
 
 public class ConfigTest {
 	public static void main (String args[]) {

@@ -136,10 +136,14 @@ public class ServerConnection extends IoHandlerAdapter {
     	setConnected(false);
     }
     
-    public synchronized void send(CoedMessage msg) {
+    private synchronized void send(CoedMessage msg, long sequenceID) {
     	assert(io != null);
-    	msg.setSequenceID(curSequenceID);
+    	msg.setSequenceID(sequenceID);
     	io.write(msg);
+    }
+    
+    public synchronized void send(CoedMessage msg) {
+    	send(msg, curSequenceID);
     	curSequenceID++;
     }
     

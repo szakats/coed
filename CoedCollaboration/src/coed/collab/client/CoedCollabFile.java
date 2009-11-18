@@ -54,7 +54,7 @@ public class CoedCollabFile implements ICollabObject {
 			@Override
 			public void got(CoedMessage result) {
 				if(result instanceof GetChangesResultMsg)
-					ret.set(((GetChangesResultMsg)result).getLines());
+					ret.set(((GetChangesResultMsg)result).getMods());
 			}
 		}
 		
@@ -122,6 +122,7 @@ public class CoedCollabFile implements ICollabObject {
 	@Override
 	public IFuture<ICoedObject[]> goOnline() {
 		// TODO Auto-generated method stub
+		assert(false); // until implemented
 		return null;
 	}
 }

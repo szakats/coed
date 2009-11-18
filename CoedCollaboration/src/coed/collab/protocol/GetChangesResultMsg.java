@@ -1,27 +1,26 @@
 package coed.collab.protocol;
 
-/**
- * Add class description
- */
+import coed.base.data.TextModification;
+
 public class GetChangesResultMsg extends CoedMessage {
 	//TODO: fix this class. to work with TextPortion and TextModification
-	private CoedFileLine[] lines;
+	private TextModification mods[];
 	
-	public GetChangesResultMsg(CoedFileLine[] lines) {
-		setLines(lines);
+	public GetChangesResultMsg(TextModification[] mods) {
+		this.setMods(mods);
 	}
 
 	/**
-	 * @param lines the lines to set
+	 * @param mods the mods to set
 	 */
-	public void setLines(CoedFileLine[] lines) {
-		this.lines = lines;
+	public void setMods(TextModification mods[]) {
+		this.mods = mods;
 	}
 
 	/**
-	 * @return the lines
+	 * @return the mods
 	 */
-	public CoedFileLine[] getLines() {
-		return lines;
+	public TextModification[] getMods() {
+		return mods;
 	}
 }
