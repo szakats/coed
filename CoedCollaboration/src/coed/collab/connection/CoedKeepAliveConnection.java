@@ -23,8 +23,11 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 		this.conn = conn;
 		if(conn == null)
 			connWorker.interrupt();
-		else
+		else {
+			for(ICoedConnectionListener listener : listeners)
+				conn.addListener(listener);
 			conn.addListener(new DisconnectListener());
+		}
 	}
 	
 	class DisconnectListener implements ICoedConnectionListener {

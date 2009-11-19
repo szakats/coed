@@ -10,11 +10,15 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
     private int port = 1234;
 	
 	public CollaboratorServer() {
+		acceptor.addListener(this);
 		acceptor.listen(port);
 	}
 
 	@Override
 	public void connected(CoedConnection conn) {
-		// TODO: create new session
+		System.out.println("client connected");
+		Session session = new Session(conn, this);
+		conn.addListener(session);
+		// TODO: store sessions somehow ?
 	}
 }

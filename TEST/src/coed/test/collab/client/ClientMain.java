@@ -1,5 +1,6 @@
 package coed.test.collab.client;
 
+import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICollabStateObserver;
 import coed.base.data.CoedObject;
 import coed.collab.client.CollaboratorClient;
@@ -8,16 +9,22 @@ import coed.collab.protocol.SendChangesMsg;
 import coed.versioning.client.StaticVersioner;
 
 public class ClientMain {
+	private CollaboratorClient collab;
 	
 	class CollabListenerTest implements ICollabStateObserver {
 		@Override
 		public void collabStateChanged(String to) {
 			System.out.println("If i heard correctly, the connection state is: " + to);
+			if(to == ICoedCollaborator.STATUS_CONNECTED) {
+				ICoedConnection conn = collab.getConn();
+				assert conn != null;
+				conn.send(new SendChangesMsg(null, null));
+			}
 		}
 	}
 	
 	public ClientMain() {
-		CollaboratorClient collab = new CollaboratorClient(null, "");
+		collab = new CollaboratorClient(null, "");
 		StaticVersioner vers = new StaticVersioner();
 		
 		CoedObject ret = new CoedObject("sadf", true);
@@ -26,16 +33,6 @@ public class ClientMain {
 		collab.addStateListener(new CollabListenerTest());
 		
 		ret.goOnline("asfd");
-		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-		}
-		
-		ICoedConnection conn = collab.getConn();
-		if(conn == null) return;
-	
-		conn.send(new SendChangesMsg(null, null));
 	}
 
 	/**
