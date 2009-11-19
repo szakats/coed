@@ -10,6 +10,9 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.util.IFuture;
+import coed.collab.connection.CoedKeepAliveConnection;
+import coed.collab.connection.ICoedConnection;
+import coed.collab.connection.ICoedConnectionListener;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.SendChangesMsg;
 
@@ -23,7 +26,7 @@ import coed.collab.protocol.SendChangesMsg;
  */
 public class CollaboratorClient implements ICoedCollaborator {
 	
-	private ServerConnection conn;
+	private CoedKeepAliveConnection conn;
 	private int nrOnlineFiles;
 	private ArrayList<ICollabStateObserver> stateListeners;
 	/// cache for storing path-CoedObject pairs
@@ -103,7 +106,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public void incNrOnline() {
 		if(nrOnlineFiles == 0) {
 			setState(STATUS_ERROR);
-			conn = new ServerConnection("localhost", 1234);
+			conn = new CoedKeepAliveConnection("localhost", 1234);
 			conn.addListener(connListener);
 		}
 		
@@ -126,7 +129,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		}
 	}
 	
-	public ServerConnection getConn() {
+	public ICoedConnection getConn() {
 		return conn;
 	}
 	
@@ -138,7 +141,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		this.basePath = basePath;
 	}
 	
-	class ConnectionListener implements ServerConnection.Listener {
+	class ConnectionListener implements ICoedConnectionListener {
 		@Override
 		public void connected() {
 			assert(nrOnlineFiles > 0);

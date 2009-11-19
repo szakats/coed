@@ -3,7 +3,7 @@ package coed.test.collab.client;
 import coed.base.comm.ICollabStateObserver;
 import coed.base.data.CoedObject;
 import coed.collab.client.CollaboratorClient;
-import coed.collab.client.ServerConnection;
+import coed.collab.connection.ICoedConnection;
 import coed.collab.protocol.SendChangesMsg;
 import coed.versioning.client.StaticVersioner;
 
@@ -32,7 +32,7 @@ public class ClientMain {
 		} catch (InterruptedException e) {
 		}
 		
-		ServerConnection conn = collab.getConn();
+		ICoedConnection conn = collab.getConn();
 		if(conn == null) return;
 	
 		conn.send(new SendChangesMsg(null, null));

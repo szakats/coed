@@ -1,42 +1,20 @@
 package coed.collab.server;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import coed.collab.connection.CoedConnection;
+import coed.collab.connection.CoedConnectionAcceptor;
 
-import org.apache.mina.common.DefaultIoFilterChainBuilder;
-import org.apache.mina.common.IoAcceptor;
-import org.apache.mina.common.IoAcceptorConfig;
-import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
-import org.apache.mina.transport.socket.nio.SocketAcceptor;
-import org.apache.mina.transport.socket.nio.SocketAcceptorConfig;
+public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 
-public class CollaboratorServer {
-	
-    private IoAcceptor acceptor;
-    private IoAcceptorConfig config;
-    private DefaultIoFilterChainBuilder chain;
+	private CoedConnectionAcceptor acceptor = new CoedConnectionAcceptor();
     
     private int port = 1234;
 	
 	public CollaboratorServer() {
-		
+		acceptor.listen(port);
 	}
-	
-	void listen() {
-	    acceptor = new SocketAcceptor();
-	    config = new SocketAcceptorConfig();
-	    chain = config.getFilterChain();
-	    
-        chain.addLast("codec", new ProtocolCodecFilter(
-                new ObjectSerializationCodecFactory()));
-        
-        try {
-        	acceptor.bind(new InetSocketAddress(port), new ServerProtocolHandler(),
-                config);
-        } catch(IOException e) {
-        	e.printStackTrace();
-        }
+
+	@Override
+	public void connected(CoedConnection conn) {
+		// TODO: create new session
 	}
-	
 }
