@@ -38,8 +38,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileObserver fileObserver) {
-		co.addChangeListener(fileObserver);
+	public void addChangeListener(IFileChangeListener listener) {
+		co.addChangeListener(listener);
 		
 	}
 
@@ -60,8 +60,8 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void removeChangeListener(IFileObserver fileObserver) {
-		co.removeChangeListener(fileObserver);
+	public void removeChangeListener(IFileChangeListener listener) {
+		co.removeChangeListener(listener);
 	}
 
 	@Override
@@ -100,11 +100,4 @@ public class CoedObject implements ICoedObject {
 	public IFuture<String> getCurrentContent() {
 		return co.getCurrentContent();
 	}
-
-	@Override
-	public IFuture<ICoedObject[]> goOnline() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

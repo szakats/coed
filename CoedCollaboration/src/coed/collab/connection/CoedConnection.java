@@ -117,10 +117,10 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	
     	CoedFuture<CoedMessage> future = new CoedFuture<CoedMessage>();
     	
-    	class WaitListener implements ICoedConnectionListener {
+    	class ReplyListener implements ICoedConnectionListener {
     		CoedFuture<CoedMessage> future;
     		
-    		public WaitListener(CoedFuture<CoedMessage> future) {
+    		public ReplyListener(CoedFuture<CoedMessage> future) {
     			this.future = future;
     		}
 
@@ -142,7 +142,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	}
     	
     	synchronized(this) {
-    		seqListeners.put(new Long(sequenceID), new WaitListener(future));
+    		seqListeners.put(new Long(sequenceID), new ReplyListener(future));
     	}
     	
     	return future;

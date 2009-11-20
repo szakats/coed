@@ -7,7 +7,7 @@ import java.util.LinkedList;
 
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
-import coed.base.data.IFileObserver;
+import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedToServerException;
@@ -25,7 +25,7 @@ public class CoedCollabFile implements ICollabObject {
 	private CollaboratorClient coll;
 	private ICoedObject obj;
 	private boolean isWorkingOnline;
-	private LinkedList<IFileObserver> fileObservers;
+	private LinkedList<IFileChangeListener> fileObservers;
 	
 	public CoedCollabFile(ICoedObject obj, CollaboratorClient coll) {
 		this.obj = obj;
@@ -85,13 +85,13 @@ public class CoedCollabFile implements ICollabObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileObserver fileObserver) {
-		fileObservers.add(fileObserver);
+	public void addChangeListener(IFileChangeListener listener) {
+		fileObservers.add(listener);
 	}
 
 	@Override
-	public void removeChangeListener(IFileObserver fileObserver) {
-		fileObservers.remove(fileObserver);
+	public void removeChangeListener(IFileChangeListener listener) {
+		fileObservers.remove(listener);
 	}
 
 	@Override
@@ -109,20 +109,13 @@ public class CoedCollabFile implements ICollabObject {
 	}
 	
 	public void notifyChangeListeners(ICoedObject obj) {
-		for(IFileObserver obs : fileObservers)
-			obs.update(obj);
+		for(IFileChangeListener obs : fileObservers)
+			obs.hasChanges(obj);
 	}
 
 	@Override
 	public IFuture<String> getCurrentContent() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IFuture<ICoedObject[]> goOnline() {
-		// TODO Auto-generated method stub
-		assert(false); // until implemented
 		return null;
 	}
 }

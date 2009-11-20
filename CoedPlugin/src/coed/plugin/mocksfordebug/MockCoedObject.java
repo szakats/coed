@@ -3,7 +3,7 @@ package coed.plugin.mocksfordebug;
 import java.util.ArrayList;
 
 import coed.base.data.ICoedObject;
-import coed.base.data.IFileObserver;
+import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedToServerException;
@@ -13,11 +13,11 @@ import coed.base.util.IFuture;
 public class MockCoedObject implements ICoedObject {
 	private String path;
 	private TextModification change = new TextModification(1, 0, "xcc");
-	private ArrayList<IFileObserver> listeners;
+	private ArrayList<IFileChangeListener> listeners;
 	
 	public MockCoedObject(String path){
 		this.path=path;
-		listeners=new ArrayList<IFileObserver>();
+		listeners=new ArrayList<IFileChangeListener>();
 	}
 	
 	@Override
@@ -45,9 +45,9 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileObserver fileObserver) {
+	public void addChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
-		listeners.add(fileObserver);
+		listeners.add(listener);
 	}
 
 	@Override
@@ -86,9 +86,9 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void removeChangeListener(IFileObserver fileObserver) {
+	public void removeChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
-		listeners.remove(fileObserver);
+		listeners.remove(listener);
 	}	
 	class Changer extends Thread {
 		private MockCoedObject outer;
@@ -104,7 +104,7 @@ public class MockCoedObject implements ICoedObject {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			listeners.get(0).update(outer);
+			listeners.get(0).hasChanges(outer);
 			
 		}
 	}

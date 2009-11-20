@@ -21,7 +21,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateObserver;
 import coed.base.data.ICoedObject;
-import coed.base.data.IFileObserver;
+import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.data.exceptions.InvalidConfigFileException;
@@ -39,7 +39,7 @@ import coed.plugin.views.IUserList;
  * @author Izso
  *
  */
-public class StandardController implements IPluginController, IPartListener, IFileObserver, IDocumentListener, ICollabStateObserver {
+public class StandardController implements IPluginController, IPartListener, IFileChangeListener, IDocumentListener, ICollabStateObserver {
 	/**
 	 * Location of the config file. Will be an absolute path.
 	 */
@@ -297,7 +297,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
-	public synchronized void update(ICoedObject file) {
+	public synchronized void hasChanges(ICoedObject file) {
 		//TODO: real equality checking
 		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, lastUpdate, this);

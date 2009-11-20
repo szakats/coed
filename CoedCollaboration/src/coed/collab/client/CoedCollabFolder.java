@@ -8,7 +8,7 @@ import java.io.File;
 import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
-import coed.base.data.IFileObserver;
+import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedToServerException;
@@ -29,12 +29,12 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileObserver fileObserver) {
-	    recursiveAddChangeListener(fileObserver, obj.getPath());
+	public void addChangeListener(IFileChangeListener listener) {
+	    recursiveAddChangeListener(listener, obj.getPath());
 	   
 	}
 	
-	public void recursiveAddChangeListener(IFileObserver fileObserver, String path){
+	public void recursiveAddChangeListener(IFileChangeListener fileObserver, String path){
 		File f = new File(coll.getBasePath()+ path);
 		
 		File[] listOfFiles = f.listFiles();
@@ -81,7 +81,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public void removeChangeListener(IFileObserver fileObserver) {
+	public void removeChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -110,12 +110,6 @@ public class CoedCollabFolder implements ICollabObject {
 
 	@Override
 	public IFuture<String> getCurrentContent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IFuture<ICoedObject[]> goOnline() {
 		// TODO Auto-generated method stub
 		return null;
 	}
