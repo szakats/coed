@@ -5,7 +5,7 @@ package coed.collab.protocol;
  * - by the client when it wishes to get the contents of a particular file
  * @author szakats
  */
-public class GetContentsMsg {
+public class GetContentsMsg extends CoedMessage {
 	private String fileName;
 
 	/**

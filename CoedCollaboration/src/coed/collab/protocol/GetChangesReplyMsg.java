@@ -8,7 +8,6 @@ import coed.base.data.TextModification;
  * @author szakats
  */
 public class GetChangesReplyMsg extends CoedMessage {
-	//TODO: fix this class. to work with TextPortion and TextModification
 	private TextModification mods[];
 	
 	public GetChangesReplyMsg(TextModification[] mods) {

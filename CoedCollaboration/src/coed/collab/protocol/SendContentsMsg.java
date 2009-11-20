@@ -7,7 +7,7 @@ package coed.collab.protocol;
  * (in both cases the previous message specifies the fileName)
  * @author szakats
  */
-public class SendContentsMsg {
+public class SendContentsMsg extends CoedMessage {
 	private String contents;
 
 	public SendContentsMsg(String contents) {

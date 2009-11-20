@@ -1,12 +1,9 @@
 package coed.collab.server;
 
+import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
-import coed.collab.protocol.CoedMessage;
-import coed.collab.protocol.GetChangesMsg;
-import coed.collab.protocol.GetProjectMsg;
-import coed.collab.protocol.GetProjectResponseMsg;
-import coed.collab.protocol.SendChangesMsg;
+import coed.collab.protocol.*;
 
 public class Session implements ICoedConnectionListener {
 	private ICoedConnection conn;
@@ -37,10 +34,10 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((GetChangesMsg)msg);
     	else if(msg instanceof SendChangesMsg)
     		handleMessage((SendChangesMsg)msg);
-    	else if(msg instanceof GetProjectMsg) 
-    		handleMessage((GetProjectMsg)msg);
-    	else
-    		System.out.println("unknown message received");
+    	else if(msg instanceof GoOnlineMsg)
+    		handleMessage((GoOnlineMsg)msg);
+    	else if(msg instanceof GetContentsMsg)
+    		handleMessage((GetContentsMsg)msg);
 	}
     
     public void handleMessage(GetChangesMsg msg) {
@@ -51,9 +48,41 @@ public class Session implements ICoedConnectionListener {
     	System.out.println("send changes");
     }
     
-    public void handleMessage(GetProjectMsg msg) {
-    	System.out.println("get project");
-    	boolean found_project = true;
-    	conn.reply(msg, new GetProjectResponseMsg(found_project));
+    public void handleMessage(GetContentsMsg msg) {
+    	System.out.println("get contents");
+    	
+    	String contents = null; // TODO: get contents
+    	conn.reply(msg, new SendContentsMsg(contents));
+    }
+    
+    public void handleMessage(GoOnlineMsg msg) {
+    	System.out.println("go online");
+    	boolean isOnline = false;
+    	
+    	class FListener implements IFutureListener<CoedMessage> {
+    		private String fileName;
+    		private boolean isOnline;
+    		
+			public FListener(String fileName) {
+				this.fileName = fileName;
+				isOnline = false; // TODO: deduce from filename
+				
+				if(!isOnline) {
+					conn.sendF(new GoOnlineResultMsg(false)).add(this);
+				} else
+					conn.send(new GoOnlineResultMsg(true));
+			}
+
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof SendContentsMsg) {
+					String contents = ((SendContentsMsg)result).getContents();
+					// TODO: save it
+				}
+					
+			}
+    	}
+    	
+    	new FListener(msg.getFileName());
     }
 }

@@ -14,6 +14,7 @@ import coed.base.data.exceptions.NotConnectedToServerException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 import coed.base.util.IFutureListener;
+import coed.collab.connection.ICoedConnection;
 import coed.collab.protocol.*;
 
 /**
@@ -59,8 +60,8 @@ public class CoedCollabFile implements ICollabObject {
 		}
 		
 		FListener fl = new FListener();
-		coll.getConn().sendF(new GetChangesMsg()).add(fl);
-		return fl.ret;
+		coll.getConn().sendF(new GetChangesMsg(getParent().getPath())).add(fl);
+		return new FListener().ret;
 	}
 	
 	@Override
@@ -103,9 +104,29 @@ public class CoedCollabFile implements ICollabObject {
 	
 	@Override
 	public IFuture<String> goOnline(String contents) {
+		
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<String> ret = new CoedFuture<String>();
+			public String contents;
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof GoOnlineResultMsg) {
+					if(((GoOnlineResultMsg)result).isAlreadyOnline()) {
+						ret.chain(getCurrentContent());
+					} else {
+						coll.getConn().reply(result, new SendContentsMsg(contents));
+						ret.set(null);
+					}
+				}
+			}
+		}
+		
 		isWorkingOnline = true;
 		coll.incNrOnline();
-		return null;
+		FListener fl = new FListener();
+		fl.contents = contents;
+		coll.getConn().sendF(new GoOnlineMsg(getParent().getPath())).add(fl);
+		return new FListener().ret;
 	}
 	
 	public void notifyChangeListeners(ICoedObject obj) {
@@ -115,7 +136,20 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public IFuture<String> getCurrentContent() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<String> ret = new CoedFuture<String>();
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof SendContentsMsg) {
+					ret.set(((SendContentsMsg)result).getContents());
+				}
+			}
+			
+		}
+		
+		FListener fl = new FListener();
+		coll.getConn().sendF(new GetContentsMsg(getParent().getPath())).add(fl);
+		return fl.ret;
 	}
 }
