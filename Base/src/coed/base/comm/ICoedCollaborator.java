@@ -4,6 +4,12 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.util.IFuture;
 
+/**
+ * ICoedCollaborator is the component of ICoedCommunicator
+ * which handles the collaborative editing in Coed.
+ * @author szakats
+ *
+ */
 public interface ICoedCollaborator {
        public final String STATUS_CONNECTED="Working online";
 	   public final String STATUS_ERROR="Could not connect to server";

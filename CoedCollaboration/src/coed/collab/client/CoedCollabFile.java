@@ -53,8 +53,8 @@ public class CoedCollabFile implements ICollabObject {
 			public CoedFuture<TextModification[]> ret = new CoedFuture<TextModification[]>();
 			@Override
 			public void got(CoedMessage result) {
-				if(result instanceof GetChangesResultMsg)
-					ret.set(((GetChangesResultMsg)result).getMods());
+				if(result instanceof GetChangesReplyMsg)
+					ret.set(((GetChangesReplyMsg)result).getMods());
 			}
 		}
 		

@@ -4,8 +4,7 @@ import coed.base.data.ICoedObject;
 import coed.base.data.IVersionedObject;
 
 /**
- * TODO: description
- * @author Neobi
+ * ICoedVersioner  
  * 
  */
 public interface ICoedVersioner {

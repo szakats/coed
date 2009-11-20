@@ -2,11 +2,16 @@ package coed.collab.protocol;
 
 import coed.base.data.TextModification;
 
-public class GetChangesResultMsg extends CoedMessage {
+/**
+ * This message is sent:
+ * - by the server as a reply to the GetChangesMsg
+ * @author szakats
+ */
+public class GetChangesReplyMsg extends CoedMessage {
 	//TODO: fix this class. to work with TextPortion and TextModification
 	private TextModification mods[];
 	
-	public GetChangesResultMsg(TextModification[] mods) {
+	public GetChangesReplyMsg(TextModification[] mods) {
 		this.setMods(mods);
 	}
 

@@ -4,10 +4,11 @@ import coed.base.data.TextModification;
 
 
 /**
- * ADD CLASS DESCRIPTION
+ * This message is sent:
+ * - by the client when some changes have been made
+ * - by the server as a reply to the GetChangesMsg
  */
 public class SendChangesMsg extends CoedMessage {
-	//TODO: fix this class. to work with TextPortion and TextModification
 	private String file;
 	private TextModification[] mods;
 	

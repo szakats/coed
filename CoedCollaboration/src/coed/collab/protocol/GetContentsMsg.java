@@ -2,21 +2,21 @@ package coed.collab.protocol;
 
 /**
  * This message is sent:
- * - by the client when it wants the changes made to a particular file
+ * - by the client when it wishes to get the contents of a particular file
  * @author szakats
  */
-public class GetChangesMsg extends CoedMessage {
+public class GetContentsMsg {
 	private String fileName;
-
-	public GetChangesMsg(String fileName) {
-		super();
-		this.fileName = fileName;
-	}
 
 	/**
 	 * @param fileName the fileName to set
 	 */
 	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public GetContentsMsg(String fileName) {
+		super();
 		this.fileName = fileName;
 	}
 
@@ -26,4 +26,5 @@ public class GetChangesMsg extends CoedMessage {
 	public String getFileName() {
 		return fileName;
 	}
+	
 }

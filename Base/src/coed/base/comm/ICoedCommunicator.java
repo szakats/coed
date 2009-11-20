@@ -3,9 +3,8 @@ package coed.base.comm;
 import coed.base.data.ICoedObject;
 
 /**
- * TODO: javadoc
- * @author Izso
- *	
+ * ICoedCommunicator is the interface presented to the plugin,
+ * it has a versioning and collaborative component.
  */
 public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator{
 	

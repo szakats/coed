@@ -2,6 +2,13 @@ package coed.collab.protocol;
 
 import java.io.Serializable;
 
+/**
+ * The base class for all messages in the coed protocol.
+ * These are serialized and passed between server and
+ * client and deserialized, ensuring that the receiver
+ * will always decode the message properly.
+ * @author szakats
+ */
 public class CoedMessage implements Serializable {
 	/**
 	 * The same sequence ID is given to a sequence of messages
