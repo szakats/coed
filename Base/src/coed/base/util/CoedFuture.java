@@ -72,6 +72,15 @@ public class CoedFuture<T> implements IFuture<T> {
 		notifyAll();
 	}
 	
+	public synchronized void chain(IFuture<T> future) {
+		add(new IFutureListener<T>() {
+			@Override
+			public void got(T result) {
+				set(result);
+			}
+		});
+	}
+	
 	private synchronized void notifyListeners() {
 		if(listeners != null)
 			for(IFutureListener<T> listener : listeners)
