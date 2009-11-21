@@ -109,20 +109,24 @@ public class CoedCollabFile implements ICollabObject {
 			
 			GoOnline(String localContents) {
 				this.localContents = localContents;
-				if(coll.getState() == ICoedCollaborator.STATUS_CONNECTED) {
-					if(onlineResult == null)
-						sendGoOnline();
-					else
-						processOnlineResult();
-				} else
+				if(coll.getState() == ICoedCollaborator.STATUS_CONNECTED)
+					resume();
+				else
 					coll.addStateListener(this);
+			}
+			
+			private void resume() {
+				if(onlineResult == null)
+					sendGoOnline();
+				else
+					processOnlineResult();
 			}
 			
 			@Override
 			public void collabStateChanged(String to) {
 				if(to == ICoedCollaborator.STATUS_CONNECTED) {
 					coll.removeStateListener(this);
-					sendGoOnline();
+					resume();
 				}
 			}
 			
@@ -145,6 +149,7 @@ public class CoedCollabFile implements ICollabObject {
 			}
 			
 			void processOnlineResult() {
+				System.out.println("got online result: " + onlineResult.isAlreadyOnline());
 				try {
 					if(onlineResult.isAlreadyOnline()) {
 						ret.chain(getRemoteContents());

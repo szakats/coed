@@ -87,10 +87,14 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     public void messageReceived(IoSession session, Object message) {
     	assert(session != null && message != null);
     	CoedMessage msg = (CoedMessage)message;
-    	for(ICoedConnectionListener l : allListeners)
-    		l.received(msg);
-    	long id = msg.getSequenceID();
     	
+    	synchronized(this) {
+    		// make sure all new messages will not use a sequence id
+    		// the the other peer knows about
+    		curSequenceID = Math.max(curSequenceID, msg.getSequenceID() + 1);
+    	}
+    	
+    	long id = msg.getSequenceID();
     	ICoedConnectionListener l;
     	synchronized(this) {
 	    	l = seqListeners.remove(new Long(id));
@@ -98,6 +102,9 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	
 	    if(l != null)
 	    	l.received(msg);
+	    else
+	    	for(ICoedConnectionListener cl : allListeners)
+	    		cl.received(msg);
     }
     
 	@Override

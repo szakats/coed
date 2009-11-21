@@ -1,7 +1,7 @@
 package coed.collab.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICollabStateListener;
@@ -28,7 +28,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	private CoedKeepAliveConnection conn;
 	private int nrOnlineFiles;
-	private ArrayList<ICollabStateListener> stateListeners;
+	private LinkedList<ICollabStateListener> stateListeners;
 	/// cache for storing path-CoedObject pairs
 	private HashMap<String,ICollabObject> cache;
 	private String state;
@@ -41,7 +41,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
-		stateListeners = new ArrayList<ICollabStateListener>();
+		stateListeners = new LinkedList<ICollabStateListener>();
 		cache = new HashMap<String,ICollabObject>();
 		this.basePath = basePath;
 		setState(STATUS_OFFLINE);
@@ -61,12 +61,16 @@ public class CollaboratorClient implements ICoedCollaborator {
 		return state;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void setState(String state) {
 		synchronized(this) {
 			this.state = state;
 		}
 		// must not synchronize the rest (observers are allowed to call getState)
-		for(ICollabStateListener stateObs : stateListeners)
+		// some listeners may be removed while iterating so clone the list
+		// TODO: make a container which solves this problem more efficiently
+		LinkedList<ICollabStateListener> clonedList = (LinkedList<ICollabStateListener>)stateListeners.clone();
+		for(ICollabStateListener stateObs : clonedList)
 			stateObs.collabStateChanged(state);
 	}
 	

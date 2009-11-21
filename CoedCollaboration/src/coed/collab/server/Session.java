@@ -69,15 +69,15 @@ public class Session implements ICoedConnectionListener {
     		private String fileName;
     		private boolean isOnline;
     		
-			public FListener(String fileName) {
-				this.fileName = fileName;
+			public FListener(GoOnlineMsg msg) {
+				this.fileName = msg.getFileName();
 				isOnline = false; // TODO: deduce from filename
 				
 				try {
 					if(!isOnline) {
-						conn.sendF(new GoOnlineResultMsg(false)).add(this);
+						conn.replyF(msg, new GoOnlineResultMsg(false)).add(this);
 					} else
-						conn.send(new GoOnlineResultMsg(true));
+						conn.reply(msg, new GoOnlineResultMsg(true));
 				} catch(NotConnectedException e) {
 					// TODO: handle this properly
 					e.printStackTrace();
@@ -88,12 +88,13 @@ public class Session implements ICoedConnectionListener {
 			public void got(CoedMessage result) {
 				if(result instanceof SendContentsMsg) {
 					String contents = ((SendContentsMsg)result).getContents();
+					System.out.println("got contents " + contents);
 					// TODO: save it
 				}
 					
 			}
     	}
     	
-    	new FListener(msg.getFileName());
+    	new FListener(msg);
     }
 }
