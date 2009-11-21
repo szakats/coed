@@ -5,12 +5,14 @@ package coed.collab.client;
 
 import java.util.LinkedList;
 
+import coed.base.comm.ICoedCollaborator;
+import coed.base.comm.ICollabStateListener;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 import coed.base.util.IFutureListener;
@@ -40,15 +42,13 @@ public class CoedCollabFile implements ICollabObject {
 	
 	
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
-		coll.ensureConnected();
+	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
 
 		return null;
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
-		coll.ensureConnected();
+	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
 		
 		class FListener implements IFutureListener<CoedMessage> {
 			public CoedFuture<TextModification[]> ret = new CoedFuture<TextModification[]>();
@@ -65,33 +65,30 @@ public class CoedCollabFile implements ICollabObject {
 	}
 	
 	@Override
-	public boolean releaseLock(TextPortion lock) throws NotConnectedToServerException {
-		coll.ensureConnected();
+	public boolean releaseLock(TextPortion lock) throws NotConnectedException {
 		
 		return false;
 	}
 
 	@Override
-	public boolean requestLock(TextPortion lock) throws NotConnectedToServerException {
-		coll.ensureConnected();
+	public boolean requestLock(TextPortion lock) throws NotConnectedException {
 		
 		return false;
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(TextModification line) throws NotConnectedToServerException {
-		coll.ensureConnected();
+	public IFuture<Boolean> sendChanges(TextModification line) throws NotConnectedException {
 		//conn.send(new SendChangesMsg(null, line));
 		return null;
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) {
+	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		fileObservers.add(listener);
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) {
+	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		fileObservers.remove(listener);
 	}
 
@@ -105,28 +102,65 @@ public class CoedCollabFile implements ICollabObject {
 	@Override
 	public IFuture<String> goOnline(String contents) {
 		
-		class FListener implements IFutureListener<CoedMessage> {
+		class GoOnline implements ICollabStateListener {
 			public CoedFuture<String> ret = new CoedFuture<String>();
-			public String contents;
+			public String localContents;
+			private GoOnlineResultMsg onlineResult;
+			
+			GoOnline(String localContents) {
+				this.localContents = localContents;
+				if(coll.getState() == ICoedCollaborator.STATUS_CONNECTED) {
+					if(onlineResult == null)
+						sendGoOnline();
+					else
+						processOnlineResult();
+				} else
+					coll.addStateListener(this);
+			}
+			
 			@Override
-			public void got(CoedMessage result) {
-				if(result instanceof GoOnlineResultMsg) {
-					if(((GoOnlineResultMsg)result).isAlreadyOnline()) {
-						ret.chain(getCurrentContent());
+			public void collabStateChanged(String to) {
+				if(to == ICoedCollaborator.STATUS_CONNECTED) {
+					coll.removeStateListener(this);
+					sendGoOnline();
+				}
+			}
+			
+			void sendGoOnline() {
+				class FListener implements IFutureListener<CoedMessage> {
+					@Override
+					public void got(CoedMessage result) {
+						if(result instanceof GoOnlineResultMsg) {
+							onlineResult = ((GoOnlineResultMsg)result);
+							processOnlineResult();
+						}
+					}
+				}
+				
+				try {
+					coll.getConn().sendF(new GoOnlineMsg(getParent().getPath())).add(new FListener());
+				} catch (NotConnectedException e) {
+					coll.addStateListener(this);
+				}
+			}
+			
+			void processOnlineResult() {
+				try {
+					if(onlineResult.isAlreadyOnline()) {
+						ret.chain(getRemoteContents());
 					} else {
-						coll.getConn().reply(result, new SendContentsMsg(contents));
+						coll.getConn().reply(onlineResult, new SendContentsMsg(localContents));
 						ret.set(null);
 					}
+				} catch (NotConnectedException e) {
+					coll.addStateListener(this);
 				}
 			}
 		}
 		
 		isWorkingOnline = true;
 		coll.incNrOnline();
-		FListener fl = new FListener();
-		fl.contents = contents;
-		coll.getConn().sendF(new GoOnlineMsg(getParent().getPath())).add(fl);
-		return new FListener().ret;
+		return new GoOnline(contents).ret;
 	}
 	
 	public void notifyChangeListeners(ICoedObject obj) {
@@ -135,7 +169,7 @@ public class CoedCollabFile implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<String> getCurrentContent() {
+	public IFuture<String> getRemoteContents() throws NotConnectedException {
 		
 		class FListener implements IFutureListener<CoedMessage> {
 			public CoedFuture<String> ret = new CoedFuture<String>();
@@ -145,7 +179,6 @@ public class CoedCollabFile implements ICollabObject {
 					ret.set(((SendContentsMsg)result).getContents());
 				}
 			}
-			
 		}
 		
 		FListener fl = new FListener();

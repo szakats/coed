@@ -11,7 +11,7 @@ import coed.base.data.ICollabObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 
 /**
@@ -29,7 +29,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) {
+	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
 	    recursiveAddChangeListener(listener, obj.getPath());
 	   
 	}
@@ -50,13 +50,13 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -75,13 +75,13 @@ public class CoedCollabFolder implements ICollabObject {
 
 	@Override
 	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) {
+	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -91,14 +91,14 @@ public class CoedCollabFolder implements ICollabObject {
 	 */
 	@Override
 	public boolean requestLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -109,7 +109,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<String> getCurrentContent() {
+	public IFuture<String> getRemoteContents() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -13,6 +13,7 @@ import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactor
 import org.apache.mina.transport.socket.nio.SocketConnector;
 import org.apache.mina.transport.socket.nio.SocketConnectorConfig;
 
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 import coed.collab.protocol.CoedMessage;
@@ -106,13 +107,13 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 			listener.disconnected();
     }
 	
-    private synchronized void send(CoedMessage msg, long sequenceID) {
-    	assert(io != null);
+    private synchronized void send(CoedMessage msg, long sequenceID) throws NotConnectedException {
+    	if(!isConnected()) throw new NotConnectedException();
     	msg.setSequenceID(sequenceID);
     	io.write(msg);
     }
     
-    private synchronized IFuture<CoedMessage> sendF(CoedMessage msg, long sequenceID) {
+    private synchronized IFuture<CoedMessage> sendF(CoedMessage msg, long sequenceID) throws NotConnectedException {
     	send(msg, sequenceID);
     	
     	CoedFuture<CoedMessage> future = new CoedFuture<CoedMessage>();
@@ -148,7 +149,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	return future;
     }
     
-    public synchronized void send(CoedMessage msg) {
+    public synchronized void send(CoedMessage msg) throws NotConnectedException {
     	send(msg, curSequenceID);
     	curSequenceID++;
     }
@@ -162,17 +163,17 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	allListeners.remove(listener);
     }
     
-    public synchronized IFuture<CoedMessage> sendF(CoedMessage msg) {
+    public synchronized IFuture<CoedMessage> sendF(CoedMessage msg) throws NotConnectedException {
     	IFuture<CoedMessage> ret = sendF(msg, curSequenceID);
     	curSequenceID++;
     	return ret;
     }
     
-    public void reply(CoedMessage to, CoedMessage with) {
+    public void reply(CoedMessage to, CoedMessage with) throws NotConnectedException {
     	send(with, to.getSequenceID());
     }
     
-    public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) {
+    public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) throws NotConnectedException {
     	return sendF(with, to.getSequenceID());
     }
     

@@ -3,7 +3,7 @@
  */
 package coed.base.data;
 
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 
 /**
@@ -38,41 +38,41 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) {
+	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		co.addChangeListener(listener);
 		
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
 		return co.getActiveUsers();
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
 		return co.getChanges();
 	}
 
 	@Override
 	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		return co.releaseLock(lock);
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) {
+	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		co.removeChangeListener(listener);
 	}
 
 	@Override
 	public boolean requestLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		return co.requestLock(lock);
 	}
 
 	@Override
 	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		return co.sendChanges(line);
 	}
 
@@ -97,7 +97,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String> getCurrentContent() {
-		return co.getCurrentContent();
+	public IFuture<String> getRemoteContents() throws NotConnectedException {
+		return co.getRemoteContents();
 	}
 }

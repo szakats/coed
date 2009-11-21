@@ -6,16 +6,16 @@ package coed.base.data.exceptions;
  * @author szakats
  *
  */
-public class NotConnectedToServerException extends NoCoedMatchFoundException {
+public class NotConnectedException extends NoCoedMatchFoundException {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NotConnectedToServerException(){}
+	public NotConnectedException(){}
 	
-	public NotConnectedToServerException(String msg){
+	public NotConnectedException(String msg){
 		super(msg);
 	}
 

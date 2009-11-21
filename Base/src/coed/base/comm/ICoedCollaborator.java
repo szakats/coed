@@ -31,13 +31,13 @@ public interface ICoedCollaborator {
 	    * of the collaborator to the server changes.
 	    * @param stateObserver
 	    */
-	   public void addStateListener(ICollabStateObserver stateObserver);
+	   public void addStateListener(ICollabStateListener stateObserver);
 	   
 	   /**
 	    * Remove a given ICollabStateObserver from the list of listeners.
 	    * @param stateObserver
 	    */
-	   public void removeStateListener(ICollabStateObserver stateObserver);
+	   public void removeStateListener(ICollabStateListener stateObserver);
 
 	   /**
 	    * Make a new a ICollabObject and set it as a child of the given ICoedObject.

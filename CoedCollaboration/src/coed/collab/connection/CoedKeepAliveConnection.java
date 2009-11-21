@@ -3,6 +3,7 @@ package coed.collab.connection;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
 
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 import coed.collab.protocol.*;
 
@@ -114,25 +115,25 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 	}
 
 	@Override
-	public void reply(CoedMessage to, CoedMessage with) {
+	public void reply(CoedMessage to, CoedMessage with) throws NotConnectedException {
 		assert conn != null;
 		conn.reply(to, with);
 	}
 
 	@Override
-	public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) {
+	public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) throws NotConnectedException {
 		assert conn != null;
 		return conn.replyF(to, with);
 	}
 
 	@Override
-	public void send(CoedMessage msg) {
+	public void send(CoedMessage msg) throws NotConnectedException {
 		assert conn != null;
 		conn.send(msg);
 	}
 
 	@Override
-	public IFuture<CoedMessage> sendF(CoedMessage msg) {
+	public IFuture<CoedMessage> sendF(CoedMessage msg) throws NotConnectedException {
 		assert conn != null;
 		return conn.sendF(msg);
 	}

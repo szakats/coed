@@ -1,6 +1,6 @@
 package coed.base.comm;
 
-public interface ICollabStateObserver {
+public interface ICollabStateListener {
 	/**
 	 * Called when the connection state of the collaborator changes.
 	 * @param to the new state

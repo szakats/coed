@@ -5,7 +5,7 @@ import java.io.File;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICoedVersioner;
-import coed.base.comm.ICollabStateObserver;
+import coed.base.comm.ICollabStateListener;
 import coed.base.config.ICoedConfig;
 import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
@@ -72,13 +72,13 @@ public class Communicator implements ICoedCommunicator {
 	 * every change occured in the state of the communicator.
 	 */
 	@Override
-	public void addStateListener(ICollabStateObserver stateObserver) {
+	public void addStateListener(ICollabStateListener stateObserver) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removeStateListener(ICollabStateObserver stateObserver) {
+	public void removeStateListener(ICollabStateListener stateObserver) {
 		// TODO Auto-generated method stub
 		
 	}

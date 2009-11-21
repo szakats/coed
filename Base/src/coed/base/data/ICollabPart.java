@@ -1,6 +1,6 @@
 package coed.base.data;
 
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 
 public interface ICollabPart {
@@ -12,47 +12,53 @@ public interface ICollabPart {
 	 * @return a future containing a boolean value of true
 	 * 			if it succeeded or false if for example the line was locked already.
 	 * 			TODO: maybe throw an exception with the exact reason of the failure ?
-	 * @throws NotConnectedToServerException
+	 * @throws NotConnectedException
 	 */
 	public IFuture<Boolean> sendChanges(TextModification line)
-  		throws NotConnectedToServerException;
+  		throws NotConnectedException;
 	
 	/**
 	 * Get the full contents of this file from the server.
 	 * @return a future string containing the contents
+	 * @throws NotConnectedException TODO
 	 */
-	public IFuture<String> getCurrentContent();
+	public IFuture<String> getRemoteContents() 
+		throws NotConnectedException;
 	
   /**
    * Get the changes that have been done to this file since the last call
    * to either getCurrentContent, getChanges or goOnline.
    * @return a future containing the lines that changed
-   * @throws NotConnectedToServerException
+   * @throws NotConnectedException
    */
 	public IFuture<TextModification[]> getChanges()
-  		throws NotConnectedToServerException;
+  		throws NotConnectedException;
   
   /**
    * Get the list of users who are currently editing this file
    * @return a future array of strings containing the names of the users 
-   * @throws NotConnectedToServerException
+   * @throws NotConnectedException
    */
 	public IFuture<String[]> getActiveUsers()
-  		throws NotConnectedToServerException;
+  		throws NotConnectedException;
   
   /**
    * Add a listener for the changed state of this file.
    * The listener will be notified only the first time the file changes
    * since the last call to getChanges, getCurrentContent or goOnline.
    * @param listener the listener to add to the set of change listeners
+ * @throws NotConnectedException TODO
    */
-  public void addChangeListener(IFileChangeListener listener);
+	public void addChangeListener(IFileChangeListener listener) 
+		throws NotConnectedException;
   
-  /**
-   * Remove a change listener from the set of listeners
-   * @param listener the listener to remove
-   */
-  public void removeChangeListener(IFileChangeListener listener); 
+	/**
+	 * Remove a change listener from the set of listeners
+	 * @param listener the listener to remove
+	 * @throws NotConnectedException TODO
+	 */
+	public void removeChangeListener(IFileChangeListener listener) 
+		throws NotConnectedException; 
 
   /**
    * TODO: Description
@@ -60,7 +66,7 @@ public interface ICollabPart {
    * @return
    */
   public boolean requestLock(TextPortion lock)
-  		throws NotConnectedToServerException;
+  		throws NotConnectedException;
   
   /**
    * TODO: Description
@@ -68,7 +74,7 @@ public interface ICollabPart {
    * @return
    */
   public boolean releaseLock(TextPortion lock)
-  		throws NotConnectedToServerException;
+  		throws NotConnectedException;
   
   /**
    * Turn on the collaborative editing mode for this file,

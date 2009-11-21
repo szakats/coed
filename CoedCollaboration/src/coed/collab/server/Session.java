@@ -1,5 +1,6 @@
 package coed.collab.server;
 
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
@@ -51,8 +52,13 @@ public class Session implements ICoedConnectionListener {
     public void handleMessage(GetContentsMsg msg) {
     	System.out.println("get contents");
     	
-    	String contents = null; // TODO: get contents
-    	conn.reply(msg, new SendContentsMsg(contents));
+    	String contents = "foo"; // TODO: get contents
+    	try {
+			conn.reply(msg, new SendContentsMsg(contents));
+		} catch (NotConnectedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public void handleMessage(GoOnlineMsg msg) {
@@ -67,10 +73,15 @@ public class Session implements ICoedConnectionListener {
 				this.fileName = fileName;
 				isOnline = false; // TODO: deduce from filename
 				
-				if(!isOnline) {
-					conn.sendF(new GoOnlineResultMsg(false)).add(this);
-				} else
-					conn.send(new GoOnlineResultMsg(true));
+				try {
+					if(!isOnline) {
+						conn.sendF(new GoOnlineResultMsg(false)).add(this);
+					} else
+						conn.send(new GoOnlineResultMsg(true));
+				} catch(NotConnectedException e) {
+					// TODO: handle this properly
+					e.printStackTrace();
+				}
 			}
 
 			@Override

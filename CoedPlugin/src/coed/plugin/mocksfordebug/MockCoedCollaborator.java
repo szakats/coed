@@ -2,7 +2,7 @@ package coed.plugin.mocksfordebug;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
-import coed.base.comm.ICollabStateObserver;
+import coed.base.comm.ICollabStateListener;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
@@ -48,7 +48,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	}
 
 	@Override
-	public void addStateListener(ICollabStateObserver stateObserver) {
+	public void addStateListener(ICollabStateListener stateObserver) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -66,7 +66,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	}
 
 	@Override
-	public void removeStateListener(ICollabStateObserver stateObserver) {
+	public void removeStateListener(ICollabStateListener stateObserver) {
 		// TODO Auto-generated method stub
 		
 	}

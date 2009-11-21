@@ -19,13 +19,13 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
-import coed.base.comm.ICollabStateObserver;
+import coed.base.comm.ICollabStateListener;
 import coed.base.data.ICoedObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.data.exceptions.InvalidConfigFileException;
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.base.util.IFuture;
 import coed.plugin.exceptions.GetFileInEditorException;
@@ -39,7 +39,7 @@ import coed.plugin.views.IUserList;
  * @author Izso
  *
  */
-public class StandardController implements IPluginController, IPartListener, IFileChangeListener, IDocumentListener, ICollabStateObserver {
+public class StandardController implements IPluginController, IPartListener, IFileChangeListener, IDocumentListener, ICollabStateListener {
 	/**
 	 * Location of the config file. Will be an absolute path.
 	 */
@@ -226,7 +226,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	public String[] getCollabUsers(ICoedObject file) {
 		try {
 			return file.getActiveUsers().get();
-		} catch(NotConnectedToServerException e) {
+		} catch(NotConnectedException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -341,7 +341,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 					ignoreEvent=event.fModificationStamp;
 					lock=null;
 				} 
-			} catch (NotConnectedToServerException e) {
+			} catch (NotConnectedException e) {
 				e.printStackTrace();
 			}
 			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
@@ -375,7 +375,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 					editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText));
 					editors.get(activeEditor).releaseLock(lock);
 					lockedLines=null;
-				} catch (NotConnectedToServerException e) {
+				} catch (NotConnectedException e) {
 					e.printStackTrace();
 				}
 			}
@@ -402,13 +402,13 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			 this.outer=outer;
 		}
 		
-		public void showChanges(ICoedObject file, IDocument doc) throws BadLocationException, NotConnectedToServerException {
+		public void showChanges(ICoedObject file, IDocument doc) throws BadLocationException, NotConnectedException {
 			IFuture<TextModification[]> modsF;
 			TextModification[] mods = null;
 			try {
 				modsF = file.getChanges();
 				mods = modsF.get();
-			} catch(NotConnectedToServerException e) {
+			} catch(NotConnectedException e) {
 				e.printStackTrace();
 				throw e;
 			} catch (InterruptedException e) {
@@ -441,7 +441,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			}
 			try {
 				showChanges(file, doc);
-			} catch (NotConnectedToServerException e) {
+			} catch (NotConnectedException e) {
 				e.printStackTrace();
 			} catch (BadLocationException e) {
 				e.printStackTrace();

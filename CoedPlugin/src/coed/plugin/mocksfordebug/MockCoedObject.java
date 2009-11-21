@@ -6,7 +6,7 @@ import coed.base.data.ICoedObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 
@@ -45,13 +45,13 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) {
+	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		// TODO Auto-generated method stub
 		listeners.add(listener);
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedToServerException {
+	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		String[] s = {"111","22222","3333"};
 		CoedFuture<String[]> fs = new CoedFuture<String[]>();
@@ -60,7 +60,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedToServerException {
+	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		
 		System.out.println("SENGING CHANGES...");
@@ -86,7 +86,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) {
+	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
 		// TODO Auto-generated method stub
 		listeners.remove(listener);
 	}	
@@ -110,7 +110,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String> getCurrentContent() {
+	public IFuture<String> getRemoteContents() throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -123,21 +123,21 @@ public class MockCoedObject implements ICoedObject {
 
 	@Override
 	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean requestLock(TextPortion lock)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedToServerException {
+			throws NotConnectedException {
 		change=new TextModification(1, 0, line.getText(), "meta");
 		(new Changer(this)).start();
 

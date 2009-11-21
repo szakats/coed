@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import coed.base.comm.ICoedCollaborator;
-import coed.base.comm.ICollabStateObserver;
+import coed.base.comm.ICollabStateListener;
 import coed.base.config.ICoedConfig;
 import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
-import coed.base.data.exceptions.NotConnectedToServerException;
+import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 import coed.collab.connection.CoedKeepAliveConnection;
 import coed.collab.connection.ICoedConnection;
@@ -28,7 +28,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	private CoedKeepAliveConnection conn;
 	private int nrOnlineFiles;
-	private ArrayList<ICollabStateObserver> stateListeners;
+	private ArrayList<ICollabStateListener> stateListeners;
 	/// cache for storing path-CoedObject pairs
 	private HashMap<String,ICollabObject> cache;
 	private String state;
@@ -41,7 +41,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
-		stateListeners = new ArrayList<ICollabStateObserver>();
+		stateListeners = new ArrayList<ICollabStateListener>();
 		cache = new HashMap<String,ICollabObject>();
 		this.basePath = basePath;
 		setState(STATUS_OFFLINE);
@@ -51,9 +51,9 @@ public class CollaboratorClient implements ICoedCollaborator {
 		//port = conf.getInt("server.port");
 	}
 	
-	public void ensureConnected() throws NotConnectedToServerException {
+	public void ensureConnected() throws NotConnectedException {
 		if(getState() != STATUS_CONNECTED)
-			throw new NotConnectedToServerException();
+			throw new NotConnectedException();
 	}
 
 	@Override
@@ -66,17 +66,17 @@ public class CollaboratorClient implements ICoedCollaborator {
 			this.state = state;
 		}
 		// must not synchronize the rest (observers are allowed to call getState)
-		for(ICollabStateObserver stateObs : stateListeners)
+		for(ICollabStateListener stateObs : stateListeners)
 			stateObs.collabStateChanged(state);
 	}
 	
 	@Override
-	public void addStateListener(ICollabStateObserver stateObserver) {
+	public void addStateListener(ICollabStateListener stateObserver) {
 		stateListeners.add(stateObserver);
 	}
 
 	@Override
-	public void removeStateListener(ICollabStateObserver stateObserver) {
+	public void removeStateListener(ICollabStateListener stateObserver) {
 		stateListeners.remove(stateObserver);
 	}
 	
