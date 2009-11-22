@@ -1,12 +1,11 @@
 package coed.base.data.exceptions;
 
 /**
- * Exception for cases when a collaborator method is called that requires
- * a connection to the server but that is not currently established.
+ * Exception for all cases where a connection to a remote peer
+ * is required but not present
  * @author szakats
- *
  */
-public class NotConnectedException extends NoCoedMatchFoundException {
+public class NotConnectedException extends Exception {
 	
 	/**
 	 * 
