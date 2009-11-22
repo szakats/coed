@@ -61,7 +61,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 		return state;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setState(String state) {
 		synchronized(this) {
 			this.state = state;
@@ -101,36 +100,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 				return new CoedCollabFolder(obj, this);
 		}
 		else return cache.get(obj.getPath());
-	}
-	
-	/**
-	 * Increments the numer of online files. If no file was online until the
-	 * method is called, it also initiates a connection to the Collaborative server. 
-	 */
-	public void incNrOnline() {
-		if(nrOnlineFiles == 0) {
-			setState(STATUS_ERROR);
-			conn = new CoedKeepAliveConnection("localhost", 1234);
-			conn.addListener(connListener);
-		}
-		
-		nrOnlineFiles++;
-	}
-	
-	/**
-	 * Decrements number of online files. If no file remained online, the method
-	 * closes the connection to the Collaborative server as a last action.
-	 */
-	public void decNrOnline() {
-		nrOnlineFiles--;
-		
-		if(nrOnlineFiles == 0) {
-			if(conn != null) {
-				conn.shutdown();
-				conn = null;
-				setState(STATUS_OFFLINE);
-			}
-		}
 	}
 	
 	public ICoedConnection getConn() {
@@ -176,5 +145,23 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public IFuture<ICollabObject[]> getAllOnlineFiles() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void endCollab() {
+		if(conn != null) {
+			conn.shutdown();
+			conn = null;
+			setState(STATUS_OFFLINE);
+		}
+	}
+
+	@Override
+	public void startCollab() {
+		if(conn == null) {
+			setState(STATUS_ERROR);
+			conn = new CoedKeepAliveConnection("localhost", 1234);
+			conn.addListener(connListener);
+		}
 	}
 }

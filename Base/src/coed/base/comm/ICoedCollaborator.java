@@ -52,4 +52,15 @@ public interface ICoedCollaborator {
 	    * @return
 	    */
 	   public IFuture<ICollabObject[]> getAllOnlineFiles();
+	   
+	   /**
+	    * Start trying to connect to the collaboration server
+	    * and then keep the connection alive
+	    */
+	   public void startCollab();
+	   
+	   /**
+	    * Disconnect from the server and stop trying to connect
+	    */
+	   public void endCollab();
 }
