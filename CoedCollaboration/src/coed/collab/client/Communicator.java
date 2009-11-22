@@ -115,4 +115,14 @@ public class Communicator implements ICoedCommunicator {
 	public IFuture<ICollabObject[]> getAllOnlineFiles() {
 		return c.getAllOnlineFiles();
 	}
+
+	@Override
+	public void endCollab() {
+		c.endCollab();
+	}
+
+	@Override
+	public void startCollab() {
+		c.startCollab();
+	}
 }

@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
 
 import coed.base.data.exceptions.NotConnectedException;
+import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 import coed.collab.protocol.*;
 
@@ -115,26 +116,34 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 	}
 
 	@Override
-	public void reply(CoedMessage to, CoedMessage with) throws NotConnectedException {
-		assert conn != null;
-		conn.reply(to, with);
+	public IFuture<Void> reply(CoedMessage to, CoedMessage with) {
+		if(conn == null)
+			return new CoedFuture<Void>(new NotConnectedException());
+		else
+			return conn.reply(to, with);
 	}
 
 	@Override
-	public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) throws NotConnectedException {
-		assert conn != null;
-		return conn.replyF(to, with);
+	public IFuture<CoedMessage> replySeq(CoedMessage to, CoedMessage with) {
+		if(conn == null)
+			return new CoedFuture<CoedMessage>(new NotConnectedException());
+		else
+			return conn.replySeq(to, with);
 	}
 
 	@Override
-	public void send(CoedMessage msg) throws NotConnectedException {
-		assert conn != null;
-		conn.send(msg);
+	public IFuture<Void> send(CoedMessage msg) {
+		if(conn == null)
+			return new CoedFuture<Void>(new NotConnectedException());
+		else
+			return conn.send(msg);
 	}
 
 	@Override
-	public IFuture<CoedMessage> sendF(CoedMessage msg) throws NotConnectedException {
-		assert conn != null;
-		return conn.sendF(msg);
+	public IFuture<CoedMessage> sendSeq(CoedMessage msg) {
+		if(conn == null)
+			return new CoedFuture<CoedMessage>(new NotConnectedException());
+		else
+			return conn.sendSeq(msg);
 	}
 }

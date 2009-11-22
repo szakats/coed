@@ -6,7 +6,6 @@ import coed.base.data.ICoedObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
-import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 
@@ -45,13 +44,13 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
+	public IFuture<Void> addChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
 		listeners.add(listener);
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
+	public IFuture<String[]> getActiveUsers() {
 		// TODO Auto-generated method stub
 		String[] s = {"111","22222","3333"};
 		CoedFuture<String[]> fs = new CoedFuture<String[]>();
@@ -60,7 +59,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
+	public IFuture<TextModification[]> getChanges() {
 		// TODO Auto-generated method stub
 		
 		System.out.println("SENGING CHANGES...");
@@ -71,7 +70,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void goOffline() {
+	public IFuture<Void> goOffline() {
 		// TODO Auto-generated method stub
 		System.out.println("GOING OFFLINE "+path);
 	}
@@ -86,7 +85,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
+	public IFuture<Void> removeChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
 		listeners.remove(listener);
 	}	
@@ -110,7 +109,7 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String> getRemoteContents() throws NotConnectedException {
+	public IFuture<String> getRemoteContents() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -122,22 +121,19 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> releaseLock(TextPortion lock) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean requestLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> requestLock(TextPortion lock) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedException {
+	public IFuture<Boolean> sendChanges(TextModification line) {
 		change=new TextModification(1, 0, line.getText(), "meta");
 		(new Changer(this)).start();
 

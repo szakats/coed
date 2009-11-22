@@ -3,7 +3,6 @@
  */
 package coed.base.data;
 
-import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
 
 /**
@@ -38,47 +37,43 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
-		co.addChangeListener(listener);
-		
+	public IFuture<Void> addChangeListener(IFileChangeListener listener) {
+		return co.addChangeListener(listener);
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
+	public IFuture<String[]> getActiveUsers() {
 		return co.getActiveUsers();
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
+	public IFuture<TextModification[]> getChanges() {
 		return co.getChanges();
 	}
 
 	@Override
-	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> releaseLock(TextPortion lock) {
 		return co.releaseLock(lock);
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
-		co.removeChangeListener(listener);
+	public IFuture<Void> removeChangeListener(IFileChangeListener listener) {
+		return co.removeChangeListener(listener);
 	}
 
 	@Override
-	public boolean requestLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> requestLock(TextPortion lock) {
 		return co.requestLock(lock);
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedException {
+	public IFuture<Boolean> sendChanges(TextModification line) {
 		return co.sendChanges(line);
 	}
 
 	@Override
-	public void goOffline() {
-		co.goOffline();
+	public IFuture<Void> goOffline() {
+		return co.goOffline();
 	}
 
 	@Override
@@ -97,7 +92,7 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String> getRemoteContents() throws NotConnectedException {
+	public IFuture<String> getRemoteContents() {
 		return co.getRemoteContents();
 	}
 }

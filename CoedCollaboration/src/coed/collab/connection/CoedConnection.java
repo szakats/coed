@@ -114,51 +114,69 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 			listener.disconnected();
     }
 	
-    private synchronized void send(CoedMessage msg, long sequenceID) throws NotConnectedException {
-    	if(!isConnected()) throw new NotConnectedException();
+	
+	
+    private synchronized boolean write(CoedMessage msg, long sequenceID) {
+    	if(!isConnected())
+    		return false;
+    	
     	msg.setSequenceID(sequenceID);
     	io.write(msg);
+    	return true;
     }
     
-    private synchronized IFuture<CoedMessage> sendF(CoedMessage msg, long sequenceID) throws NotConnectedException {
-    	send(msg, sequenceID);
+    private synchronized boolean send(CoedMessage msg, long sequenceID, CoedFuture<CoedMessage> future) {
+    	boolean success = write(msg, sequenceID);
+    	if(!success)
+    		future.throwEx(new NotConnectedException());
+    	return success;
+    }
+    
+    private synchronized CoedFuture<Void> send(CoedMessage msg, long sequenceID) {
+    	if(write(msg, sequenceID))
+    		return new CoedFuture<Void>((Void)null);
+    	else
+    		return new CoedFuture<Void>(new NotConnectedException()); 
+    }
+    
+    private synchronized IFuture<CoedMessage> sendSeq(CoedMessage msg, long sequenceID) {
     	
     	CoedFuture<CoedMessage> future = new CoedFuture<CoedMessage>();
     	
-    	class ReplyListener implements ICoedConnectionListener {
-    		CoedFuture<CoedMessage> future;
-    		
-    		public ReplyListener(CoedFuture<CoedMessage> future) {
-    			this.future = future;
-    		}
-
-			@Override
-			public void disconnected() {
-
-			}
-
-			@Override
-			public void received(CoedMessage msg) {
-				future.set(msg);
-			}
-
-			@Override
-			public void connected() {
-				// TODO Auto-generated method stub
-				
-			}
-    	}
-    	
-    	synchronized(this) {
-    		seqListeners.put(new Long(sequenceID), new ReplyListener(future));
+    	if(send(msg, sequenceID, future)) {	    	
+    		class ReplyListener implements ICoedConnectionListener {
+	    		CoedFuture<CoedMessage> future;
+	    		
+	    		public ReplyListener(CoedFuture<CoedMessage> future) {
+	    			this.future = future;
+	    		}
+	
+				@Override
+				public void disconnected() {
+	
+				}
+	
+				@Override
+				public void received(CoedMessage msg) {
+					future.set(msg);
+				}
+	
+				@Override
+				public void connected() {
+					future.throwEx(new NotConnectedException());
+				}
+	    	}
+	    	
+	    	synchronized(this) {
+	    		seqListeners.put(new Long(sequenceID), new ReplyListener(future));
+	    	}
     	}
     	
     	return future;
     }
     
-    public synchronized void send(CoedMessage msg) throws NotConnectedException {
-    	send(msg, curSequenceID);
-    	curSequenceID++;
+    public synchronized IFuture<Void> send(CoedMessage msg) {
+    	return send(msg, curSequenceID++);
     }
     
     public synchronized void addListener(ICoedConnectionListener listener) {
@@ -170,18 +188,16 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	allListeners.remove(listener);
     }
     
-    public synchronized IFuture<CoedMessage> sendF(CoedMessage msg) throws NotConnectedException {
-    	IFuture<CoedMessage> ret = sendF(msg, curSequenceID);
-    	curSequenceID++;
-    	return ret;
+    public synchronized IFuture<CoedMessage> sendSeq(CoedMessage msg) {
+    	return sendSeq(msg, curSequenceID++);
     }
     
-    public void reply(CoedMessage to, CoedMessage with) throws NotConnectedException {
-    	send(with, to.getSequenceID());
+    public IFuture<Void> reply(CoedMessage to, CoedMessage with) {
+    	return send(with, to.getSequenceID());
     }
     
-    public IFuture<CoedMessage> replyF(CoedMessage to, CoedMessage with) throws NotConnectedException {
-    	return sendF(with, to.getSequenceID());
+    public IFuture<CoedMessage> replySeq(CoedMessage to, CoedMessage with) {
+    	return sendSeq(with, to.getSequenceID());
     }
     
 	public boolean isConnected() {

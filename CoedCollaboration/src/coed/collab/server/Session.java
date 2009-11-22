@@ -53,17 +53,12 @@ public class Session implements ICoedConnectionListener {
     	System.out.println("get contents");
     	
     	String contents = "foo"; // TODO: get contents
-    	try {
-			conn.reply(msg, new SendContentsMsg(contents));
-		} catch (NotConnectedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		conn.reply(msg, new SendContentsMsg(contents));
+		// TODO: handle the error
     }
     
     public void handleMessage(GoOnlineMsg msg) {
     	System.out.println("go online");
-    	boolean isOnline = false;
     	
     	class FListener implements IFutureListener<CoedMessage> {
     		private String fileName;
@@ -71,17 +66,12 @@ public class Session implements ICoedConnectionListener {
     		
 			public FListener(GoOnlineMsg msg) {
 				this.fileName = msg.getFileName();
-				isOnline = false; // TODO: deduce from filename
+				isOnline = true; // TODO: deduce from filename
 				
-				try {
-					if(!isOnline) {
-						conn.replyF(msg, new GoOnlineResultMsg(false)).add(this);
-					} else
-						conn.reply(msg, new GoOnlineResultMsg(true));
-				} catch(NotConnectedException e) {
-					// TODO: handle this properly
-					e.printStackTrace();
-				}
+				if(!isOnline)
+					conn.replySeq(msg, new GoOnlineResultMsg(false)).addListener(this);
+				else
+					conn.reply(msg, new GoOnlineResultMsg(true)).addErrorListener(this);
 			}
 
 			@Override
@@ -91,7 +81,11 @@ public class Session implements ICoedConnectionListener {
 					System.out.println("got contents " + contents);
 					// TODO: save it
 				}
-					
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				// TODO: handle the error
 			}
     	}
     	

@@ -11,7 +11,7 @@ import coed.base.data.ICollabObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
-import coed.base.data.exceptions.NotConnectedException;
+import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 
 /**
@@ -29,9 +29,9 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public void addChangeListener(IFileChangeListener listener) throws NotConnectedException {
+	public IFuture<Void> addChangeListener(IFileChangeListener listener) {
 	    recursiveAddChangeListener(listener, obj.getPath());
-	   
+	    return new CoedFuture<Void>((Void)null);
 	}
 	
 	public void recursiveAddChangeListener(IFileChangeListener fileObserver, String path){
@@ -50,21 +50,20 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<String[]> getActiveUsers() throws NotConnectedException {
+	public IFuture<String[]> getActiveUsers() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public IFuture<TextModification[]> getChanges() throws NotConnectedException {
+	public IFuture<TextModification[]> getChanges() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void goOffline() {
-		// TODO Auto-generated method stub
-		
+	public IFuture<Void> goOffline() {
+		return new CoedFuture<Void>((Void)null);
 	}
 
 	@Override
@@ -74,31 +73,27 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public boolean releaseLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> releaseLock(TextPortion lock) {
 		// TODO Auto-generated method stub
-		return false;
+		return new CoedFuture<Boolean>(new Boolean(false));
 	}
 
 	@Override
-	public void removeChangeListener(IFileChangeListener listener) throws NotConnectedException {
-		// TODO Auto-generated method stub
-		
+	public IFuture<Void> removeChangeListener(IFileChangeListener listener) {
+		return new CoedFuture<Void>((Void)null);
 	}
 
 	/**
 	 * REVIEW!!!! Needs serious rethinking
 	 */
 	@Override
-	public boolean requestLock(TextPortion lock)
-			throws NotConnectedException {
+	public IFuture<Boolean> requestLock(TextPortion lock) {
 		// TODO Auto-generated method stub
-		return false;
+		return new CoedFuture<Boolean>(new Boolean(false));
 	}
 
 	@Override
-	public IFuture<Boolean> sendChanges(TextModification line)
-			throws NotConnectedException {
+	public IFuture<Boolean> sendChanges(TextModification line) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -109,7 +104,7 @@ public class CoedCollabFolder implements ICollabObject {
 	}
 
 	@Override
-	public IFuture<String> getRemoteContents() throws NotConnectedException {
+	public IFuture<String> getRemoteContents() {
 		// TODO Auto-generated method stub
 		return null;
 	}
