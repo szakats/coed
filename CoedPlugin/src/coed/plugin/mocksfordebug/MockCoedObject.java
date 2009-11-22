@@ -47,6 +47,7 @@ public class MockCoedObject implements ICoedObject {
 	public IFuture<Void> addChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
 		listeners.add(listener);
+		return null;
 	}
 
 	@Override
@@ -73,10 +74,11 @@ public class MockCoedObject implements ICoedObject {
 	public IFuture<Void> goOffline() {
 		// TODO Auto-generated method stub
 		System.out.println("GOING OFFLINE "+path);
+		return null;
 	}
 
 	@Override
-	public IFuture<ICoedObject[]> goOnline() {
+	public IFuture<String> goOnline(String s) {
 		// TODO Auto-generated method stub
 		System.out.println("GOING ONLINE "+path);
 		CoedFuture<Boolean> bf =new CoedFuture<Boolean>();
@@ -88,6 +90,7 @@ public class MockCoedObject implements ICoedObject {
 	public IFuture<Void> removeChangeListener(IFileChangeListener listener) {
 		// TODO Auto-generated method stub
 		listeners.remove(listener);
+		return null;
 	}	
 	class Changer extends Thread {
 		private MockCoedObject outer;
@@ -115,21 +118,15 @@ public class MockCoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<String> goOnline(String contents) {
+	public IFuture<Boolean> releaseLock(TextPortion lock) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public IFuture<Boolean> releaseLock(TextPortion lock) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public IFuture<Boolean> requestLock(TextPortion lock) {
 		// TODO Auto-generated method stub
-		return false;
+		return null;
 	}
 
 	@Override

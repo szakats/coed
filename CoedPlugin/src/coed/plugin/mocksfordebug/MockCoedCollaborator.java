@@ -77,4 +77,16 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 		return null;
 	}
 
+	@Override
+	public void endCollab() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void startCollab() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
