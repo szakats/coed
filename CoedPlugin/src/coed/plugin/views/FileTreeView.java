@@ -12,7 +12,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.SWT;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
 
 import coed.base.data.ICoedObject;
 import coed.plugin.base.Activator;
@@ -381,25 +384,53 @@ public class FileTreeView extends ViewPart implements IFileTree{
 				}
 			}
 		};
-		action1.setText("Start collaborative session with this document!");
+		action1.setText("Share/Join");
 		action1.setToolTipText("Share this document for editing with co-workers");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+			getImageDescriptor(ISharedImages.IMG_OBJ_ADD));
 		
 		action2 = new Action() {
 			public void run() {
-				showMessage("Action 2 executed");
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (window != null) {
+				    IWorkbenchPage page = window.getActivePage();
+				    if (page != null) {
+				        IEditorPart editor = page.getActiveEditor();
+				        try {
+				        	AbstractDecoratedTextEditor textEditor = (AbstractDecoratedTextEditor) editor;
+				        	Activator.getController().endCollabFor(textEditor);
+				        } catch (Exception e) {
+				        	e.printStackTrace();
+				        }
+				    }
+				}
 			}
 		};
-		action2.setText("Action 2");
-		action2.setToolTipText("Action 2 tooltip");
+		action2.setText("Stop collaboration");
+		action2.setToolTipText("Stop collaborative editing session on this document");
 		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+				getImageDescriptor(ISharedImages.IMG_TOOL_DELETE));
 		doubleClickAction = new Action() {
 			public void run() {
+				//TODO: check if is folder, decide what to do
 				ISelection selection = viewer.getSelection();
-				Object obj = ((IStructuredSelection)selection).getFirstElement();
-				showMessage("Double-click detected on "+obj.toString());
+				TreePath obj = ((ITreeSelection)selection).getPaths()[0];
+				String p = "";
+				while (obj.getLastSegment()!=null) {
+					p=obj.getLastSegment().toString()+"/"+p;
+					obj = obj.getParentPath();
+				}
+				p=(p.subSequence(0, p.length()-1)).toString();
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(p));
+				IEditorDescriptor desc = PlatformUI.getWorkbench().
+				        getEditorRegistry().getDefaultEditor(file.getName());
+				try {
+					page.openEditor(new FileEditorInput(file), desc.getId());
+				} catch (PartInitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		};
 	}
