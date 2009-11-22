@@ -28,6 +28,7 @@ import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.NotConnectedException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.base.util.IFuture;
+import coed.base.util.IFutureListener;
 import coed.plugin.exceptions.GetFileInEditorException;
 import coed.plugin.mocksfordebug.MockCoedCollaborator;
 import coed.plugin.views.IFileTree;
@@ -158,13 +159,33 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	   throw new GetFileInEditorException();
 	}
 	
+	/**
+	 * Sets a given editor as THE active editor, i.e it is on top, and user is editing.
+	 * It performs some extra actions, like displaying user list editing the given doc.
+	 * @param texte
+	 */
 	private void setAsActive(AbstractDecoratedTextEditor texte){
 		activeEditor=texte;
 		activeDocument=activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput());
 		activeDocument.addDocumentListener(this);
 		editors.get(texte).addChangeListener(this);
-		//TODO: should update based on changes
-		//TODO: need to listen for user input 
+		
+		//displaying active users.
+		if (this.userList != null) {
+			editors.get(texte).getActiveUsers().addListener(new IFutureListener<String[]>() {
+				
+				@Override
+				public void caught(Throwable e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void got(String[] result) {
+					userList.displayUsers(result);
+				}
+			});
+		}
 	}
 	
 	@Override
@@ -188,7 +209,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			/*DEBUG*/System.out.println("Going collab for: "+texte);
 			texte.getSite().getPage().addPartListener(this);
 			
-			editors.get(activeEditor).goOnline();
+			editors.get(activeEditor).goOnline(null);
 		} catch (GetFileInEditorException e) {
 			MessageDialog.openError(null, "Coed Plugin - File Error", "There had been an error when determining the location of the file you are" +
 					"currently editing.\nPlease refresh the editor, or reopen the file and try again!");
@@ -226,8 +247,6 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	public String[] getCollabUsers(ICoedObject file) {
 		try {
 			return file.getActiveUsers().get();
-		} catch(NotConnectedException e) {
-			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -337,11 +356,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		
 		public void run(){
 			try {
-				if (!editors.get(activeEditor).requestLock(lock)) {
+				if (!editors.get(activeEditor).requestLock(lock).get()) {
 					ignoreEvent=event.fModificationStamp;
 					lock=null;
 				} 
-			} catch (NotConnectedException e) {
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
@@ -370,14 +393,9 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				}
 				
 			} else if (lock!=null) {
-				//if I've got something to send:
-				try {
-					editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText));
-					editors.get(activeEditor).releaseLock(lock);
-					lockedLines=null;
-				} catch (NotConnectedException e) {
-					e.printStackTrace();
-				}
+				editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText));
+				editors.get(activeEditor).releaseLock(lock);
+				lockedLines=null;
 			}
 				
 		
@@ -408,9 +426,6 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			try {
 				modsF = file.getChanges();
 				mods = modsF.get();
-			} catch(NotConnectedException e) {
-				e.printStackTrace();
-				throw e;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
