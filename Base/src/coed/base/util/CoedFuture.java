@@ -5,16 +5,35 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import coed.base.data.exceptions.CoedFutureException;
+
 public class CoedFuture<T> implements IFuture<T> {
 	private LinkedList<IFutureListener<T>> listeners;
+	private LinkedList<IFutureErrorListener> errorListeners;
 	private T result;
-	private boolean done = false;
+	private CoedFutureException exception;
+	private boolean done;
 	
 	private static final TimeoutException timeoutException = new TimeoutException();
+	
+	public CoedFuture() {
+		done = false;
+	}
+	
+	public CoedFuture(T result) {
+		this.result = result;
+		done = true;
+	}
+	
+	public CoedFuture(Throwable e) {
+		this.exception = new CoedFutureException(e);
+		done = true;
+	}
 
 	@Override
 	public boolean cancel(boolean mayInterruptIfRunning) {
 		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
@@ -24,7 +43,8 @@ public class CoedFuture<T> implements IFuture<T> {
 			this.wait();
 			assert(isDone());
 		}
-		
+		if(exception != null)
+			throw exception;
 		return result;
 	}
 
@@ -37,7 +57,8 @@ public class CoedFuture<T> implements IFuture<T> {
 			if(!isDone())
 				throw timeoutException;
 		}
-		
+		if(exception != null)
+			throw exception;
 		return result;
 	}
 
@@ -53,14 +74,16 @@ public class CoedFuture<T> implements IFuture<T> {
 	}
 
 	@Override
-	public synchronized void add(IFutureListener<T> listener) {
+	public synchronized void addListener(IFutureListener<T> listener) {
 		assert(listener != null);
 		if(!isDone()) {
 			if(listeners == null)
 				listeners = new LinkedList<IFutureListener<T>>();
 			listeners.add(listener);
-		} else
+		} else if(exception == null)
 			listener.got(result);
+		else
+			listener.caught(exception.getCause());
 	}
 	
 	public synchronized void set(T result) {
@@ -68,23 +91,56 @@ public class CoedFuture<T> implements IFuture<T> {
 		// result is allowed to be null
 		this.result = result;
 		done = true;
-		notifyListeners();
-		notifyAll();
+		notifyDone();
+	}
+	
+	public synchronized void throwEx(Throwable e) {
+		assert(!isDone());
+		exception = new CoedFutureException(e);
+		done = true;
+		notifyDone();
 	}
 	
 	public synchronized void chain(IFuture<T> future) {
-		add(new IFutureListener<T>() {
+		addListener(new IFutureListener<T>() {
 			@Override
 			public void got(T result) {
 				set(result);
 			}
+			@Override
+			public void caught(Throwable e) {
+				throwEx(e);
+			}
 		});
 	}
 	
-	private synchronized void notifyListeners() {
-		if(listeners != null)
+	private synchronized void notifyDone() {
+		// notify all listeners
+		if(exception != null) {
+			if(listeners != null)
+				for(IFutureListener<T> listener : listeners)
+					listener.caught(exception.getCause());
+			else if(errorListeners != null)
+				for(IFutureErrorListener listener : listeners)
+					listener.caught(exception.getCause());
+		} else if(listeners != null)
 			for(IFutureListener<T> listener : listeners)
 				listener.got(result);
+				
 		listeners = null;
+		errorListeners = null;
+		// notify all waiting threads
+		notifyAll();
+	}
+
+	@Override
+	public void addErrorListener(IFutureErrorListener listener) {
+		assert(listener != null);
+		if(!isDone()) {
+			if(errorListeners == null)
+				errorListeners = new LinkedList<IFutureErrorListener>();
+			errorListeners.add(listener);
+		} else if(exception != null)
+			listener.caught(exception.getCause());
 	}
 }
