@@ -25,7 +25,7 @@ public class ClientMain {
 				//ICoedConnection conn = collab.getConn();
 				//assert conn != null;
 
-				ret.goOnline("asdf").addListener(this);
+				new GoOnlineTest();
 			}
 		}
 
@@ -40,11 +40,29 @@ public class ClientMain {
 		}
 	}
 	
+	class GoOnlineTest implements IFutureListener<String> {
+		
+		GoOnlineTest() {
+			ret.goOnline("contents").addListener(this);
+		}
+
+		@Override
+		public void got(String result) {
+			System.out.println("received contents: " + result);
+		}
+  
+		@Override
+		public void caught(Throwable e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public ClientMain() {
 		collab = new CollaboratorClient(null, "");
 		StaticVersioner vers = new StaticVersioner();
 		
-		ret = new CoedObject("sadf", true);
+		ret = new CoedObject("file", true);
 		ret.init(vers.makeVersionedObject(ret), collab.makeCollabObject(ret));
 		
 		collab.addStateListener(new CollabListenerTest());
