@@ -85,7 +85,9 @@ public class Session implements ICoedConnectionListener {
 					conn.replySeq(msg, new GoOnlineResultMsg(false)).addListener(this);
 				else
 				{
-					onlineFiles.add(server.getServerFile(fileName));
+					ServerFile sf = server.getServerFile(fileName);
+					onlineFiles.add(sf);
+					sf.addSession(Session.this);
 					conn.reply(msg, new GoOnlineResultMsg(true)).addErrorListener(this);
 				}
 			}
@@ -97,7 +99,9 @@ public class Session implements ICoedConnectionListener {
 					System.out.println("got contents " + contents);
 					try{
 						server.addNewFile(fileName,((SendContentsMsg)result).getContents());
-						onlineFiles.add(server.getServerFile(fileName));
+						ServerFile sf = server.getServerFile(fileName);
+						onlineFiles.add(sf);
+						sf.addSession(Session.this);
 					}
 					catch(IOException ex) {}
 				}

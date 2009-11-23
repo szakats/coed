@@ -58,6 +58,8 @@ public class ServerFile {
 	public void removeSession(Session s){
 		if (sessions.contains(s))
 			sessions.remove(s);
+		if (sessions.size() == 0 )
+			file.delete();
 	}
 	
 	public int getNrOfSessions(){
