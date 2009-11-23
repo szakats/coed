@@ -12,6 +12,10 @@ import java.io.IOException;
  * Class for representing a file on a server. It contains the locks, listeners,
  * and a ChangeQueue with all recent changes on this file. Also contains the file itself,
  * the current live version.
+ * 
+ * !!!   IMPORTANT NOTE   !!!
+ * When creating files phisically on the server, we replace the '\' character in the
+ * filepath with the '.' character.
  * @author Neobi
  *
  */
