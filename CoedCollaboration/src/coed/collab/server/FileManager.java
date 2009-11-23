@@ -53,8 +53,11 @@ public class FileManager {
 				i++;
 			}
 		}
-		return result;
-			
+		return result;	
+	}
+	
+	public boolean containsFile(String path){
+		return files.containsKey(path);
 	}
 
 }

@@ -66,7 +66,8 @@ public class Session implements ICoedConnectionListener {
     		
 			public FListener(GoOnlineMsg msg) {
 				this.fileName = msg.getFileName();
-				isOnline = true; // TODO: deduce from filename
+		
+				isOnline = server.isFileOnline(fileName);	
 				
 				if(!isOnline)
 					conn.replySeq(msg, new GoOnlineResultMsg(false)).addListener(this);
