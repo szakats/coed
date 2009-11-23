@@ -59,5 +59,15 @@ public class FileManager {
 	public boolean containsFile(String path){
 		return files.containsKey(path);
 	}
+	
+	public ServerFile getFile(String path){
+		return (ServerFile)(files.get(path));
+	}
+	
+	public void removeSessionFromFile(ServerFile sf, Session s){
+		sf.removeSession(s);
+		if ( sf.getNrOfSessions() == 0 ) 
+			files.remove(sf.getPath());
+	}
 
 }

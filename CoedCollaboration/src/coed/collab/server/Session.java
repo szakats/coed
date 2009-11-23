@@ -1,8 +1,9 @@
 package coed.collab.server;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 
-import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
@@ -11,6 +12,7 @@ import coed.collab.protocol.*;
 public class Session implements ICoedConnectionListener {
 	private ICoedConnection conn;
 	CollaboratorServer server;
+	private HashSet<ServerFile> onlineFiles = new HashSet<ServerFile>(); 
 	
 	public Session(ICoedConnection conn, CollaboratorServer server) {
 		this.conn = conn;
@@ -29,6 +31,13 @@ public class Session implements ICoedConnectionListener {
 	@Override
 	public void disconnected() {
 		System.out.println("session closed");
+		Iterator it = onlineFiles.iterator();
+		while (it.hasNext()){
+			((ServerFile)it.next()).removeSession(this);
+			it.remove();
+		}
+		
+		
 	}
 
 	@Override
@@ -72,9 +81,13 @@ public class Session implements ICoedConnectionListener {
 				isOnline = server.isFileOnline(fileName);	
 				
 				if(!isOnline)
+				
 					conn.replySeq(msg, new GoOnlineResultMsg(false)).addListener(this);
 				else
+				{
+					onlineFiles.add(server.getServerFile(fileName));
 					conn.reply(msg, new GoOnlineResultMsg(true)).addErrorListener(this);
+				}
 			}
 
 			@Override
@@ -83,7 +96,8 @@ public class Session implements ICoedConnectionListener {
 					String contents = ((SendContentsMsg)result).getContents();
 					System.out.println("got contents " + contents);
 					try{
-					server.addNewFile(fileName,((SendContentsMsg)result).getContents());
+						server.addNewFile(fileName,((SendContentsMsg)result).getContents());
+						onlineFiles.add(server.getServerFile(fileName));
 					}
 					catch(IOException ex) {}
 				}

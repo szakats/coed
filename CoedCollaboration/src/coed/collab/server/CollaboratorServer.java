@@ -34,4 +34,8 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 		sf.changeContents(contents);
 		fm.addFile(sf);
 	}
+	
+	public ServerFile getServerFile(String path){
+		return fm.getFile(path);
+	}
 }

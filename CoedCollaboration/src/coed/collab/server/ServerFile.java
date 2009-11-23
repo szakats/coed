@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.LinkedList;
 
 /**
  * Class for representing a file on a server. It contains the locks, listeners,
@@ -23,6 +24,7 @@ public class ServerFile {
 
 	private String path;
 	private File file = null;
+	private LinkedList<Session> sessions;
 	private ChangeQueue queue;
 	//TODO: listeners and locks come here
 	
@@ -30,6 +32,7 @@ public class ServerFile {
 		this.path = path;
 		this.queue = new ChangeQueue();
 		file = new File(path.replace('\\' , '.'));
+		sessions = new LinkedList<Session>();
 	}
 
 	public String getPath() {
@@ -45,6 +48,20 @@ public class ServerFile {
 	    BufferedWriter out = new BufferedWriter(new FileWriter(path.replace('\\' , '.')));
 	    out.write(contents);
 	    out.close(); 
+	}
+	
+	public void addSession(Session s){
+		if (! sessions.contains(s))
+			sessions.add(s);
+	}
+	
+	public void removeSession(Session s){
+		if (sessions.contains(s))
+			sessions.remove(s);
+	}
+	
+	public int getNrOfSessions(){
+		return sessions.size();
 	}
 	
 }
