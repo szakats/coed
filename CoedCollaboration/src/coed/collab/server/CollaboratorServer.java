@@ -1,5 +1,7 @@
 package coed.collab.server;
 
+import java.io.IOException;
+
 import coed.collab.connection.CoedConnection;
 import coed.collab.connection.CoedConnectionAcceptor;
 
@@ -25,5 +27,11 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	
 	public boolean isFileOnline(String path){
 		return fm.containsFile(path);
+	}
+	
+	public void addNewFile(String path, String contents) throws IOException{
+		ServerFile sf = new ServerFile(path);
+		sf.changeContents(contents);
+		fm.addFile(sf);
 	}
 }

@@ -1,5 +1,7 @@
 package coed.collab.server;
 
+import java.io.IOException;
+
 import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
@@ -80,7 +82,10 @@ public class Session implements ICoedConnectionListener {
 				if(result instanceof SendContentsMsg) {
 					String contents = ((SendContentsMsg)result).getContents();
 					System.out.println("got contents " + contents);
-					// TODO: save it
+					try{
+					server.addNewFile(fileName,((SendContentsMsg)result).getContents());
+					}
+					catch(IOException ex) {}
 				}
 			}
 
