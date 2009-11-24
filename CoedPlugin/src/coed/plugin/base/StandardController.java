@@ -1,12 +1,15 @@
 package coed.plugin.base;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -15,7 +18,10 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.IProgressService;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
@@ -29,6 +35,9 @@ import coed.base.data.exceptions.NotConnectedException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.base.util.IFuture;
 import coed.base.util.IFutureListener;
+import coed.collab.client.CoedCommunicatorFactory;
+import coed.collab.client.CollaboratorClient;
+import coed.collab.client.Communicator;
 import coed.plugin.exceptions.GetFileInEditorException;
 import coed.plugin.mocksfordebug.MockCoedCollaborator;
 import coed.plugin.views.IFileTree;
@@ -100,7 +109,8 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
 		configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
 		try {
-			this.communicator = new MockCoedCollaborator();//new CoedCommunicatorFactory().create(configLocation);
+			this.communicator = new CoedCommunicatorFactory().create(configLocation);
+			communicator.startCollab();
 		} catch (UnknownVersionerTypeException e) {
 			// TODO Auto-generated catch block
 			this.communicator=null;
@@ -172,7 +182,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		
 		//displaying active users.
 		if (this.userList != null) {
-			editors.get(texte).getActiveUsers().addListener(new IFutureListener<String[]>() {
+			/*editors.get(texte).getActiveUsers().addListener(new IFutureListener<String[]>() {
 				
 				@Override
 				public void caught(Throwable e) {
@@ -184,7 +194,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				public void got(String[] result) {
 					userList.displayUsers(result);
 				}
-			});
+			});*/
 		}
 	}
 	
@@ -209,10 +219,32 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			/*DEBUG*/System.out.println("Going collab for: "+texte);
 			texte.getSite().getPage().addPartListener(this);
 			
-			editors.get(activeEditor).goOnline(null);
+			IWorkbench wb = PlatformUI.getWorkbench();
+		 	IProgressService ps = wb.getProgressService();
+		 	ps.busyCursorWhile(new IRunnableWithProgress() {
+				
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException,
+						InterruptedException {
+					
+					try {
+						editors.get(activeEditor).goOnline(activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).get()).get();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+			});
 		} catch (GetFileInEditorException e) {
 			MessageDialog.openError(null, "Coed Plugin - File Error", "There had been an error when determining the location of the file you are" +
 					"currently editing.\nPlease refresh the editor, or reopen the file and try again!");
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}	
 	}
 
