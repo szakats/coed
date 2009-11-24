@@ -23,7 +23,7 @@ public class CoedCommunicatorFactory {
 		
 		//must check for null, because even if the config file exists, it may be corrupt/incomplete
 		if(type!=null && type.equals(ICoedVersioner.STATIC)) {
-			return new Communicator(new StaticVersioner(), new CollaboratorClient(conf,basePath), conf);
+			return new Communicator(new StaticVersioner(), new CollaboratorClient(conf,basePath), conf, basePath);
 		} else if(type!=null && type.equals(ICoedVersioner.GIT)) {
 			//return new Communicator(new GitVersioner(), new Collaborator());
 		}

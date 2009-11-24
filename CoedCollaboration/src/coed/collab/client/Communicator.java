@@ -34,11 +34,12 @@ public class Communicator implements ICoedCommunicator {
 	 */
 	private String basePath; 
 	
-	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config)
+	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config, String basePath)
 	{
 		this.v = versioner;
 		this.c = collaborator;
 		this.conf = config;
+		this.basePath = basePath;
 	}
 	
 	@Override
