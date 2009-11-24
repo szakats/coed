@@ -47,6 +47,7 @@ public class CoedCollabFile implements ICollabObject {
 	public CoedCollabFile(ICoedObject obj, CollaboratorClient coll) {
 		this.obj = obj;
 		this.coll = coll;
+		this.fileObservers = new LinkedList<IFileChangeListener>();
 	}
 	
 	@Override
