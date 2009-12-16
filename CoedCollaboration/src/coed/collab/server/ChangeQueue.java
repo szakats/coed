@@ -3,7 +3,11 @@
  */
 package coed.collab.server;
 
+import java.util.ArrayDeque;
+import java.util.Date;
 import java.util.LinkedList;
+
+import coed.base.data.TextModification;
 
 
 
@@ -15,12 +19,47 @@ import java.util.LinkedList;
  */
 public class ChangeQueue{
 	
-	private LinkedList<CoedFileChange> changes;
-	private int top = -1; //pointer to the tail of the queue
+	class CoedFileChange{
+		
+		private Date time;
+		private String userName;
+		private TextModification mod;
+		
+		public CoedFileChange(Date time, String userName, TextModification mod) {
+			this.time = time;
+			this.userName = userName;
+			this.mod = mod;
+		}
+		
+		public TextModification getMod() {
+			return mod;
+		}
+		public void setMod(TextModification mod) {
+			this.mod = mod;
+		}
+		public Date getTime() {
+			return time;
+		}
+		public void setTime(Date time) {
+			this.time = time;
+		}
+		public String getUserName() {
+			return userName;
+		}
+		public void setUserName(String userName) {
+			this.userName = userName;
+		}
+		
+	}
 	
-	public ChangeQueue(){
-		changes = new LinkedList<CoedFileChange>();
+	private ArrayDeque<CoedFileChange> changes;
+	private int top = -1; //pointer to the tail of the queue
+	private ServerFile file;
+	
+	public ChangeQueue(ServerFile file){
+		changes = new ArrayDeque<CoedFileChange>();
 		top = -1;
+		this.file = file;
 	}
 	
 	/**
@@ -44,18 +83,12 @@ public class ChangeQueue{
 		else return null;
 	}
 	
-	/**
-	 * Searches for a change given by it's userName field
-	 * @param userName the userName of the user who made the change
-	 * @return position if found, -1 if not found
-	 */
-	
-	public synchronized int getPosition(String userName){
-		int pos = top;
-		while ((changes.get(pos).getUserName() != userName) && (pos > 0))
-			pos --;
-		if (changes.get(pos).getUserName() == userName) return pos;
-			else return -1;
+	public TextModification[] getChangesFor(Session s){
+		TextModification[] ret = new TextModification[changes.size()-file.getChangePointer(s)];
+		//TODO : this shit:P
+		return ret;
+		
 	}
+	
 	
 }

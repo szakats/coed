@@ -7,7 +7,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
+
+import coed.base.data.TextModification;
 
 /**
  * Class for representing a file on a server. It contains the locks, listeners,
@@ -23,16 +26,23 @@ import java.util.LinkedList;
 public class ServerFile {
 
 	private String path;
-	private File file = null;
-	private LinkedList<Session> sessions;
+	private StringBuffer contents = new StringBuffer();
+	
+	/**
+	 * HashMap containing the session registered for this serverfile
+	 * and the corresponding pointers (index into ChangeQueue) for
+	 * the change that was last sent to this session. (0 pointer value
+	 * means an up-to-date file).
+	 */
+	
+	private HashMap<Session,Integer> sessions; //TODO: possible overhead when accessing
 	private ChangeQueue queue;
 	//TODO: listeners and locks come here
 	
 	public ServerFile(String path){
 		this.path = path;
-		this.queue = new ChangeQueue();
-		file = new File(path.replace('\\' , '.'));
-		sessions = new LinkedList<Session>();
+		this.queue = new ChangeQueue(this);
+		sessions = new HashMap<Session,Integer>();
 	}
 
 	public String getPath() {
@@ -44,26 +54,39 @@ public class ServerFile {
 	}
 	
 	public synchronized void changeContents(String contents) throws IOException{
-		file.createNewFile();
-	    BufferedWriter out = new BufferedWriter(new FileWriter(path.replace('\\' , '.')));
-	    out.write(contents);
-	    out.close(); 
+	   
 	}
 	
+	/**
+	 * Adds a new session to the sessions registered for this ServerFile. 
+	 * Also, sets the change pointer pointer to 0. (i.e. the session has the 
+	 * up-to-date version).
+	 * @param s Session
+	 */
 	public void addSession(Session s){
-		if (! sessions.contains(s))
-			sessions.add(s);
+		if (! sessions.containsKey(s))
+			sessions.put(s,new Integer(0));
 	}
 	
 	public void removeSession(Session s){
-		if (sessions.contains(s))
+		if (sessions.containsKey(s))
 			sessions.remove(s);
-		if (sessions.size() == 0 )
-			file.delete();
 	}
 	
 	public int getNrOfSessions(){
 		return sessions.size();
+	}
+	
+	public void setChangePointer(Session s, int p){
+		sessions.put(s,new Integer(p));
+	}
+	
+	public int getChangePointer(Session s){
+		return ((Integer)sessions.get(s)).intValue();
+	}
+	
+	public void addChange(TextModification change){
+		//TODO insert the change into StringBuffer
 	}
 	
 }
