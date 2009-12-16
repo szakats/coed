@@ -5,39 +5,44 @@ package coed.collab.server;
 
 import java.util.Date;
 
+import coed.base.data.TextModification;
+
 /**
  * Class Containing information about a given change occured to a given file.
+ * text is the textModification occured
+ * time is the time when the modification occured
+ * lineOffset is the starting offset of the line, where the modification occured.
  * @author Neobi
  *
  */
 public class CoedFileChange {
 	
-	private int lineNr;
-	private String[] text;
+	private int lineOffset;
+	private TextModification text;
 	private String userName;
 	private Date time;
 	
-	public CoedFileChange(int lineNr, String[] text, String userName, Date time){
-		this.lineNr = lineNr;
+	public CoedFileChange(TextModification text, Date time){
+		this.lineOffset = text.getOffset();
 		this.text = text;
-		this.userName = userName;
+		this.userName = text.getMetaInfo();
 		this.time = time;
 	}
 
 	
-	public int getLineNr() {
-		return lineNr;
+	public int getLineOffset() {
+		return lineOffset;
 	}
 
-	public void setLineNr(int lineNr) {
-		this.lineNr = lineNr;
+	public void setLineOffset(int lineOffset) {
+		text.setOffset(lineOffset);
 	}
 
-	public String[] getText() {
+	public TextModification getMod() {
 		return text;
 	}
 
-	public void setText(String[] text) {
+	public void setMod(TextModification text) {
 		this.text = text;
 	}
 
