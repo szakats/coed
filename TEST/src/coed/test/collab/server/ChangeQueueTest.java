@@ -17,9 +17,7 @@ public class ChangeQueueTest {
 		chq.enQueueChange(new CoedFileChange(new TextModification(3,10,"jijijijiji"), new Date()));
 		System.out.println(chq.getTopIndex());
 		for (int i=0; i<chq.getTopIndex(); i++)
-			System.out.println(chq.getChangeAt(i).getText());
-			
-		
+			System.out.println(chq.getChangeAt(i).getText());			
 	}
 
 }

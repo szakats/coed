@@ -20,12 +20,12 @@ import coed.base.data.TextModification;
  */
 public class ChangeQueue{
 	
-	private Vector<CoedFileChange> changes;
+	private ChangeContainer<CoedFileChange> changes;
 	private int top = -1; //pointer to the tail of the queue
 	private ServerFile file;
 	
 	public ChangeQueue(ServerFile file){
-		changes = new Vector<CoedFileChange>();
+		changes = new ChangeContainer<CoedFileChange>();
 		top = 0;
 		this.file = file;
 	}
