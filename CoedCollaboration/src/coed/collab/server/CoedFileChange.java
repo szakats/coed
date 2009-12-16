@@ -19,13 +19,11 @@ public class CoedFileChange {
 	
 	private int lineOffset;
 	private TextModification text;
-	private String userName;
 	private Date time;
 	
 	public CoedFileChange(TextModification text, Date time){
 		this.lineOffset = text.getOffset();
 		this.text = text;
-		this.userName = text.getMetaInfo();
 		this.time = time;
 	}
 
@@ -44,14 +42,6 @@ public class CoedFileChange {
 
 	public void setMod(TextModification text) {
 		this.text = text;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
 	}
 
 	public Date getTime() {

@@ -21,7 +21,7 @@ import coed.base.data.TextModification;
 public class ChangeQueue{
 	
 	private ChangeContainer<CoedFileChange> changes;
-	private int top = -1; //pointer to the tail of the queue
+	private int top = 0; //pointer to the top (head of queue)
 	private ServerFile file;
 	
 	public ChangeQueue(ServerFile file){

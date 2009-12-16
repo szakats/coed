@@ -34,7 +34,7 @@ public class ServerFile {
 	/**
 	 * HashMap containing the session registered for this serverfile
 	 * and the corresponding pointers (index into ChangeQueue) for
-	 * the change that was last sent to this session. (pointer value equal with
+	 * the first change that was not sent to this session. (pointer value equal with
 	 * the top attribute of changeQueue means an up-to-date file).
 	 */
 	
@@ -63,12 +63,13 @@ public class ServerFile {
 	}
 	
 	public synchronized void changeContents(String contents) throws IOException{
-	   
+	   this.contents.delete(0, this.contents.capacity());
+	   this.contents.append(contents);
 	}
 	
 	/**
 	 * Adds a new session to the sessions registered for this ServerFile. 
-	 * Also, sets the change pointer pointer to 0. (i.e. the session has the 
+	 * Also, sets the change pointer pointer to topIndex. (i.e. the session has the 
 	 * up-to-date version).
 	 * @param s Session
 	 */
@@ -95,12 +96,13 @@ public class ServerFile {
 	}
 	
 	public void addChange(TextModification change, Session s){
+		//update the change offset, and the offsets of all other changes
+		//that will be affected by this change
+		updateChangeOffset(change,s);
 		//put the change into the ChangeQueue
-		//TODO : algorithm for updating the offset!!!
 		queue.enQueueChange(new CoedFileChange(change,new Date()));
 		//insert the change into the file
 		contents.insert(change.getOffset(),change.getText());
-		//TODO update all the offsets after this change!!!
 	}
 	
 	public String getCurrentContents(){
@@ -113,8 +115,54 @@ public class ServerFile {
 	}
 	
 	public void ReleaseLock(TextPortion portion){
-		//TODO: algorithm to compute the correct offset
+		//TODO: algorithm to compute the correct offset	
+	}
+	
+	/**
+	 * This private method will be used to convert the offset 
+	 * of the textmodification given as parameter to the corresponding
+	 * global offset, with respect to the version on the server.
+	 */
+	private void updateChangeOffset(TextModification text, Session s){
 		
+		int startIndex = getChangePointer(s);
+		TextModification chg;
+		/**
+		 * for all the changes that were not received by this session
+		 * verify if it modifies its offset (i.e. some other change was written
+		 * to an offset less then this change. In this case, we should adjust 
+		 * our offset)
+		 */
+		for (int i=startIndex; i<queue.getTopIndex(); i++){
+			chg = queue.getChangeAt(i);
+			if (chg.getOffset() < text.getOffset()){
+				if ( ! (text.getMetaInfo().equals(chg.getMetaInfo()) ))
+					text.setOffset(text.getOffset()+chg.getLength());
+			}
+		}
+		/**
+		 * Now the offset is relative to the version on the server. 
+		 * We should update now all offsets of those modifications 
+		 * in the ChangeQueue, that were issued on an offset after this
+		 * current offset. (i.e. all the modifications that are after 
+		 * the current modification with respect to the offsets should be 
+		 * shifted with the length of this current modification)
+		 */
+		System.out.println("updated offset is:"+text.getOffset().toString());
+		for (int i=0; i<queue.getTopIndex(); i++){
+			chg = queue.getChangeAt(i);
+			System.out.println("chg is here "+chg.getOffset().toString()+chg.getText());
+			if (chg.getOffset() >= text.getOffset()){
+				//probably the same if with the users?
+					chg.setOffset(chg.getOffset() + text.getLength());
+				
+				System.out.println("chg is hererrrrr "+chg.getOffset().toString());
+			}
+			
+		}
+		
+		for (int i=0; i<queue.getTopIndex(); i++)
+			System.out.println("queue["+i+"] = "+queue.getChangeAt(i).getOffset().toString());
 	}
 	
 }
