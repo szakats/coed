@@ -10,15 +10,25 @@ import coed.collab.connection.ICoedConnectionListener;
 import coed.collab.protocol.*;
 
 public class Session implements ICoedConnectionListener {
+	
 	private ICoedConnection conn;
 	CollaboratorServer server;
-	private HashSet<ServerFile> onlineFiles = new HashSet<ServerFile>(); 
+	private HashSet<ServerFile> onlineFiles = new HashSet<ServerFile>();
+	private String userName;
 	
 	public Session(ICoedConnection conn, CollaboratorServer server) {
 		this.conn = conn;
 		this.server = server;
 	}
-
+	
+	public String getUserName(){
+		return this.userName;
+	}
+	
+	public void setUserName(String user){
+		this.userName = user;
+	}
+	
 	public ICoedConnection getConn() {
 		return conn;
 	}

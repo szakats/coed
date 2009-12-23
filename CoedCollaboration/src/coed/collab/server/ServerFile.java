@@ -109,14 +109,48 @@ public class ServerFile {
 		return this.contents.substring(0);
 	}
 	
-	public boolean RequestLock(TextPortion portion, Session s){
-		//TODO: algorithm to compute the correct offset
-		return true;
+	public boolean RequestLock(TextPortion text, Session s){
+		int startIndex = getChangePointer(s);
+		TextModification chg;
+		
+		//calculate global offset
+		for (int i=startIndex; i<queue.getTopIndex(); i++){
+			chg = queue.getChangeAt(i);
+			if (chg.getOffset() < text.getOffset()){
+				if ( ! (s.getUserName().equals(chg.getMetaInfo()) ))
+					text.setOffset(text.getOffset()+chg.getLength());
+			}
+		}
+		
+		// now we have the correct offset in the TextModification, see if we can place lock
+		boolean canLock = true;
+		ServerLock myLock = new ServerLock(text,new Date(),s);
+		ServerLock lock;
+		int i = 0;
+		while ((i<locks.size()) && (canLock)){
+			lock = locks.get(i);
+			if (lock.overlaps(myLock)){
+				//overlapping locks
+				if ( ! lock.getSession().equals(s))
+					//and not from the same user
+					canLock = false;
+			}
+			i++;
+		}
+		
+		if (! canLock)
+			return false;
+		else{
+			//we can put the lock
+			locks.add(myLock);
+			return true;
+		}
 	}
 	
 	public void ReleaseLock(TextPortion portion){
 		//TODO: algorithm to compute the correct offset	
 	}
+	
 	
 	/**
 	 * This private method will be used to convert the offset 
@@ -148,21 +182,36 @@ public class ServerFile {
 		 * the current modification with respect to the offsets should be 
 		 * shifted with the length of this current modification)
 		 */
-		System.out.println("updated offset is:"+text.getOffset().toString());
+		//System.out.println("updated offset is:"+text.getOffset().toString());
 		for (int i=0; i<queue.getTopIndex(); i++){
 			chg = queue.getChangeAt(i);
-			System.out.println("chg is here "+chg.getOffset().toString()+chg.getText());
+			//System.out.println("chg is here "+chg.getOffset().toString()+chg.getText());
 			if (chg.getOffset() >= text.getOffset()){
 				//probably the same if with the users?
 					chg.setOffset(chg.getOffset() + text.getLength());
 				
-				System.out.println("chg is hererrrrr "+chg.getOffset().toString());
+				//System.out.println("chg is hererrrrr "+chg.getOffset().toString());
 			}
 			
 		}
 		
-		for (int i=0; i<queue.getTopIndex(); i++)
-			System.out.println("queue["+i+"] = "+queue.getChangeAt(i).getOffset().toString());
+		/**
+		 * now we should update in the same manner those locks' offsets
+		 * that are after this textmodification.
+		 */
+		ServerLock lock;
+		for ( int i=0; i<locks.size(); i++){
+			lock = locks.get(i);
+			if (lock.getOffset() > text.getOffset())
+				lock.setOffset(lock.getOffset()+text.getLength());
+			//! note that we do not verify here if the same user issued the lock
+			//because even in this case, the offsets should be shifted on the SERVER!!!
+			System.out.println("lock at:"+lock.getOffset()+" wiht length: "+lock.getLength());
+		}
+		
+		
+		//for (int i=0; i<queue.getTopIndex(); i++)
+		//	System.out.println("queue["+i+"] = "+queue.getChangeAt(i).getOffset().toString());
 	}
 	
 }
