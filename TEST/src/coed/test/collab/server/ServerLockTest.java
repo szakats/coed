@@ -46,6 +46,11 @@ public class ServerLockTest {
 		sf1.setChangePointer(s2,3); //simulate that s2 has got all the changes til now
 		TextPortion tp4 = new TextPortion(16,2);
 		System.out.println("trying to lock (16,2). result: "+sf1.RequestLock(tp4, s2));
+		
+		sf1.setChangePointer(s1, 3); //simulating that s1 has all the changes
+		System.out.println("releasing lock (15,5)...");
+		sf1.ReleaseLock(new TextPortion(15,5), s1);
+		System.out.println("trying to request (16,2). result: "+sf1.RequestLock(tp4, s2));
 	}
 
 }

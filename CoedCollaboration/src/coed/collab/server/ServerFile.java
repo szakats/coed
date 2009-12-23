@@ -147,8 +147,33 @@ public class ServerFile {
 		}
 	}
 	
-	public void ReleaseLock(TextPortion portion){
-		//TODO: algorithm to compute the correct offset	
+	public void ReleaseLock(TextPortion portion, Session s){
+		int startIndex = getChangePointer(s);
+		TextModification chg;
+		
+		//calculate global offset
+		for (int i=startIndex; i<queue.getTopIndex(); i++){
+			chg = queue.getChangeAt(i);
+			if (chg.getOffset() < portion.getOffset()){
+				if ( ! (s.getUserName().equals(chg.getMetaInfo()) ))
+					portion.setOffset(portion.getOffset()+chg.getLength());
+			}
+		}
+		
+		//search for this lock, and delete id
+		boolean found = false;
+		int i = 0;
+		ServerLock lock;
+		while ((i<locks.size()) && (! found)){
+			lock = locks.get(i);
+			if ((lock.getSession().equals(s)) && (lock.getOffset() == portion.getOffset())
+					&& (lock.getLength() == portion.getLength())){
+				locks.remove(i);
+				found = true;
+			}
+			i++;
+		}
+		
 	}
 	
 	
