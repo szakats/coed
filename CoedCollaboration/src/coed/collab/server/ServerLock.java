@@ -69,12 +69,12 @@ public class ServerLock {
 	public boolean overlaps(ServerLock lock){
 		boolean result = false;
 		
-		if ((this.mod.getOffset() < lock.getOffset()) &&
-		    (this.mod.getOffset() + this.mod.getLength() > lock.getOffset()))
+		if ((this.mod.getOffset() <= lock.getOffset()) &&
+		    (this.mod.getOffset() + this.mod.getLength() >= lock.getOffset()))
 			result = true;
 		else
-			if ((this.mod.getOffset() > lock.getOffset()) &&
-			    (this.mod.getOffset() < lock.getOffset()+lock.getLength()))
+			if ((this.mod.getOffset() >= lock.getOffset()) &&
+			    (this.mod.getOffset() <= lock.getOffset()+lock.getLength()))
 				result = true;
 		return result;
 	}

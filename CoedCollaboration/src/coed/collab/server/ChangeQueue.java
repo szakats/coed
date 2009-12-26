@@ -3,11 +3,6 @@
  */
 package coed.collab.server;
 
-import java.util.ArrayDeque;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Vector;
-
 import coed.base.data.TextModification;
 
 

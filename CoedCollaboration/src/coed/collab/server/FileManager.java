@@ -24,11 +24,13 @@ public class FileManager {
 	}
 	
 	/**
-	 * Adds a file to the Manager.
+	 * Adds a file to the Manager., if the file is not already 
+	 * in the manager.
 	 * @param file the ServerFile object to be added
 	 */
 	public void addFile(ServerFile file){
-		files.put(file.getPath(), file);
+		if (! files.containsKey(file.getPath()))
+			files.put(file.getPath(), file);
 	}
 	
 	/**
@@ -36,7 +38,8 @@ public class FileManager {
 	 * @param path the path of the file (key).
 	 */
 	public void removeFile(String path){
-		files.remove(path);
+		if (files.containsKey(path))
+			files.remove(path);
 	}
 	
 	/**
@@ -61,13 +64,31 @@ public class FileManager {
 	}
 	
 	public ServerFile getFile(String path){
-		return (ServerFile)(files.get(path));
+		if (files.containsKey(path))
+			return (ServerFile)(files.get(path));
+		else return null;
 	}
 	
+	public void addSessionToFile(ServerFile sf, Session s){
+		if (files.containsKey(sf.getPath())){
+			sf.addSession(s);
+		}
+	}
+	
+	/**
+	 * removes a session from the serverfile. if the removed 
+	 * session was the last one registered on this serverfile,
+	 * the serverfile will be deleted from the managar.
+	 * if the specified file is not in the manager, no action is taken
+	 * @param sf
+	 * @param s
+	 */
 	public void removeSessionFromFile(ServerFile sf, Session s){
-		sf.removeSession(s);
-		if ( sf.getNrOfSessions() == 0 ) 
-			files.remove(sf.getPath());
+		if (files.containsKey(sf.getPath())){
+			sf.removeSession(s);
+			if ( sf.getNrOfSessions() == 0 ) 
+				files.remove(sf.getPath());
+		}
 	}
 
 }

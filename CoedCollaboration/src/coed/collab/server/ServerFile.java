@@ -3,13 +3,9 @@
  */
 package coed.collab.server;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import coed.base.data.TextModification;
@@ -87,29 +83,66 @@ public class ServerFile {
 		return sessions.size();
 	}
 	
+	/**
+	 * sets the change pointer for a session.
+	 * if the value specified is greater than the top
+	 * of the changequeue, it will be set to that value of
+	 * the top.
+	 * @param s
+	 * @param p
+	 */
 	public void setChangePointer(Session s, int p){
-		sessions.put(s,new Integer(p));
+		if (sessions.containsKey(s))
+			sessions.put(s,new Integer(p>queue.getTopIndex()?queue.getTopIndex():p));
 	}
 	
+	/**
+	 * Returns the changepointer of a specified session.
+	 * if the session is not found, -1 is returned
+	 * @param s
+	 * @return
+	 */
 	public int getChangePointer(Session s){
-		return ((Integer)sessions.get(s)).intValue();
+		if (sessions.containsKey(s))
+			return ((Integer)sessions.get(s)).intValue();
+		else return -1;
 	}
 	
+	/**
+	 * Add a change to the serverfile. updates the offsets in the changequeue,
+	 * calculates global offset, and makes change in the stringbuffer.
+	 * If session is not registered to this serverfile, the method invocation has no effect
+	 * @param change
+	 * @param s
+	 */
 	public void addChange(TextModification change, Session s){
 		//update the change offset, and the offsets of all other changes
 		//that will be affected by this change
-		updateChangeOffset(change,s);
-		//put the change into the ChangeQueue
-		queue.enQueueChange(new CoedFileChange(change,new Date()));
-		//insert the change into the file
-		contents.insert(change.getOffset(),change.getText());
+		
+		if (sessions.containsKey(s)){
+			//just registered sessions can add changes
+			updateChangeOffset(change,s);
+			//put the change into the ChangeQueue
+			queue.enQueueChange(new CoedFileChange(change,new Date()));
+			//insert the change into the file
+			contents.insert(change.getOffset(),change.getText());
+		}
 	}
 	
 	public String getCurrentContents(){
 		return this.contents.substring(0);
 	}
 	
+	/**
+	 * Request for lock. If the session is not registered, false is returned.
+	 * else, we compute global offset, and try to put lock. if possible, update
+	 * other locks' offset, and return true, else return false
+	 * @param text
+	 * @param s
+	 * @return
+	 */
 	public boolean RequestLock(TextPortion text, Session s){
+		if (sessions.containsKey(s)){ //if session is registered
 		int startIndex = getChangePointer(s);
 		TextModification chg;
 		
@@ -145,6 +178,8 @@ public class ServerFile {
 			locks.add(myLock);
 			return true;
 		}
+		}
+		else return false;
 	}
 	
 	public void ReleaseLock(TextPortion portion, Session s){
