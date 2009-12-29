@@ -67,12 +67,19 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((GetContentsMsg)msg);
     	else if (msg instanceof AddChangedListenerMsg)
     		handleMessage((AddChangedListenerMsg) msg);
+    	else if (msg instanceof AuthentificationMsg)
+    		handleMessage((AuthentificationMsg) msg);
 	}
     
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes");
     	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
     	conn.replySeq(msg, reply);
+    }
+    
+    public void handleMessage(AuthentificationMsg msg) {
+    	System.out.println("authentification");
+    	setUserName(msg.getUserName());
     }
     
     public void handleMessage(SendChangesMsg msg) {

@@ -3,6 +3,8 @@
  */
 package coed.collab.server;
 
+import java.util.Vector;
+
 import coed.base.data.TextModification;
 
 
@@ -47,8 +49,19 @@ public class ChangeQueue{
 	}
 	
 	public TextModification[] getChangesFor(Session s){
-		TextModification[] ret = new TextModification[changes.size()-file.getChangePointer(s)];
-		//TODO : this shit:P
+		
+		Vector<TextModification> vect = new Vector<TextModification>();
+		int  k = 0;
+		for (int i=file.getChangePointer(s); i<top; i++){
+			TextModification chg = getChangeAt(i);
+			if (! chg.getMetaInfo().equals(s.getUserName())){
+				vect.add(k,chg);
+				k++;
+			}
+		}
+		
+		TextModification[] ret = new TextModification[k];
+		ret = (TextModification[])vect.toArray();
 		return ret;
 		
 	}
