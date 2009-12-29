@@ -1,9 +1,9 @@
 package coed.collab.protocol;
 
-public class AddChangeListenerMsg extends CoedMessage {
+public class AddChangedListenerMsg extends CoedMessage {
 	private String file;
 
-	public AddChangeListenerMsg(String file) {
+	public AddChangedListenerMsg(String file) {
 		this.file = file;
 	}
 

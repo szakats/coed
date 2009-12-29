@@ -1,6 +1,7 @@
 package coed.collab.server;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -16,9 +17,13 @@ public class Session implements ICoedConnectionListener {
 	private HashSet<ServerFile> onlineFiles = new HashSet<ServerFile>();
 	private String userName;
 	
+	/** FileChangeListeners mapped with the fileName as the key**/
+	private HashMap<String,FileChangedListener> listeners;
+	
 	public Session(ICoedConnection conn, CollaboratorServer server) {
 		this.conn = conn;
 		this.server = server;
+		this.listeners = new HashMap<String,FileChangedListener>();
 	}
 	
 	public String getUserName(){
@@ -41,7 +46,7 @@ public class Session implements ICoedConnectionListener {
 	@Override
 	public void disconnected() {
 		System.out.println("session closed");
-		Iterator it = onlineFiles.iterator();
+		Iterator<ServerFile> it = onlineFiles.iterator();
 		while (it.hasNext()){
 			((ServerFile)it.next()).removeSession(this);
 			it.remove();
@@ -60,22 +65,36 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((GoOnlineMsg)msg);
     	else if(msg instanceof GetContentsMsg)
     		handleMessage((GetContentsMsg)msg);
+    	else if (msg instanceof AddChangedListenerMsg)
+    		handleMessage((AddChangedListenerMsg) msg);
 	}
     
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes");
+    	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
+    	conn.replySeq(msg, reply);
     }
     
     public void handleMessage(SendChangesMsg msg) {
     	System.out.println("send changes");
+    	ServerFile sf = server.getServerFile(msg.getFile());
+    	for (int i=0; i<msg.getMods().length; i++){
+    		sf.addChange(msg.getMods()[i], this);
+    	}
     }
     
     public void handleMessage(GetContentsMsg msg) {
     	System.out.println("get contents");
     	
-    	String contents = "foo"; // TODO: get contents
+    	String contents = server.getServerFile(msg.getFileName()).getCurrentContents();
 		conn.reply(msg, new SendContentsMsg(contents));
 		// TODO: handle the error
+    }
+    
+    public void handleMessage(AddChangedListenerMsg msg){
+    	FileChangedListener listener = new FileChangedListener(msg.getFile(),this);
+    	listeners.put(msg.getFile(), listener);
+    	server.getServerFile(msg.getFile()).addChangeListener(this, listener);
     }
     
     public void handleMessage(GoOnlineMsg msg) {

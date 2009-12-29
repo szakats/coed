@@ -11,7 +11,7 @@ public class GetChangesReplyMsg extends CoedMessage {
 	private TextModification mods[];
 	
 	public GetChangesReplyMsg(TextModification[] mods) {
-		this.setMods(mods);
+		this.mods = mods;
 	}
 
 	/**

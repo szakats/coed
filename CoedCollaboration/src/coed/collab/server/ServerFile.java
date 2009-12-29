@@ -4,8 +4,10 @@
 package coed.collab.server;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 
 import coed.base.data.TextModification;
@@ -35,6 +37,7 @@ public class ServerFile {
 	 */
 	
 	private HashMap<Session,Integer> sessions; 
+	private HashMap<Session, FileChangedListener> listeners;
 	
 	private ChangeQueue queue;
 	
@@ -48,6 +51,7 @@ public class ServerFile {
 		this.queue = new ChangeQueue(this);
 		sessions = new HashMap<Session,Integer>();
 		locks = new Vector<ServerLock>();
+		listeners = new HashMap<Session,FileChangedListener>();
 	}
 
 	public String getPath() {
@@ -61,6 +65,13 @@ public class ServerFile {
 	public synchronized void changeContents(String contents) throws IOException{
 	   this.contents.delete(0, this.contents.capacity());
 	   this.contents.append(contents);
+	   
+	   //notify listeners about the changes occured
+	   Collection<FileChangedListener> listen = listeners.values();
+	   Iterator<FileChangedListener> it = listen.iterator();
+	   while (it.hasNext()){
+		   it.next().update(true);
+	   }
 	}
 	
 	/**
@@ -81,6 +92,14 @@ public class ServerFile {
 	
 	public int getNrOfSessions(){
 		return sessions.size();
+	}
+	
+	public void addChangeListener(Session s, FileChangedListener list){
+		listeners.put(s, list);
+	}
+	
+	public void removeChangeListener(Session s){
+		listeners.remove(s);
 	}
 	
 	/**
@@ -126,6 +145,13 @@ public class ServerFile {
 			queue.enQueueChange(new CoedFileChange(change,new Date()));
 			//insert the change into the file
 			contents.insert(change.getOffset(),change.getText());
+		
+			//notify listeners
+			Collection<FileChangedListener> listen = listeners.values();
+			Iterator<FileChangedListener> it = listen.iterator();
+			while (it.hasNext()){
+				it.next().update(true);
+			}
 		}
 	}
 	
@@ -272,6 +298,13 @@ public class ServerFile {
 		
 		//for (int i=0; i<queue.getTopIndex(); i++)
 		//	System.out.println("queue["+i+"] = "+queue.getChangeAt(i).getOffset().toString());
+	}
+	
+	public TextModification[] getChangesFor(Session s){
+		TextModification[] result = queue.getChangesFor(s);
+		setChangePointer(s,queue.getTopIndex());
+		return result;
+		
 	}
 	
 }
