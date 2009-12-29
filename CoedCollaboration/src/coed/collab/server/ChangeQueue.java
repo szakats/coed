@@ -61,7 +61,8 @@ public class ChangeQueue{
 		}
 		
 		TextModification[] ret = new TextModification[k];
-		ret = (TextModification[])vect.toArray();
+		vect.toArray(ret);
+		
 		return ret;
 		
 	}
