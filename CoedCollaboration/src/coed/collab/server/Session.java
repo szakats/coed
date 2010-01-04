@@ -72,6 +72,10 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((AddChangedListenerMsg) msg);
     	else if (msg instanceof AuthentificationMsg)
     		handleMessage((AuthentificationMsg) msg);
+    	else if (msg instanceof RequestLockMsg)
+    		handleMessage((RequestLockMsg) msg);
+    	else if (msg instanceof ReleaseLockMsg)
+    		handleMessage((ReleaseLockMsg) msg);
 	}
     
     public void handleMessage(GetChangesMsg msg) {
@@ -91,6 +95,17 @@ public class Session implements ICoedConnectionListener {
     	for (int i=0; i<msg.getMods().length; i++){
     		sf.addChange(msg.getMods()[i], this);
     	}
+    }
+    
+    public void handleMessage(RequestLockMsg msg) {
+    	System.out.println("requesting lock");
+    	RequestLockReplyMsg reply = new RequestLockReplyMsg(server.getServerFile(msg.getFile()).RequestLock(msg.getPortion(), this));
+    	conn.reply(msg, reply);
+    }
+    
+    public void handleMessage(ReleaseLockMsg msg) {
+    	System.out.println("releasing lock");
+    	server.getServerFile(msg.getFile()).ReleaseLock(msg.getPortion(), this);
     }
     
     public void handleMessage(GetContentsMsg msg) {
