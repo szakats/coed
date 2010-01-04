@@ -45,7 +45,7 @@ public class Session implements ICoedConnectionListener {
 
 	@Override
 	public void disconnected() {
-		System.out.println("session closed");
+		System.out.println("session ending");
 		Iterator<ServerFile> it = onlineFiles.iterator();
 		while (it.hasNext()){
 			ServerFile file = ((ServerFile)it.next()); 

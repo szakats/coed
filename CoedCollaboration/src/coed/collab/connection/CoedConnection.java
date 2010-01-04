@@ -110,7 +110,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     
 	@Override
     public void sessionClosed(IoSession session) {
-    	System.out.println("session closed.");
+    	System.out.println("connection closed.");
 		for(ICoedConnectionListener listener : allListeners)
 			listener.disconnected();
     }

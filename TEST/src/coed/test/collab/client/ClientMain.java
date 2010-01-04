@@ -61,6 +61,14 @@ public class ClientMain {
 				this.notify();
 			}
 		}
+		
+		void waitSync() {
+			try {
+				wait();
+			} catch(InterruptedException e) {
+				
+			}
+		}
 	}
 	
 	class Client1 extends Client {
@@ -100,8 +108,7 @@ public class ClientMain {
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client2 contents: " + contents);
 				obj.addChangeListener(this);
-				// wait for changes 
-				try { wait(); } catch(InterruptedException e) {}
+				waitSync(); 	// wait for changes 
 				TextModification[] mods = obj.getChanges().get();
 				System.out.println("client2 got modifications:");
 				for(TextModification mod : mods)
