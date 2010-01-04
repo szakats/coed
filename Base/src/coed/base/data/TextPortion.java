@@ -31,4 +31,8 @@ public class TextPortion {
 		this.length = length;
 	}
 	
+	public String toString(){
+		return "offset="+offset+", length="+length;
+	}
+	
 }
