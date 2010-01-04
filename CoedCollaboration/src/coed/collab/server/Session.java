@@ -77,7 +77,7 @@ public class Session implements ICoedConnectionListener {
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes");
     	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
-    	conn.replySeq(msg, reply);
+    	conn.reply(msg, reply);
     }
     
     public void handleMessage(AuthentificationMsg msg) {
