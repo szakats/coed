@@ -86,12 +86,28 @@ public class CoedCollabFile implements ICollabObject {
 	
 	@Override
 	public IFuture<Boolean> releaseLock(TextPortion lock) {
-		return new CoedFuture<Boolean>(new Boolean(false));
+		return new CoedFuture<Boolean>(true);
 	}
 
 	@Override
 	public IFuture<Boolean> requestLock(TextPortion lock) {
-		return new CoedFuture<Boolean>(new Boolean(false));
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<Boolean> ret = new CoedFuture<Boolean>();
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof RequestLockReplyMsg)
+					ret.set(((RequestLockReplyMsg)result).getResult());
+			}
+			@Override
+			public void caught(Throwable e) {
+				rethrow(e, ret);
+			}
+		}
+		
+		FListener fl = new FListener();
+		if(ensureOnline(fl.ret))
+			coll.getConn().sendSeq(new RequestLockMsg(getParent().getPath(), lock)).addListener(fl);
+		return fl.ret;
 	}
 
 	@Override
