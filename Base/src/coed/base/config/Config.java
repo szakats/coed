@@ -55,11 +55,11 @@ public class Config implements ICoedConfig {
 		return settings.get(key);
 	}
 	
-	public int getInt(String key) {
+	public Integer getInt(String key) {
 		return new Integer(settings.get(key));
 	}
 	
-	public double getDouble(String key) {
+	public Double getDouble(String key) {
 		return new Double(settings.get(key));
 	}
 	
