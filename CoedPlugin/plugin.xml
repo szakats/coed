@@ -121,5 +121,19 @@
          </toolbar>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="coed.plugin.preferences.ConfigModifier"
+            id="coed.plugin.preferences.ConfigModifier"
+            name="Edit Config File">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="coed.plugin.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>
