@@ -4,7 +4,11 @@ import java.util.concurrent.ExecutionException;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICollabStateListener;
+import coed.base.config.Config;
+import coed.base.config.ICoedConfig;
 import coed.base.data.CoedObject;
+import coed.base.data.ICoedObject;
+import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFutureListener;
@@ -16,83 +20,112 @@ import coed.collab.protocol.SendChangesMsg;
 import coed.versioning.client.StaticVersioner;
 
 public class ClientMain {
-	private CollaboratorClient collab;
-	private CoedObject ret;
-	
-	class CollabListenerTest implements ICollabStateListener, IFutureListener<String> {
+
+
+	class Connector extends Thread implements ICollabStateListener {
+		protected CollaboratorClient collab;
+		protected CoedObject obj;
+		protected ICoedConfig config = new Config();
+		
+		Connector() {
+			config.setString("server.host", "localhost");
+			config.setInt("server.port", 1234);
+		}
+		
+		public synchronized void connect() {
+			collab = new CollaboratorClient(config, "");
+			StaticVersioner vers = new StaticVersioner();
+			
+			obj = new CoedObject("file", true);
+			obj.init(vers.makeVersionedObject(obj), collab.makeCollabObject(obj));
+			
+			collab.addStateListener(this);
+			
+			collab.startCollab();
+
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		@Override
-		public void collabStateChanged(String to) {
+		public synchronized void collabStateChanged(String to) {
 			System.out.println("If i heard correctly, the connection state is: " + to);
 			if(to == ICoedCollaborator.STATUS_CONNECTED) {
-				//ICoedConnection conn = collab.getConn();
-				//assert conn != null;
-				collab.getConn().send(new AuthentificationMsg("user1"));
+				ICoedConnection conn = collab.getConn();
+				assert conn != null;
 
-				new GoOnlineTest();
+				this.notify();
+			}
+		}
+	}
+	
+	class Client1 extends Connector {
+		Client1() {
+			config.setString("user.name", "client1");
+		}
+
+		@Override
+		public synchronized void run() {
+			connect();
+			try {
+				String contents = obj.goOnline("contents").get();
+				System.out.println("client1 contents: " + contents);
+				wait(1000);
+				obj.sendChanges(new TextModification(1,3,"333","client1"));
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	class Client2 extends Connector implements IFileChangeListener {
+		Client2() {
+			config.setString("user.name", "client2");
+		}
+
+		@Override
+		public synchronized void run() {
+			connect();
+			try {
+				wait(500);
+				String contents = obj.goOnline("contents").get();
+				System.out.println("client2 contents: " + contents);
+				obj.addChangeListener(this);
+				wait();	// wait for changes
+				TextModification[] mods = obj.getChanges().get();
+				System.out.println("client2 got modifications:");
+				for(TextModification mod : mods)
+					System.out.println(mod.toString());
+				
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
 		@Override
-		public void got(String result) {
-			System.out.println("received contents: " + result);
-		}
-
-		@Override
-		public void caught(Throwable e) {
-			e.printStackTrace();
+		public synchronized void hasChanges(ICoedObject file) {
+			notify();
 		}
 	}
-	
-	class GoOnlineTest implements IFutureListener<String> {
-		
-		GoOnlineTest() {
-			ret.goOnline("contents").addListener(this);
-		}
 
-		@Override
-		public void got(String result) {
-			System.out.println("received contents: " + result);
-			new SendChangesTest();
-		}
-  
-		@Override
-		public void caught(Throwable e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	class SendChangesTest implements IFutureListener<String> {
-		
-		SendChangesTest() {
-			System.out.println("sending changes");
-			TextModification[] mods = new TextModification[1];
-			mods[0] = new TextModification(1,3,"333","user1");
-			collab.getConn().send(new SendChangesMsg("file",mods));
-		}
-
-		@Override
-		public void got(String result) {
-			System.out.println("sent contents client1 " + result);
-		}
-  
-		@Override
-		public void caught(Throwable e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
 	public ClientMain() {
-		collab = new CollaboratorClient(null, "");
-		StaticVersioner vers = new StaticVersioner();
-		
-		ret = new CoedObject("file", true);
-		ret.init(vers.makeVersionedObject(ret), collab.makeCollabObject(ret));
-		
-		collab.addStateListener(new CollabListenerTest());
-		
-		collab.startCollab();
+		Client1 c1 = new Client1();
+		Client2 c2 = new Client2();
+		c1.start();
+		c2.start();
 	}
 
 	/**
