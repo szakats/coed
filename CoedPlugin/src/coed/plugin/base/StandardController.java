@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -105,9 +108,14 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 */
 	private TextPortion lockedLines;
 	
+	private final static Logger logger = Logger.getLogger(StandardController.class.toString());
+	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
 		configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.INFO);
+		logger.info("Starting with config file at "+configLocation);
 		try {
 			this.communicator = new CoedCommunicatorFactory().create(configLocation);
 			communicator.startCollab();
@@ -161,7 +169,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	   
 	   if (file!=null) {
 		   if (communicator!=null && file!=null) {
-			   return communicator.getObject(file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
+			   return communicator.getObject("/"+file.getProject().getName()+"/"+file.getProjectRelativePath().toString());
 		   } else {
 			   throw new GetFileInEditorException();
 		   }
@@ -216,9 +224,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		try {			
 			editors.put(texte, findCoedFileFor(texte));
 			setAsActive(texte);
-			/*DEBUG*/System.out.println("Going collab for: "+texte);
+			logger.info("Going collab for: "+texte);
 			texte.getSite().getPage().addPartListener(this);
-			
+			String content = editors.get(activeEditor).goOnline(activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).get()).get();
+			if (content!=null) activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).set(content);
+		/*
 			IWorkbench wb = PlatformUI.getWorkbench();
 		 	IProgressService ps = wb.getProgressService();
 		 	ps.busyCursorWhile(new IRunnableWithProgress() {
@@ -228,21 +238,22 @@ public class StandardController implements IPluginController, IPartListener, IFi
 						InterruptedException {
 					
 					try {
-						editors.get(activeEditor).goOnline(activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).get()).get();
+						String content = editors.get(activeEditor).goOnline(activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).get()).get();
+						activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).set(content);
 					} catch (ExecutionException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
 				}
-			});
+			});*/
 		} catch (GetFileInEditorException e) {
 			MessageDialog.openError(null, "Coed Plugin - File Error", "There had been an error when determining the location of the file you are" +
 					"currently editing.\nPlease refresh the editor, or reopen the file and try again!");
-		} catch (InvocationTargetException e) {
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
@@ -253,7 +264,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		//TODO: maybe do some stuff before closing
 		//TODO: restore contents if needed
 		
-		/*DEBUG*/System.out.println("Ending collab for: "+texte);
+		logger.info("Ending collab for: "+texte);
 		
 		if (activeEditor!=null && activeEditor.equals(texte)) {
 			activeDocument.removeDocumentListener(this);
@@ -310,7 +321,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	public void partActivated(IWorkbenchPart part) {
 		if (editors.containsKey(part)) {
 			setAsActive((AbstractDecoratedTextEditor) part);
-			/*DEBUG*/System.out.println("Resumed : "+part);
+			logger.info("Resumed : "+part);
 		}
 	}
 
@@ -335,7 +346,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			activeDocument.removeDocumentListener(this);
 			activeEditor=null;
 			activeDocument=null;
-			/*DEBUG*/System.out.println("Paused : "+part);
+			logger.info("Paused : "+part);
 		}
 	}
 
@@ -381,6 +392,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		TextPortion lock;
 		
 		public InputProcessor (StandardController outer, TextPortion lock, DocumentEvent event){
+			logger.info("Processing input at "+lock.toString());
 			this.outer=outer;
 			this.event=event;
 			this.lock=lock;
@@ -388,8 +400,9 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		
 		public void run(){
 			try {
-				if (!editors.get(activeEditor).requestLock(lock).get()) {
+				if (false && editors.get(activeEditor).requestLock(lock).get()==false) {
 					ignoreEvent=event.fModificationStamp;
+					logger.info("Lock failed for: "+lock);
 					lock=null;
 				} 
 			} catch (InterruptedException e) {
