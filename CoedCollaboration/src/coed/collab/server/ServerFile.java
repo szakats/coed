@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 
 import coed.base.data.TextModification;
@@ -153,6 +154,20 @@ public class ServerFile {
 				it.next().update(true);
 			}
 		}
+	}
+	
+	public String[] getActiveUsers(){
+		String[] result = new String[sessions.size()];
+		Set<Session> s = sessions.keySet();
+		Iterator<Session> it = s.iterator();
+		
+		int k = 0;
+		while (it.hasNext()){
+			result[k] = it.next().getUserName();
+			k++;
+		}
+		
+		return result;
 	}
 	
 	public String getCurrentContents(){
