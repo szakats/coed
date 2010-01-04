@@ -126,7 +126,7 @@
       <page
             class="coed.plugin.preferences.ConfigModifier"
             id="coed.plugin.preferences.ConfigModifier"
-            name="Edit Config File">
+            name="Coed Config Edit">
       </page>
    </extension>
    <extension

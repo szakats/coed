@@ -10,8 +10,8 @@
 public interface ICoedConfig {
 	
 	public String getString(String key);
-	public int getInt(String key);
-	public double getDouble(String key);
+	public Integer getInt(String key);
+	public Double getDouble(String key);
 
 	public void setString(String key, String value);
 	public void setInt(String key, int value);

@@ -1,8 +1,13 @@
 package coed.plugin.preferences;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.*;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.IWorkbench;
+
+import coed.base.config.Config;
+import coed.base.config.ICoedConfig;
+import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.plugin.base.Activator;
 
 /**
@@ -23,6 +28,12 @@ public class ConfigModifier
 	extends FieldEditorPreferencePage
 	implements IWorkbenchPreferencePage {
 
+	private ICoedConfig config=null;
+	private StringFieldEditor e1=null;
+	private StringFieldEditor e2=null;
+	private StringFieldEditor e3=null;
+	private StringFieldEditor e4=null;
+	
 	public ConfigModifier() {
 		super(GRID);
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
@@ -51,19 +62,35 @@ public class ConfigModifier
 			new String[][] { { "&Choice 1", "choice1" }, {
 				"C&hoice 2", "choice2" }
 		}, getFieldEditorParent()));*/
-		addField(
-			new StringFieldEditor(PreferenceConstants.P_STRING1, "versioner.type", getFieldEditorParent()));
-		addField(
-				new StringFieldEditor(PreferenceConstants.P_STRING2, "server.host", getFieldEditorParent()));
-		addField(
-				new StringFieldEditor(PreferenceConstants.P_STRING3, "server.port", getFieldEditorParent()));
-		addField(
-				new StringFieldEditor(PreferenceConstants.P_STRING4, "user.name", getFieldEditorParent()));
+		String configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		
+		try {
+			config = new Config(configLocation+"\\.coed\\config.ini");
+		} catch (InvalidConfigFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		e1=new StringFieldEditor(PreferenceConstants.P_STRING1, "versioner.type", getFieldEditorParent());
+		e2=new StringFieldEditor(PreferenceConstants.P_STRING2, "server.host", getFieldEditorParent());
+		e3=new StringFieldEditor(PreferenceConstants.P_STRING3, "server.port", getFieldEditorParent());
+		e4=new StringFieldEditor(PreferenceConstants.P_STRING4, "user.name", getFieldEditorParent());
+		addField(e1);		  
+		addField(e2);			
+		addField(e3);			
+		addField(e4);			
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
+	public boolean performOk(){
+		config.setString("versioner.type",e1.getStringValue());
+		config.setString("server.host",e2.getStringValue());
+		config.setString("server.port",e3.getStringValue());
+		config.setString("user.name",e4.getStringValue());
+		return true;
+	}
+	
 	public void init(IWorkbench workbench) {
 	}
 	

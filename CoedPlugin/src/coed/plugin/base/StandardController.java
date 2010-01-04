@@ -44,6 +44,8 @@ import coed.collab.client.CollaboratorClient;
 import coed.collab.client.Communicator;
 import coed.plugin.exceptions.GetFileInEditorException;
 import coed.plugin.mocksfordebug.MockCoedCollaborator;
+import coed.plugin.text.locks.ITextLockManager;
+import coed.plugin.text.locks.TextLockFactory;
 import coed.plugin.views.IFileTree;
 import coed.plugin.views.IUserList;
 
@@ -109,8 +111,20 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 */
 	private TextPortion lockedLines;
 	
+	/**
+	 * The lock manager instance for this class. 
+	 * It is needed because several strategies can be used for locking.
+	 */
+	private ITextLockManager locker;
+	
+	/**
+	 * Username of the current user. It is needed to be put in the meta-info of changes.
+	 */
 	private String userName;
 	
+	/**
+	 * Log4j logger for this class - INFO level will be set
+	 */
 	private final static Logger logger = Logger.getLogger(StandardController.class.toString());
 	
 	public StandardController(){
@@ -125,8 +139,15 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			this.communicator = new CoedCommunicatorFactory().create(configLocation);
 			communicator.startCollab();
 			
+			//getting user name
 			Config conf = new Config(configLocation+"\\.coed\\config.ini");
 			userName=conf.getString("user.name");
+			
+			//settign up lock strategy
+			String lockStrategy=(conf.getString("lock.strategy")==null) ? TextLockFactory.OPTIMISTIC_MANAGER : conf.getString("lock.strategy");
+			Integer lockDelay=(conf.getInt("lock.release.delay")==null) ? 0 : conf.getInt("lock.release.delay");
+			this.locker=TextLockFactory.getManagerFor(lockStrategy,lockDelay);
+			
 		} catch (UnknownVersionerTypeException e) {
 			// TODO Auto-generated catch block
 			this.communicator=null;
@@ -136,6 +157,13 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			this.communicator=null;
 			e.printStackTrace();
 			MessageDialog.openError(null, "Coed Plugin - Startup exception", "The configuration file contains errors!\nEither disable this plugin, or fix the config file (workspace\\.coed\\config.ini)");
+		} finally {
+			if (this.locker==null)
+				try {
+					this.locker=TextLockFactory.getManagerFor(TextLockFactory.OPTIMISTIC_MANAGER);
+				} catch (InvalidConfigFileException e) {
+					//This should be OK
+				}
 		}
 		
 		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedObject>();
