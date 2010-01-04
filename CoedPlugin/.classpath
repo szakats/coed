@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/coed.versioning.jar"/>
 	<classpathentry kind="lib" path="lib/coed.collaborator.jar"/>
 	<classpathentry kind="lib" path="lib/coed.base.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.8.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

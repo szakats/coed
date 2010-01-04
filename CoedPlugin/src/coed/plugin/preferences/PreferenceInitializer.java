@@ -1,5 +1,6 @@
 package coed.plugin.preferences;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -20,22 +21,20 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 */
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		String versioner,host,port,user;
+		String configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
 		ICoedConfig config=null;
 		try {
-			config=new Config("../.coed/config.ini");
+			config = new Config(configLocation+"\\.coed\\config.ini");
 		} catch (InvalidConfigFileException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		versioner=config.getString("versioner.type");
-		host=config.getString("server.host");
-		port=config.getString("server.port");
-		user=config.getString("user.name");
-		store.setDefault(PreferenceConstants.P_STRING1,versioner);
-		store.setDefault(PreferenceConstants.P_STRING2,host);
-		store.setDefault(PreferenceConstants.P_STRING3,port);
-		store.setDefault(PreferenceConstants.P_STRING4,user);
+		
+		store.setDefault(PreferenceConstants.P_STRING1,config.getString("versioner.type"));
+		store.setDefault(PreferenceConstants.P_STRING2,config.getString("server.host"));
+		store.setDefault(PreferenceConstants.P_STRING3,config.getString("server.port"));
+		store.setDefault(PreferenceConstants.P_STRING4,config.getString("user.name"));
+		
 	}
 
 }
