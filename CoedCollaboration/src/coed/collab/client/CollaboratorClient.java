@@ -36,19 +36,21 @@ public class CollaboratorClient implements ICoedCollaborator {
 	
 	private String basePath;
 	
-	String host;
-	int port;
+	private String host;
+	private int port;
+	
+	private ICoedConfig conf;
 
 	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
 		stateListeners = new LinkedList<ICollabStateListener>();
 		cache = new HashMap<String,ICollabObject>();
 		this.basePath = basePath;
+		this.conf = conf;
 		setState(STATUS_OFFLINE);
-		//goOffline();
-		
-		//host = conf.getString("server.host");
-		//port = conf.getInt("server.port");
+
+		host = conf.getString("server.host");
+		port = conf.getInt("server.port");
 	}
 	
 	public void ensureConnected() throws NotConnectedException {
@@ -106,6 +108,10 @@ public class CollaboratorClient implements ICoedCollaborator {
 		return conn;
 	}
 	
+	public ICoedConfig getConf() {
+		return conf;
+	}
+	
 	public String getBasePath(){
 		return this.basePath;
 	}
@@ -160,7 +166,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public void startCollab() {
 		if(conn == null) {
 			setState(STATUS_ERROR);
-			conn = new CoedKeepAliveConnection("localhost", 1234);
+			conn = new CoedKeepAliveConnection(host, port);
 			conn.addListener(connListener);
 		}
 	}

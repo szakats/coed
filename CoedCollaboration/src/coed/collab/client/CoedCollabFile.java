@@ -96,8 +96,11 @@ public class CoedCollabFile implements ICollabObject {
 
 	@Override
 	public IFuture<Boolean> sendChanges(TextModification line) {
-		//conn.send(new SendChangesMsg(null, line));
-		return null;
+		TextModification[] mods = new TextModification[1];
+		mods[0] = line;
+		
+		coll.getConn().send(new SendChangesMsg(getParent().getPath(), mods));
+		return new CoedFuture<Boolean>(true);
 	}
 
 	@Override
@@ -105,6 +108,7 @@ public class CoedCollabFile implements ICollabObject {
 		CoedFuture<Void> ret = new CoedFuture<Void>();
 		if(ensureOnline(ret))
 			fileObservers.add(listener);
+		coll.getConn().send(new AddChangedListenerMsg(getParent().getPath()));
 		return ret;
 	}
 
@@ -135,6 +139,13 @@ public class CoedCollabFile implements ICollabObject {
 			public FListener(String localContents) {
 				this.localContents = localContents;
 			}
+			
+			void finish(String contents) {
+				String username = coll.getConf().getString("user.name");
+				coll.getConn().send(new AuthentificationMsg("asdf"));
+				isWorkingOnline = true;
+				ret.set(contents);
+			}
 
 			@Override
 			public void got(CoedMessage result) {
@@ -147,16 +158,15 @@ public class CoedCollabFile implements ICollabObject {
 					} else {
 						coll.getConn().reply(msg, new SendContentsMsg(localContents))
 							.addErrorListener(this);
+						
 						// TODO: maybe only set this after the server confirmed that it
 						// got the contents ?
-						isWorkingOnline = true;
-						ret.set(null);
+						finish(null);
 					}
 				} else if(result instanceof SendContentsMsg) {
 					String remoteContents = ((SendContentsMsg)result).getContents();
 					System.out.println("got remote contents: " + remoteContents);
-					ret.set(remoteContents);
-					isWorkingOnline = true;
+					finish(remoteContents);
 				}
 			}
 
