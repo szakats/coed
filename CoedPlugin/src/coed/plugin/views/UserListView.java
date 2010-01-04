@@ -1,5 +1,7 @@
 package coed.plugin.views;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 import org.eclipse.jface.viewers.*;
@@ -42,6 +44,7 @@ public class UserListView extends ViewPart implements IUserList {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
+	private ViewContentProvider v;
 
 	/*
 	 * The content provider class is responsible for
@@ -54,13 +57,54 @@ public class UserListView extends ViewPart implements IUserList {
 	 */
 	 
 	class ViewContentProvider implements IStructuredContentProvider {
-		private String[] users;
+		private String[] users=null;
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
 		public void dispose() {
 		}
 		public void setElements(String[] users) {
 			this.users=users;
+		}
+		public void addElement(String user){
+			if(users==null)
+			{
+				String[] temp={user};
+				setElements(temp);
+			}
+			else
+			{
+				boolean ok=false;
+				int i;
+				String[] temp=new String[users.length+1];
+				for(i=0;i<users.length;i++)
+				{
+					temp[i]=users[i];			
+					if(users[i].compareTo(user)==0) ok=true;
+				}
+				if(!ok){
+					temp[users.length]=user;
+					Arrays.sort(temp);
+					users=temp;
+				}
+			}
+		}
+		public boolean removeElement(String user){
+			if(users==null)
+				return false;
+			else {
+				boolean ok=false;
+				int i;
+				String[] temp=new String[users.length-1];
+				for(i=0;i<users.length-1;i++)
+				{  
+					if(users[i].compareTo(user)==0) ok=true;
+					if(ok==false)
+						temp[i]=users[i];
+					else temp[i]=users[i+1];
+				}
+				if(ok==true) users=temp;
+			}
+			return true;
 		}
 		public Object[] getElements(Object parent) {
 			return users;
@@ -95,19 +139,23 @@ public class UserListView extends ViewPart implements IUserList {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		viewer.setContentProvider(new ViewContentProvider());
+		v=new ViewContentProvider();
+		viewer.setContentProvider(v);
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
-		//viewer.setInput(getViewSite());
 		
 		
-		//initializations used for test
-		String[] x= {"a","d"};
+		
+		//initializations users for test
+		String[] x= {"a"};
 		displayUsers(x);
-		/* TODO: displayUsers(null) does not work
-		 * FIND proper initialization
-		 * 
-		 */
+		String y="b";
+		displayUser(y);
+		y="q";
+		displayUser(y);
+		y="b";
+		removeUser(y);
+		
 		
 		
 		// Create the help context id for the viewer's control
@@ -124,10 +172,23 @@ public class UserListView extends ViewPart implements IUserList {
 	 * @param users - array of strings containing the users
 	 */
 	public void displayUsers(String[] users) {
-		ViewContentProvider v = new ViewContentProvider();
 		v.setElements(users);
 		viewer.setContentProvider(v);
 		viewer.setInput(getViewSite());
+	}
+	
+	public void displayUser(String user){
+		v.addElement(user);
+		viewer.setContentProvider(v);
+		viewer.setInput(getViewSite());
+	}
+	
+	public void removeUser(String user){
+		if(v.removeElement(user))
+		{
+			viewer.setContentProvider(v);
+			viewer.setInput(getViewSite());
+		}
 	}
 
 	private void hookContextMenu() {

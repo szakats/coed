@@ -52,6 +52,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
+	private ViewContentProvider v;
 
 	/*
 	 * The content provider class is responsible for
@@ -111,7 +112,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 
 	class ViewContentProvider implements IStructuredContentProvider, 
 										   ITreeContentProvider {
-		private TreeParent invisibleRoot;
+		private TreeParent invisibleRoot=null;
 
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
@@ -184,7 +185,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			do {
 				ok=1;
 				for(i=0;i<sorted.length-1;i++)
-					if(sorted[i].compareTo(sorted[i+1])>0){
+					if(sorted[i].compareTo(sorted[i+1])<0){
 						ok=0;
 						aux=sorted[i];
 						sorted[i]=sorted[i+1];
@@ -203,6 +204,108 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			}while(ok==0);
 			return sorted;
 		}
+		
+		private boolean remove(ICoedObject file1){
+			String[] temp=null;
+			temp=processString(file1.getPath());
+			if(invisibleRoot==null) return false;
+			int i,j;
+			boolean ok=true;
+			boolean notice=false;
+			TreeParent root,realRoot;
+			TreeParent broot=null,breal=null;
+			if(temp.length==1) 
+			{
+				TreeObject[] all=invisibleRoot.getChildren();
+				for(i=0;i<all.length;i++)
+					if(all[i].getName().equals(temp[0])) 
+						invisibleRoot.removeChild(all[i]);
+			}
+			else
+			{
+				root = new TreeParent(temp[0]);
+				realRoot = invisibleRoot;
+				j=1;
+				while(j<temp.length&&ok)
+				{
+					ok=false;
+					TreeObject[] all=realRoot.getChildren();
+					if(all.length>1)
+					{
+						for(i=0;i<all.length;i++)
+							if(all[i].getName().equals(root.getName())) 
+							{
+								realRoot=(TreeParent)all[i];
+								root = new TreeParent(temp[j]);
+								ok=true;
+								j++;
+							}
+					}
+					else
+						if(notice==false)
+						{
+							notice=true;
+							broot=root;
+							breal=realRoot;
+						}
+				}
+				if(notice) breal.removeChild(broot);
+				else if(j>=temp.length) realRoot.removeChild(root);
+			}
+			return true;
+		}
+		/**
+		 * Function that adds a file to the file tree
+		 * @param file1 - file that must be added
+		 */
+		private void add(ICoedObject file1){
+			String[] temp=null;
+			int j;
+			if(invisibleRoot==null) invisibleRoot = new TreeParent("");
+			TreeObject parent,file;
+			TreeParent root,realParent,realRoot;
+			temp=processString(file1.getPath());
+			if(temp.length==1) 
+			{
+				file = new TreeObject(temp[0]);
+				invisibleRoot.addChild(file);
+			}
+			else {
+				file = new TreeObject(temp[temp.length-1]);
+				root = new TreeParent(temp[0]);
+				realRoot=(TreeParent)getParentTree(invisibleRoot,root);
+				if(realRoot==null){
+					invisibleRoot.addChild(root);
+					for(j=1;j<(temp.length-1);j++) {
+						parent = new TreeParent(temp[j]);
+						root.addChild(parent);
+						root=(TreeParent)parent;
+					}
+					root.addChild(file);
+				}
+				else{
+					for(j=1;j<(temp.length-1);j++) {
+						parent = new TreeParent(temp[j]);
+						realParent = (TreeParent)getParentTree(realRoot,parent);
+						if(realParent==null){
+							realRoot.addChild(parent);
+							root=(TreeParent)parent;
+							for(int k=j+1;k<(temp.length-1);k++){
+								parent = new TreeParent(temp[j]);
+								root.addChild(parent);
+								root=(TreeParent)parent;
+							}
+							root.addChild(file);
+							break;
+						}
+						else realRoot=realParent;
+					}
+					if(j>=temp.length-1) realRoot.addChild(file);
+				}				
+			}
+			
+		}
+		
 		/**
 		 * Function that processes the array of files and creates the tree structure
 		 * @param files - array containing all files
@@ -221,12 +324,13 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			invisibleRoot = new TreeParent("");
 			for(int i=0;i<nrOfFiles;i++) {
 				temp=processString(sortedpaths[i]);
-				file = new TreeObject(temp[temp.length-1]);
-				
 				if(temp.length==1) 
-					//TODO: exception ?!
-					temp=null;
+				{
+					file = new TreeObject(temp[0]);
+					invisibleRoot.addChild(file);
+				}
 				else {
+					file = new TreeObject(temp[temp.length-1]);
 					root = new TreeParent(temp[0]);
 					realRoot=(TreeParent)getParentTree(invisibleRoot,root);
 					if(realRoot==null){
@@ -291,18 +395,23 @@ public class FileTreeView extends ViewPart implements IFileTree{
 	public void createPartControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		drillDownAdapter = new DrillDownAdapter(viewer);
-		viewer.setContentProvider(new ViewContentProvider());
+		v = new ViewContentProvider();
+		viewer.setContentProvider(v);
 		viewer.setLabelProvider(new ViewLabelProvider());
 		viewer.setSorter(new NameSorter());
-		//viewer.setInput(getViewSite());
 		
-		MockCoedObject obj1 = new MockCoedObject("Base/src/coed/common/ICoedCollaborator.java");
-		MockCoedObject obj2 = new MockCoedObject("Base/src/coed/common/ICoedComm.java");
-		MockCoedObject obj3 = new MockCoedObject("Base/src/coed/ICoedObject.java");
-		MockCoedObject obj4 = new MockCoedObject("Base/src/coed/ICollabObject.java");
-		MockCoedObject obj5 = new MockCoedObject("Coed/src/coed/common/ICoedInt.java");
+		
+		//testing
+		MockCoedObject obj1 = new MockCoedObject("Base/common/ICoedCollaborator.java");
+		MockCoedObject obj2 = new MockCoedObject("Base/common/ICoedComm.java");
+		MockCoedObject obj3 = new MockCoedObject("Base/ICoedObject.java");
+		MockCoedObject obj4 = new MockCoedObject("Base/ICollabObject.java");
+		MockCoedObject obj5 = new MockCoedObject("Coed/common/ICoedInt.java");
 		MockCoedObject[] objects={obj1,obj2,obj3,obj4,obj5};
 		displayFileTree(objects);
+		MockCoedObject obj0 = new MockCoedObject("Whatever.java");
+		displayFile(obj0);
+		removeFile(obj5);
 		
 		
 
@@ -319,10 +428,23 @@ public class FileTreeView extends ViewPart implements IFileTree{
 	 * @param files - ICoedObject array containing the files that will be displayed
 	 */
 	public void displayFileTree(ICoedObject[] files) {
-		ViewContentProvider v = new ViewContentProvider();
 		v.initialize(files);
 		viewer.setContentProvider(v);
 		viewer.setInput(getViewSite());
+	}
+	
+	public void displayFile(ICoedObject file){
+		v.add(file);
+		viewer.setContentProvider(v);
+		viewer.setInput(getViewSite());
+	}
+	
+	public void removeFile(ICoedObject file){
+		if(v.remove(file))
+		{
+			viewer.setContentProvider(v);
+			viewer.setInput(getViewSite());
+		}
 	}
 	
 	private void hookContextMenu() {

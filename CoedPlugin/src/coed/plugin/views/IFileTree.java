@@ -18,4 +18,19 @@ public interface IFileTree {
 	 * @param files - array of coed objects
 	 */
 	public void displayFileTree(ICoedObject[] files);
+	
+	/**
+	 * Method that receives a file and adds it to the file tree
+	 * structure. If the structure does not exists, it is created.
+	 * @param file - file that must be added to tree structure
+	 */
+	public void displayFile(ICoedObject file);
+	
+	/**
+	 * Method that receives a file as argument and has to remove it
+	 * from the file tree. If the file does not exists in the tree,
+	 * nothing happens.
+	 * @param file - file that must be removed
+	 */
+	public void removeFile(ICoedObject file);
 }
