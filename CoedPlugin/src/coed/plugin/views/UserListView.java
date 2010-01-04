@@ -147,6 +147,7 @@ public class UserListView extends ViewPart implements IUserList {
 		
 		
 		//initializations users for test
+		/*
 		String[] x= {"a"};
 		displayUsers(x);
 		String y="b";
@@ -154,7 +155,7 @@ public class UserListView extends ViewPart implements IUserList {
 		y="q";
 		displayUser(y);
 		y="b";
-		removeUser(y);
+		removeUser(y);*/
 		
 		
 		

@@ -240,6 +240,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).set(content);
 				activeDocument.addDocumentListener(this);
 			}
+			fileTree.displayFile(editors.get(activeEditor));
 		/*
 			IWorkbench wb = PlatformUI.getWorkbench();
 		 	IProgressService ps = wb.getProgressService();
@@ -277,6 +278,8 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		//TODO: restore contents if needed
 		
 		logger.info("Ending collab for: "+texte);
+		
+		fileTree.removeFile(editors.get(activeEditor));
 		
 		if (activeEditor!=null && activeEditor.equals(texte)) {
 			activeDocument.removeDocumentListener(this);
@@ -383,7 +386,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		lockedLines = new TextPortion(event.fOffset, event.fLength);
+		lockedLines = new TextPortion(event.fOffset, event.fLength+event.fText.length());
 	}
 
 	@Override
