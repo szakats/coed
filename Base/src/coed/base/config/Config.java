@@ -45,7 +45,10 @@ public class Config implements ICoedConfig {
 		       throw new InvalidConfigFileException();
 		       //if file not found, InvalidConfigFIleException is thrown
 		 }
-
+	}
+	
+	public Config() {
+		
 	}
 	
 	public String getString(String key) {
@@ -58,5 +61,17 @@ public class Config implements ICoedConfig {
 	
 	public double getDouble(String key) {
 		return new Double(settings.get(key));
+	}
+	
+	public void setString(String key, String value) {
+		settings.put(key, value);
+	}
+	
+	public void setInt(String key, int value) {
+		settings.put(key, Integer.toString(value));
+	}
+	
+	public void setDouble(String key, double value) {
+		settings.put(key, Double.toString(value));
 	}
 }

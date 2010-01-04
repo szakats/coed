@@ -13,4 +13,7 @@ public interface ICoedConfig {
 	public int getInt(String key);
 	public double getDouble(String key);
 
+	public void setString(String key, String value);
+	public void setInt(String key, int value);
+	public void setDouble(String key, double value);
 }
