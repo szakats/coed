@@ -16,4 +16,5 @@ public interface ICoedConfig {
 	public void setString(String key, String value);
 	public void setInt(String key, int value);
 	public void setDouble(String key, double value);
+	public void writeConfigFile();
 }

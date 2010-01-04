@@ -88,6 +88,7 @@ public class ConfigModifier
 		config.setString("server.host",e2.getStringValue());
 		config.setString("server.port",e3.getStringValue());
 		config.setString("user.name",e4.getStringValue());
+	    config.writeConfigFile();
 		return true;
 	}
 	
