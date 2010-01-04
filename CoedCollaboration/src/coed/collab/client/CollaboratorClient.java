@@ -13,7 +13,9 @@ import coed.base.util.IFuture;
 import coed.collab.connection.CoedKeepAliveConnection;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
+import coed.collab.protocol.AuthentificationMsg;
 import coed.collab.protocol.CoedMessage;
+import coed.collab.protocol.FileChangedMsg;
 import coed.collab.protocol.SendChangesMsg;
 
 /**
@@ -124,6 +126,10 @@ public class CollaboratorClient implements ICoedCollaborator {
 		@Override
 		public void connected() {
 			assert(nrOnlineFiles > 0);
+			String username = conf.getString("user.name");
+			conn.send(new AuthentificationMsg(username));
+			// TODO: state should only be set to connected
+			//		 if the auth was successful
 			setState(STATUS_CONNECTED);
 		}
 
@@ -135,12 +141,12 @@ public class CollaboratorClient implements ICoedCollaborator {
 
 		@Override
 		public void received(CoedMessage msg) {
-			if(msg instanceof SendChangesMsg)
-				handleMessage((SendChangesMsg)msg);
+			if(msg instanceof FileChangedMsg)
+				handleMessage((FileChangedMsg)msg);
 		}
 		
-		public void handleMessage(SendChangesMsg msg) {
-			ICollabObject obj = cache.get(msg.getFile());
+		public void handleMessage(FileChangedMsg msg) {
+			ICollabObject obj = cache.get(msg.getFileName());
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());

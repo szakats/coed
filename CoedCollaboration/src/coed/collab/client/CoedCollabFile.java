@@ -141,8 +141,6 @@ public class CoedCollabFile implements ICollabObject {
 			}
 			
 			void finish(String contents) {
-				String username = coll.getConf().getString("user.name");
-				coll.getConn().send(new AuthentificationMsg("asdf"));
 				isWorkingOnline = true;
 				ret.set(contents);
 			}
