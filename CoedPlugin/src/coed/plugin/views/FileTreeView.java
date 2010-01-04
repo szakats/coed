@@ -307,6 +307,13 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		}
 		
 		/**
+		 * Method that deletes the file tree
+		 */
+		private void goOffline(){
+			invisibleRoot=null;
+		}
+		
+		/**
 		 * Function that processes the array of files and creates the tree structure
 		 * @param files - array containing all files
 		 */
@@ -402,6 +409,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		
 		
 		//testing
+		/*
 		MockCoedObject obj1 = new MockCoedObject("Base/common/ICoedCollaborator.java");
 		MockCoedObject obj2 = new MockCoedObject("Base/common/ICoedComm.java");
 		MockCoedObject obj3 = new MockCoedObject("Base/ICoedObject.java");
@@ -411,6 +419,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		displayFileTree(objects);
 		MockCoedObject obj0 = new MockCoedObject("Whatever.java");
 		displayFile(obj0);
+		goOffline();*/
 		
 		
 
@@ -444,6 +453,12 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			viewer.setContentProvider(v);
 			viewer.setInput(getViewSite());
 		}
+	}
+	
+	public void goOffline(){
+		v.goOffline();
+		viewer.setContentProvider(v);
+		viewer.setInput(getViewSite());
 	}
 	
 	private void hookContextMenu() {

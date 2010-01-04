@@ -33,4 +33,9 @@ public interface IFileTree {
 	 * @param file - file that must be removed
 	 */
 	public void removeFile(ICoedObject file);
+	
+	/**
+	 * Method used to delete the file tree when user goes offline
+	 */
+	public void goOffline();
 }
