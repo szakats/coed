@@ -48,7 +48,10 @@ public class Session implements ICoedConnectionListener {
 		System.out.println("session closed");
 		Iterator<ServerFile> it = onlineFiles.iterator();
 		while (it.hasNext()){
-			((ServerFile)it.next()).removeSession(this);
+			ServerFile file = ((ServerFile)it.next()); 
+			file.removeSession(this);
+			if(file.getNrOfSessions() == 0)
+				server.removeServerFile(file.getPath());
 			it.remove();
 		}
 		

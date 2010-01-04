@@ -38,4 +38,8 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	public ServerFile getServerFile(String path){
 		return fm.getFile(path);
 	}
+	
+	public void removeServerFile(String path) {
+		fm.removeFile(path);
+	}
 }
