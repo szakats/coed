@@ -29,6 +29,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
+import coed.base.config.Config;
 import coed.base.data.ICoedObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
@@ -108,17 +109,24 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 */
 	private TextPortion lockedLines;
 	
+	private String userName;
+	
 	private final static Logger logger = Logger.getLogger(StandardController.class.toString());
 	
 	public StandardController(){
 		//TODO: ask an ICoedCommunicator-factory to give us an instance
 		configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+		
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.INFO);
 		logger.info("Starting with config file at "+configLocation);
+		
 		try {
 			this.communicator = new CoedCommunicatorFactory().create(configLocation);
 			communicator.startCollab();
+			
+			Config conf = new Config(configLocation+"\\.coed\\config.ini");
+			userName=conf.getString("user.name");
 		} catch (UnknownVersionerTypeException e) {
 			// TODO Auto-generated catch block
 			this.communicator=null;
@@ -227,7 +235,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			logger.info("Going collab for: "+texte);
 			texte.getSite().getPage().addPartListener(this);
 			String content = editors.get(activeEditor).goOnline(activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).get()).get();
-			if (content!=null) activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).set(content);
+			if (content!=null) {
+				activeDocument.removeDocumentListener(this);
+				activeEditor.getDocumentProvider().getDocument(activeEditor.getEditorInput()).set(content);
+				activeDocument.addDocumentListener(this);
+			}
 		/*
 			IWorkbench wb = PlatformUI.getWorkbench();
 		 	IProgressService ps = wb.getProgressService();
@@ -361,6 +373,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	
 	public synchronized void hasChanges(ICoedObject file) {
 		//TODO: real equality checking
+		logger.info("Collab file has changes: "+file.getPath());
 		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, lastUpdate, this);
 			lastUpdate=rnbl;
@@ -400,7 +413,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		
 		public void run(){
 			try {
-				if (false && editors.get(activeEditor).requestLock(lock).get()==false) {
+				if (editors.get(activeEditor).requestLock(lock).get()==false) {
 					ignoreEvent=event.fModificationStamp;
 					logger.info("Lock failed for: "+lock);
 					lock=null;
@@ -438,7 +451,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				}
 				
 			} else if (lock!=null) {
-				editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText));
+				editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, userName));
 				editors.get(activeEditor).releaseLock(lock);
 				lockedLines=null;
 			}
