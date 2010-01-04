@@ -9,5 +9,9 @@
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CoedCollaboration"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/coed.versioning.jar"/>
+	<classpathentry kind="lib" path="lib/coed.collaborator.jar"/>
+	<classpathentry kind="lib" path="lib/coed.base.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
