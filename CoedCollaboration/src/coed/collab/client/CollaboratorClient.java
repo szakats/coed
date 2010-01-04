@@ -153,6 +153,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
+			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
 		}
 	}
 

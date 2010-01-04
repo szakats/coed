@@ -31,6 +31,14 @@ public class FileChangedListener{
 		return this.fileName;
 	}
 	
+	public Session getSession(){
+		return this.session;
+	}
+	
+	public void setStatus(boolean status){
+		this.changedStatus = status;
+	}
+	
 	/**
 	 * The update method will send a FileChanged message to the client
 	 * only if this change was the first change since the last getchanges.
@@ -39,12 +47,12 @@ public class FileChangedListener{
 	 * @param status
 	 */
 	public void update(boolean status){
-		if ((this.changedStatus == false) && (status == true)){
+		//if ((this.changedStatus == false) && (status == true)){
 			// the first change occurred since the session got the changes. 
 			//send a message.
 			System.out.println("fileChangedListener sendind changed notification");
 			session.getConn().send(new FileChangedMsg(fileName));
-		}
+		//}
 		this.changedStatus = status;
 		System.out.println("wow, that changed");
 	}

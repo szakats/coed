@@ -150,8 +150,11 @@ public class ServerFile {
 			//notify listeners
 			Collection<FileChangedListener> listen = listeners.values();
 			Iterator<FileChangedListener> it = listen.iterator();
+			System.out.println("number of listeners: "+listen.size());
 			while (it.hasNext()){
-				it.next().update(true);
+				FileChangedListener list = it.next();
+				if ( list.getSession() != s)
+					list.update(true);
 			}
 		}
 	}
@@ -318,6 +321,7 @@ public class ServerFile {
 	public TextModification[] getChangesFor(Session s){
 		TextModification[] result = queue.getChangesFor(s);
 		setChangePointer(s,queue.getTopIndex());
+		listeners.get(s).setStatus(false);
 		return result;
 		
 	}

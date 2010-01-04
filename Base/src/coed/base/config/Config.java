@@ -2,7 +2,9 @@ package coed.base.config;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import coed.base.data.exceptions.InvalidConfigFileException;
 
@@ -21,6 +23,7 @@ public class Config implements ICoedConfig {
 	 * settings is the hashmap containing the settings from the config file
 	 */
 	Map<String, String> settings = new HashMap<String, String>(); 
+	private String path;
 	
 	public Config(String path) throws InvalidConfigFileException { 
 		try { 
@@ -45,6 +48,7 @@ public class Config implements ICoedConfig {
 		       throw new InvalidConfigFileException();
 		       //if file not found, InvalidConfigFIleException is thrown
 		 }
+		 this.path = path;
 	}
 	
 	public Config() {
@@ -73,5 +77,24 @@ public class Config implements ICoedConfig {
 	
 	public void setDouble(String key, double value) {
 		settings.put(key, Double.toString(value));
+	}
+	
+	public void writeConfigFile(){
+		Writer output = null;
+	   // File file = new File("write.txt");
+		try{
+	    output = new BufferedWriter(new FileWriter(path));
+		
+	    Set<String> keyset = settings.keySet();
+	    Iterator<String> it = keyset.iterator();
+	    while (it.hasNext())
+	    {
+	    	String key = it.next();
+	    	output.write(key+"="+settings.get(key));
+	    }
+	    output.close();
+		}
+		catch(Exception e){}
+		
 	}
 }

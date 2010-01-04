@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import coed.base.data.TextModification;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
@@ -83,6 +84,8 @@ public class Session implements ICoedConnectionListener {
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes");
     	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
+    	for (TextModification t : reply.getMods())
+    		System.out.println(t.toString());
     	conn.reply(msg, reply);
     }
     
