@@ -86,6 +86,7 @@ public class CoedCollabFile implements ICollabObject {
 	
 	@Override
 	public IFuture<Boolean> releaseLock(TextPortion lock) {
+		coll.getConn().send(new ReleaseLockMsg(getParent().getPath(), lock));
 		return new CoedFuture<Boolean>(true);
 	}
 
