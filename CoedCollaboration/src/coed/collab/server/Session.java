@@ -97,6 +97,7 @@ public class Session implements ICoedConnectionListener {
     	for (int i=0; i<msg.getMods().length; i++){
     		sf.addChange(msg.getMods()[i], this);
     	}
+    	System.out.println(sf.getCurrentContents());
     }
     
     public void handleMessage(RequestLockMsg msg) {
