@@ -298,9 +298,9 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		
 		MockCoedObject obj1 = new MockCoedObject("Base/src/coed/common/ICoedCollaborator.java");
 		MockCoedObject obj2 = new MockCoedObject("Base/src/coed/common/ICoedComm.java");
-		MockCoedObject obj3 = new MockCoedObject("Base/src/coed/sex/Pina.java");
-		MockCoedObject obj4 = new MockCoedObject("Base/src/coed/Lofasz.java");
-		MockCoedObject obj5 = new MockCoedObject("Coed/src/coed/common/Slut.java");
+		MockCoedObject obj3 = new MockCoedObject("Base/src/coed/ICoedObject.java");
+		MockCoedObject obj4 = new MockCoedObject("Base/src/coed/ICollabObject.java");
+		MockCoedObject obj5 = new MockCoedObject("Coed/src/coed/common/ICoedInt.java");
 		MockCoedObject[] objects={obj1,obj2,obj3,obj4,obj5};
 		displayFileTree(objects);
 		

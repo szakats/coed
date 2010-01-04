@@ -10,6 +10,7 @@ import coed.base.data.CoedObject;
 import coed.base.data.ICoedObject;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
+import coed.base.data.TextPortion;
 import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFutureListener;
 import coed.collab.client.CollaboratorClient;
@@ -83,6 +84,7 @@ public class ClientMain {
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client1 contents: " + contents);
 				Thread.sleep(6000);
+				obj.requestLock(new TextPortion(1,3));
 				obj.sendChanges(new TextModification(1,3,"333","client1"));
 				System.out.println("client1 sent changes");
 			} catch (InterruptedException e) {
@@ -107,6 +109,7 @@ public class ClientMain {
 				Thread.sleep(3000);
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client2 contents: " + contents);
+				obj.requestLock(new TextPortion(1,3));
 				obj.addChangeListener(this);
 				waitSync(); 	// wait for changes 
 				TextModification[] mods = obj.getChanges().get();
