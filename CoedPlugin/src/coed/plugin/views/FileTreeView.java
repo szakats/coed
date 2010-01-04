@@ -411,7 +411,6 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		displayFileTree(objects);
 		MockCoedObject obj0 = new MockCoedObject("Whatever.java");
 		displayFile(obj0);
-		removeFile(obj5);
 		
 		
 
