@@ -76,6 +76,8 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((RequestLockMsg) msg);
     	else if (msg instanceof ReleaseLockMsg)
     		handleMessage((ReleaseLockMsg) msg);
+    	else if (msg instanceof GetUserListMsg)
+    		handleMessage((GetUserListMsg) msg);
 	}
     
     public void handleMessage(GetChangesMsg msg) {
@@ -99,13 +101,19 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(RequestLockMsg msg) {
     	System.out.println("requesting lock");
-    	RequestLockReplyMsg reply = new RequestLockReplyMsg(server.getServerFile(msg.getFile()).RequestLock(msg.getPortion(), this));
+    	RequestLockReplyMsg reply = new RequestLockReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).RequestLock(msg.getPortion(), this));
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(ReleaseLockMsg msg) {
     	System.out.println("releasing lock");
     	server.getServerFile(msg.getFile()).ReleaseLock(msg.getPortion(), this);
+    }
+    
+    public void handleMessage(GetUserListMsg msg) {
+    	System.out.println("requesting user list lock");
+    	GetUserListReplyMsg reply = new GetUserListReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).getActiveUsers());
+    	conn.reply(msg, reply);
     }
     
     public void handleMessage(GetContentsMsg msg) {
