@@ -100,7 +100,8 @@ public class ClientMain {
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client2 contents: " + contents);
 				obj.addChangeListener(this);
-				wait();	// wait for changes
+				// wait for changes 
+				try { wait(); } catch(InterruptedException e) {}
 				TextModification[] mods = obj.getChanges().get();
 				System.out.println("client2 got modifications:");
 				for(TextModification mod : mods)
@@ -117,6 +118,7 @@ public class ClientMain {
 
 		@Override
 		public synchronized void hasChanges(ICoedObject file) {
+			System.out.println("client2 got notified of new changes");
 			notify();
 		}
 	}

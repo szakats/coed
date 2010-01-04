@@ -1,12 +1,14 @@
 package coed.base.data;
 
+import java.io.Serializable;
+
 /**
  * Class representing a text portion of a document.
  * A portion is defined by its offset and its length.
  * @author Izso
  *
  */
-public class TextPortion {
+public class TextPortion implements Serializable {
 	private Integer offset;
 	private Integer length;
 	
@@ -31,4 +33,7 @@ public class TextPortion {
 		this.length = length;
 	}
 	
+	public String toString() {
+		return "offset=" + getOffset() + ",length=" + getLength();
+	}
 }

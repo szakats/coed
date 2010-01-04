@@ -97,13 +97,16 @@ public class CollaboratorClient implements ICoedCollaborator {
 	 */
 	@Override
 	public ICollabObject makeCollabObject(ICoedObject obj) {
+		ICollabObject ret = null;
 		if (! cache.containsKey(obj.getPath() )){
 			if(obj.isFile()) {
-				return new CoedCollabFile(obj, this);
+				ret = new CoedCollabFile(obj, this);
 			} else
-				return new CoedCollabFolder(obj, this);
-		}
-		else return cache.get(obj.getPath());
+				ret = new CoedCollabFolder(obj, this);
+			cache.put(obj.getPath(), ret);
+		} else 
+			ret = cache.get(obj.getPath());
+		return ret;
 	}
 	
 	public ICoedConnection getConn() {

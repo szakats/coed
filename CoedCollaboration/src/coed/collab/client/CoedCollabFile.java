@@ -81,7 +81,7 @@ public class CoedCollabFile implements ICollabObject {
 		FListener fl = new FListener();
 		if(ensureOnline(fl.ret))
 			coll.getConn().sendSeq(new GetChangesMsg(getParent().getPath())).addListener(fl);
-		return new FListener().ret;
+		return fl.ret;
 	}
 	
 	@Override

@@ -1,12 +1,14 @@
 package coed.base.data;
 
+import java.io.Serializable;
+
 /**
  * A TextModification class represents a change to a text, whoch is identified by its
  * location and its content (also, an optional meta component for adding event info for ex. )
  * @author Izso
  *
  */
-public class TextModification extends TextPortion {
+public class TextModification extends TextPortion implements Serializable {
 	private String text;
 	private String metaInfo;
 	
@@ -38,4 +40,8 @@ public class TextModification extends TextPortion {
 		this.text = text;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + ",text=" + text + ",meta=" + metaInfo;
+	}
 }
