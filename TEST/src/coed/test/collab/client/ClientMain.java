@@ -22,12 +22,12 @@ import coed.versioning.client.StaticVersioner;
 public class ClientMain {
 
 
-	class Connector extends Thread implements ICollabStateListener {
+	class Client extends Thread implements ICollabStateListener {
 		protected CollaboratorClient collab;
 		protected CoedObject obj;
 		protected ICoedConfig config = new Config();
 		
-		Connector() {
+		Client() {
 			config.setString("server.host", "localhost");
 			config.setInt("server.port", 1234);
 		}
@@ -63,7 +63,7 @@ public class ClientMain {
 		}
 	}
 	
-	class Client1 extends Connector {
+	class Client1 extends Client {
 		Client1() {
 			config.setString("user.name", "client1");
 		}
@@ -74,9 +74,9 @@ public class ClientMain {
 			try {
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client1 contents: " + contents);
-				wait(1000);
+				Thread.sleep(6000);
 				obj.sendChanges(new TextModification(1,3,"333","client1"));
-				
+				System.out.println("client1 sent changes");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -87,7 +87,7 @@ public class ClientMain {
 		}
 	}
 	
-	class Client2 extends Connector implements IFileChangeListener {
+	class Client2 extends Client implements IFileChangeListener {
 		Client2() {
 			config.setString("user.name", "client2");
 		}
@@ -96,7 +96,7 @@ public class ClientMain {
 		public synchronized void run() {
 			connect();
 			try {
-				wait(500);
+				Thread.sleep(3000);
 				String contents = obj.goOnline("contents").get();
 				System.out.println("client2 contents: " + contents);
 				obj.addChangeListener(this);
