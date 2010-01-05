@@ -60,11 +60,13 @@ public class Config implements ICoedConfig {
 	}
 	
 	public Integer getInt(String key) {
-		return new Integer(settings.get(key));
+		String aux = settings.get(key);
+		return (aux!=null) ? new Integer(aux) : null;
 	}
 	
 	public Double getDouble(String key) {
-		return new Double(settings.get(key));
+		String aux = settings.get(key);
+		return (aux!=null) ? new Double(aux) : null;
 	}
 	
 	public void setString(String key, String value) {
