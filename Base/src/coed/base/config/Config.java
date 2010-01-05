@@ -92,7 +92,7 @@ public class Config implements ICoedConfig {
 	    while (it.hasNext())
 	    {
 	    	String key = it.next();
-	    	output.write(key+"="+settings.get(key));
+	    	output.write(key+"="+settings.get(key)+'\n');
 	    }
 	    output.close();
 		}
