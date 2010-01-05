@@ -36,4 +36,13 @@ public class TextPortion implements Serializable {
 	public String toString() {
 		return "offset=" + getOffset() + ",length=" + getLength();
 	}
+	
+	public boolean equals(Object o){
+		if (o instanceof TextPortion){
+			if ( ((TextPortion)o).getOffset()==offset && ((TextPortion)o).getLength()==length) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
