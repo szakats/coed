@@ -52,13 +52,13 @@ public class ChangeQueue{
 		
 		Vector<TextModification> vect = new Vector<TextModification>();
 		int  k = 0;
-		System.out.println("changepointer for session:"+ file.getChangePointer(s)+ " x "+s.getUserName()+"x");
+		//System.out.println("changepointer for session:"+ file.getChangePointer(s)+ " x "+s.getUserName()+"x");
 		for (int i=file.getChangePointer(s); i<top; i++){
 			TextModification chg = getChangeAt(i);
 			
-			System.out.println("metainfo:"+chg.toString());
-			if (! chg.getMetaInfo().equals(s.getUserName())){
-				System.out.println("change:"+chg.toString());
+			//System.out.println("metainfo:"+chg.toString());
+			if (!( chg.getMetaInfo().equals(s.getUserName()))){
+				//System.out.println("change:"+chg.toString());
 				vect.add(k,chg);
 				k++;
 			}

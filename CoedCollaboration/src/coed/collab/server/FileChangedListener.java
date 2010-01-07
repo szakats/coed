@@ -50,11 +50,11 @@ public class FileChangedListener{
 		//if ((this.changedStatus == false) && (status == true)){
 			// the first change occurred since the session got the changes. 
 			//send a message.
-			System.out.println("fileChangedListener sendind changed notification");
+			//System.out.println("fileChangedListener sendind changed notification");
 			session.getConn().send(new FileChangedMsg(fileName));
 		//}
 		this.changedStatus = status;
-		System.out.println("wow, that changed");
+		//System.out.println("wow, that changed");
 	}
 
 }
