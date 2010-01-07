@@ -144,8 +144,9 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			userName=conf.getString("user.name");
 			
 			//settign up lock strategy
-			String lockStrategy=(conf.getString("lock.strategy")==null) ? TextLockFactory.OPTIMISTIC_MANAGER : conf.getString("lock.strategy");
+			String lockStrategy=(conf.getString("lock.strategy")==null) ? TextLockFactory.BASIC_MANAGER : conf.getString("lock.strategy");
 			Integer lockDelay=(conf.getInt("lock.release.delay")==null) ? 0 : conf.getInt("lock.release.delay");
+			logger.info("Starting with lock manager: "+lockStrategy+" and delay "+lockDelay);
 			this.locker=TextLockFactory.getManagerFor(lockStrategy,lockDelay);
 			
 		} catch (UnknownVersionerTypeException e) {
@@ -160,7 +161,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		} finally {
 			if (this.locker==null)
 				try {
-					this.locker=TextLockFactory.getManagerFor(TextLockFactory.OPTIMISTIC_MANAGER);
+					this.locker=TextLockFactory.getManagerFor(TextLockFactory.BASIC_MANAGER);
 				} catch (InvalidConfigFileException e) {
 					//This should be OK
 				}
@@ -443,19 +444,12 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		}
 		
 		public void run(){
-			try {
-				if (editors.get(activeEditor).requestLock(lock).get()==false) {
-					ignoreEvent=event.fModificationStamp;
-					logger.info("Lock failed for: "+lock);
-					lock=null;
-				} 
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			//if (editors.get(activeEditor).requestLock(lock).get()==false) {
+			lock = locker.requestLock(activeEditor, editors.get(activeEditor), lock);
+			if (lock==null){
+				ignoreEvent=event.fModificationStamp;
+				logger.info("Lock failed for: "+event);
+			} 
 			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
 				
 				ignoreEvent=null;
@@ -483,7 +477,8 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				
 			} else if (lock!=null) {
 				editors.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, userName));
-				editors.get(activeEditor).releaseLock(lock);
+				//editors.get(activeEditor).releaseLock(lock);
+				locker.releaseLock(editors.get(activeEditor), lock);
 				lockedLines=null;
 			}
 				

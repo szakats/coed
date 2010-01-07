@@ -1,5 +1,10 @@
 package coed.plugin.text.locks;
 
+import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
+
+import coed.base.data.ICoedObject;
+import coed.base.data.TextPortion;
+
 /**
  * Interface for classes that will manage locks of several files, requesting and releasing them...
  * They will differ, however in how they take the portion of the text to be locked when editing.
@@ -8,10 +13,10 @@ package coed.plugin.text.locks;
  */
 public interface ITextLockManager {
 	
-	Long requestLock();
+	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedObject coedo, TextPortion textp);
 	
-	void releaseLock(Long ticket);
+	void releaseLock(ICoedObject coedo, TextPortion ticket);
 	
-	void releaseLock();
+	void findAndReleaseLocks(ICoedObject coedo, TextPortion zone);
 		
 }
