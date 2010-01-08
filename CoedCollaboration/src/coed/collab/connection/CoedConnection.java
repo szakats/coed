@@ -29,7 +29,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 	 * the continuation of a particular sequence.
 	 */
 	LinkedList<ICoedConnectionListener> allListeners = new LinkedList<ICoedConnectionListener>();
-	HashMap<Long, LinkedList<ICoedConnectionListener>> seqListeners = new HashMap<Long, LinkedList<ICoedConnectionListener>>();
+	HashMap<Long, ICoedConnectionListener> seqListeners = new HashMap<Long, ICoedConnectionListener>();
 	
 	public static IFuture<CoedConnection> connect(String host, int port) {
 
@@ -103,16 +103,14 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	
     	// get the list of listeners for this particular sequence if there is one
     	long id = msg.getSequenceID();
-    	LinkedList<ICoedConnectionListener> seqList;
+    	ICoedConnectionListener l;
     	synchronized(this) {
-    		seqList = seqListeners.remove(new Long(id));
+	    	l = seqListeners.remove(new Long(id));
     	}
     	
-	    if(seqList != null)
-	    	for(ICoedConnectionListener i : seqList)
-	    		i.received(msg);
+	    if(l != null)
+	    	l.received(msg);
 	    else
-	    	// if no sequence started, s
 	    	for(ICoedConnectionListener cl : allListeners)
 	    		cl.received(msg);
     }
