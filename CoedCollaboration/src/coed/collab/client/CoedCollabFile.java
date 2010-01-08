@@ -149,6 +149,7 @@ public class CoedCollabFile implements ICollabObject {
 	@Override
 	public IFuture<String> goOnline(String contents) {
 		
+		// listener class for future messages in the sequence
 		class FListener implements IFutureListener<CoedMessage> {
 			public CoedFuture<String> ret = new CoedFuture<String>();
 			public String localContents;
@@ -158,6 +159,7 @@ public class CoedCollabFile implements ICollabObject {
 			}
 			
 			void finish(String contents) {
+				//notify the chained future of the result
 				isWorkingOnline = true;
 				ret.set(contents);
 			}
@@ -168,32 +170,36 @@ public class CoedCollabFile implements ICollabObject {
 					GoOnlineResultMsg msg = ((GoOnlineResultMsg)result);
 					System.out.println("got online result: " + msg.isAlreadyOnline());
 					if(msg.isAlreadyOnline()) {
+						// if online, get the remote contents for this file
 						coll.getConn().sendSeq(new GetContentsMsg(getParent().getPath()))
-							.addListener(this);
+							.addListener(this);	// expects a SendContentsMsg
 					} else {
+						// otherwise send the local contents of the file
 						coll.getConn().reply(msg, new SendContentsMsg(localContents))
 							.addErrorListener(this);
-						
-						// TODO: maybe only set this after the server confirmed that it
-						// got the contents ?
+						// no new contents was received, return null
 						finish(null);
 					}
 				} else if(result instanceof SendContentsMsg) {
 					String remoteContents = ((SendContentsMsg)result).getContents();
 					System.out.println("got remote contents: " + remoteContents);
+					// return the remote contents
 					finish(remoteContents);
 				}
 			}
 
 			@Override
 			public void caught(Throwable e) {
-				assert e instanceof NotConnectedException;
+				// if an error occured anywhere along the sequence
+				// then pass the error along to the chained future
 				ret.throwEx(e);
 			}
 		}
 
 		FListener fl = new FListener(contents);
-		coll.getConn().sendSeq(new GoOnlineMsg(getParent().getPath())).addListener(fl);
+		// first send which file should be shared
+		coll.getConn().sendSeq(new GoOnlineMsg(getParent().getPath()))
+			.addListener(fl); // expects a GoOnlineResultMsg
 		return fl.ret;
 	}
 	

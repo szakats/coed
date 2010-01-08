@@ -15,9 +15,16 @@ import coed.collab.client.CollaboratorClient;
 import coed.collab.connection.ICoedConnection;
 import coed.versioning.client.StaticVersioner;
 
+/**
+ * The ClientMain tests the functionality of the CollaboratorClient and CoedCollabFile
+ * by simulating the actions coming from two clients (plugins) on two threads 
+ */
 public class ClientMain {
 
-
+	/**
+	 * Base class for both clients that runs in its own thread
+	 * and listens for changes in the connection status of the client
+	 */
 	class Client extends Thread implements ICollabStateListener {
 		protected CollaboratorClient collab;
 		protected CoedObject obj;
@@ -28,6 +35,10 @@ public class ClientMain {
 			config.setInt("server.port", 1234);
 		}
 		
+		/**
+		 * create a new client, connect to the server with it
+		 * and register a new file named "file"
+		 */
 		public synchronized void connect() {
 			collab = new CollaboratorClient(config, "");
 			StaticVersioner vers = new StaticVersioner();
@@ -36,37 +47,38 @@ public class ClientMain {
 			obj.init(vers.makeVersionedObject(obj), collab.makeCollabObject(obj));
 			
 			collab.addStateListener(this);
-			
 			collab.startCollab();
 
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// wait for the state to become online
+			waitSync();
 		}
 		
 		@Override
 		public synchronized void collabStateChanged(String to) {
-			System.out.println("If i heard correctly, the connection state is: " + to);
+			System.out.println("the connection state is now: " + to);
 			if(to == ICoedCollaborator.STATUS_CONNECTED) {
 				ICoedConnection conn = collab.getConn();
 				assert conn != null;
-
 				this.notify();
 			}
 		}
 		
+		/**
+		 * a wrapper for wait
+		 */
 		void waitSync() {
 			try {
 				wait();
 			} catch(InterruptedException e) {
-				
+				e.printStackTrace();
 			}
 		}
 	}
 	
+	/**
+	 * The first client which sends new contents for the file, 
+	 * requests a lock on a portion of text and sends a modification
+	 */
 	class Client1 extends Client {
 		Client1() {
 			config.setString("user.name", "client1");
@@ -84,15 +96,18 @@ public class ClientMain {
 				obj.sendChanges(new TextModification(1,3,"333","client1"));
 				System.out.println("client1 sent changes");
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 	
+	/**
+	 * The second client, which goes online after the first one,
+	 * receives the new content, registers to listen for changes then
+	 * gets the modifications after the first one has sent it.
+	 */
 	class Client2 extends Client implements IFileChangeListener {
 		Client2() {
 			config.setString("user.name", "client2");
@@ -115,10 +130,8 @@ public class ClientMain {
 					System.out.println(mod.toString());
 				
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -143,5 +156,4 @@ public class ClientMain {
 	public static void main(String[] args) {
 		ClientMain main = new ClientMain();
 	}
-
 }

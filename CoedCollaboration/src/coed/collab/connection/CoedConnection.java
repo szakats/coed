@@ -29,7 +29,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 	 * the continuation of a particular sequence.
 	 */
 	LinkedList<ICoedConnectionListener> allListeners = new LinkedList<ICoedConnectionListener>();
-	HashMap<Long, ICoedConnectionListener> seqListeners = new HashMap<Long, ICoedConnectionListener>();
+	HashMap<Long, LinkedList<ICoedConnectionListener>> seqListeners = new HashMap<Long, LinkedList<ICoedConnectionListener>>();
 	
 	public static IFuture<CoedConnection> connect(String host, int port) {
 
@@ -84,9 +84,15 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 		cause.printStackTrace();
     }
 
+	/**
+	 * The messageReceived function is called by MINA when a message arrives
+	 * for a particular session
+	 * @param session the session which received the message
+	 * @message the message that was received
+	 */
 	@Override
     public void messageReceived(IoSession session, Object message) {
-    	assert(session != null && message != null);
+    	assert(session != null && message != null && message instanceof CoedMessage);
     	CoedMessage msg = (CoedMessage)message;
     	
     	synchronized(this) {
@@ -95,15 +101,18 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     		curSequenceID = Math.max(curSequenceID, msg.getSequenceID() + 1);
     	}
     	
+    	// get the list of listeners for this particular sequence if there is one
     	long id = msg.getSequenceID();
-    	ICoedConnectionListener l;
+    	LinkedList<ICoedConnectionListener> seqList;
     	synchronized(this) {
-	    	l = seqListeners.remove(new Long(id));
+    		seqList = seqListeners.remove(new Long(id));
     	}
     	
-	    if(l != null)
-	    	l.received(msg);
+	    if(seqList != null)
+	    	for(ICoedConnectionListener i : seqList)
+	    		i.received(msg);
 	    else
+	    	// if no sequence started, s
 	    	for(ICoedConnectionListener cl : allListeners)
 	    		cl.received(msg);
     }
