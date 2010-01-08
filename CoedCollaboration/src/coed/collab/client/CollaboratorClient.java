@@ -149,11 +149,12 @@ public class CollaboratorClient implements ICoedCollaborator {
 		}
 		
 		public void handleMessage(FileChangedMsg msg) {
+			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
 			ICollabObject obj = cache.get(msg.getFileName());
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
-			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
+			
 		}
 	}
 
