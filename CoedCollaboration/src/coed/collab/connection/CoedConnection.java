@@ -211,4 +211,12 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 	public boolean isConnected() {
 		return io != null && io.isConnected();
 	}
+	
+	public void disconnect() {
+		io.close();
+		io = null;
+		System.out.println("connection closed.");
+		for(ICoedConnectionListener listener : allListeners)
+			listener.disconnected();
+	}
 }

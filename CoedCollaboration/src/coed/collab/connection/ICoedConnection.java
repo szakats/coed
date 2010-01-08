@@ -18,4 +18,6 @@ public interface ICoedConnection {
     public IFuture<CoedMessage> replySeq(CoedMessage to, CoedMessage with);
     
 	public boolean isConnected();
+	
+	public void disconnect();
 }
