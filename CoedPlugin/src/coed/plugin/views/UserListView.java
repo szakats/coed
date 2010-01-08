@@ -109,6 +109,14 @@ public class UserListView extends ViewPart implements IUserList {
 		public Object[] getElements(Object parent) {
 			return users;
 		}
+		/**
+		 * Method used for testing!
+		 * Remove when program finished!
+		 * @return
+		 */
+		public String[] getUsers(){
+			return users;
+		}
 	}
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		public String getColumnText(Object obj, int index) {
@@ -190,6 +198,16 @@ public class UserListView extends ViewPart implements IUserList {
 			viewer.setContentProvider(v);
 			viewer.setInput(getViewSite());
 		}
+	}
+	
+	/**
+	 * Method used for testing.
+	 * Remove when program is finished!
+	 * Getter for user list
+	 * @return - user list
+	 */
+	public String[] getUsers(){
+		return v.getUsers();
 	}
 
 	private void hookContextMenu() {

@@ -80,6 +80,17 @@ public class ConfigModifier
 		addField(e4);			
 	}
 
+	/**
+	 * Method used for testing
+	 * Remove when program finished!
+	 * Method sets the field editors
+	 */
+	public void setFieldEditors(){
+		e1.setStringValue("static");
+		e2.setStringValue("localhost");
+		e3.setStringValue("1234");
+		e4.setStringValue("jozsi");
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
