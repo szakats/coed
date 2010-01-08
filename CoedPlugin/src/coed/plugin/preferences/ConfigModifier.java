@@ -60,7 +60,7 @@ public class ConfigModifier
 			"An example of a multiple-choice preference",
 			1,
 			new String[][] { { "&Choice 1", "choice1" }, {
-				"C&hoice 2", "choice2" }
+				"Choice 2", "choice2" }
 		}, getFieldEditorParent()));*/
 		String configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
 		

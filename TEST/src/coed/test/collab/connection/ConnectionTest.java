@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 
+import coed.base.util.IFutureListener;
 import coed.collab.connection.CoedConnection;
 import coed.collab.connection.CoedConnectionAcceptor;
 import coed.collab.connection.ICoedConnectionListener;
@@ -22,8 +23,10 @@ public class ConnectionTest {
 	}
 	
 	class TestSession implements ICoedConnectionListener {
+		public CoedConnection conn;
 		boolean gotConnected = false;
 		boolean gotDisconnected = false;
+		boolean gotMsg = false;
 		@Override
 		public void connected() {
 			gotConnected = true;
@@ -36,7 +39,8 @@ public class ConnectionTest {
 
 		@Override
 		public void received(CoedMessage msg) {
-
+			gotMsg = true;
+			conn.reply(msg, new SendContentsMsg(null));
 		}
 	}
 	
@@ -55,6 +59,7 @@ public class ConnectionTest {
 				gotConnected = true;
 				remoteConn = conn;
 				ses = new TestSession();
+				ses.conn = conn;
 				conn.addListener(ses);
 			}
 		}
@@ -100,5 +105,44 @@ public class ConnectionTest {
 		assertTrue(conn.isConnected() && ses != null);
 		assertTrue(ses.gotConnected && lis.gotConnected);
 		
+		class TestMsgListener implements IFutureListener<CoedMessage> {
+			boolean gotMsg = false;
+			@Override
+			public void got(CoedMessage result) {
+				gotMsg = true;
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		}
+		
+		TestMsgListener msglis = new TestMsgListener();
+		
+		String contents = "sms";
+		conn.sendSeq(new SendContentsMsg(contents)).addListener(msglis);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertTrue(ses.gotMsg == true);
+		assertTrue(msglis.gotMsg == true);
+		
+		conn.disconnect();
+		assertTrue(!conn.isConnected());
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertTrue(!remoteConn.isConnected());
 	}
 }
