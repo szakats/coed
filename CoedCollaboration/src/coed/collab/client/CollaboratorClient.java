@@ -16,7 +16,7 @@ import coed.collab.connection.ICoedConnectionListener;
 import coed.collab.protocol.AuthentificationMsg;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.FileChangedMsg;
-import coed.collab.protocol.SendChangesMsg;
+
 
 /**
  * The CollaboratorClient is the Client side of the collaborative editing system.

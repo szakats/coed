@@ -48,6 +48,17 @@ public class CoedFuture<T> implements IFuture<T> {
 		return result;
 	}
 
+	/**
+	 * Waits if necessary for at most the given time for the computation to complete, 
+	 * and then retrieves its result, if available. 
+	 * @throws timeout - the maximum time to wait
+	 * @throws unit - the time unit of the timeout argument 
+	 * @throws CancellationException - if the computation was cancelled 
+	 * @throws ExecutionException - if the computation threw an exception 
+	 * @throws InterruptedException - if the current thread was interrupted while waiting 
+	 * @throws TimeoutException - if the wait timed out
+	 * @return the computed result 
+	 */
 	@Override
 	public synchronized T get(long timeout, TimeUnit unit) throws InterruptedException,
 			ExecutionException, TimeoutException {
