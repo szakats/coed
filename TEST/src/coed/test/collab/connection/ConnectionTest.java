@@ -24,7 +24,6 @@ public class ConnectionTest {
 	class TestSession implements ICoedConnectionListener {
 		boolean gotConnected = false;
 		boolean gotDisconnected = false;
-		boolean gotMsg = false;
 		@Override
 		public void connected() {
 			gotConnected = true;
@@ -37,9 +36,7 @@ public class ConnectionTest {
 
 		@Override
 		public void received(CoedMessage msg) {
-			//if(msg instanceof SendContentsMsg) {
-				gotMsg = true;
-			//}
+
 		}
 	}
 	
@@ -102,11 +99,6 @@ public class ConnectionTest {
 		
 		assertTrue(conn.isConnected() && ses != null);
 		assertTrue(ses.gotConnected && lis.gotConnected);
-		
-		String contents = "sms";
-		conn.sendSeq(new SendContentsMsg(contents));
-		
-		assertTrue(ses.gotMsg == true);
 		
 	}
 }
