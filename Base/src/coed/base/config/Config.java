@@ -82,7 +82,7 @@ public class Config implements ICoedConfig {
 	}
 	
 	public void writeConfigFile(){
-		Writer output = null;
+		BufferedWriter output = null;
 	   // File file = new File("write.txt");
 		try{
 	    output = new BufferedWriter(new FileWriter(path));
@@ -92,7 +92,8 @@ public class Config implements ICoedConfig {
 	    while (it.hasNext())
 	    {
 	    	String key = it.next();
-	    	output.write(key+"="+settings.get(key)+'\n');
+	    	output.write(key+"="+settings.get(key));
+	    	output.newLine();
 	    }
 	    output.close();
 		}
