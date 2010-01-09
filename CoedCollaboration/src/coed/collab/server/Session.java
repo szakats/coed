@@ -77,7 +77,16 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((ReleaseLockMsg) msg);
     	else if (msg instanceof GetUserListMsg)
     		handleMessage((GetUserListMsg) msg);
+    	else if( msg instanceof GoOfflineMsg)
+    		handleMessage((GoOfflineMsg)msg);
 	}
+	
+    public void handleMessage(GoOfflineMsg msg) {
+    	ServerFile file =  server.getServerFile(msg.getFileName());
+		file.removeSession(this);
+		if(file.getNrOfSessions() == 0)
+			server.removeServerFile(file.getPath());
+    }
     
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes request for session "+getUserName());
