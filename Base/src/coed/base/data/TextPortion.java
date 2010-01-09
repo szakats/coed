@@ -39,10 +39,15 @@ public class TextPortion implements Serializable {
 	
 	public boolean equals(Object o){
 		if (o instanceof TextPortion){
-			if ( ((TextPortion)o).getOffset()==offset && ((TextPortion)o).getLength()==length) {
+			if ( ((TextPortion)o).getOffset().equals(offset) && ((TextPortion)o).getLength().equals(length)) {
 				return true;
 			}
 		}
 		return false;
+	}
+	
+	public int hashCode(){
+		return offset*10000+length;
+		
 	}
 }
