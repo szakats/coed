@@ -207,7 +207,12 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		
 		private boolean remove(ICoedObject file1){
 			String[] temp=null;
-			temp=processString(file1.getPath());
+			try {
+				temp=processString(file1.getPath());
+			} catch (NullPointerException e){
+				//TODO: fix this robi
+				return false;
+			}
 			if(invisibleRoot==null) return false;
 			int i,j;
 			boolean ok=true;
