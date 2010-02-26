@@ -146,4 +146,8 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 		else
 			return conn.sendSeq(msg);
 	}
+	
+	public void disconnect() {
+		conn.disconnect();
+	}
 }

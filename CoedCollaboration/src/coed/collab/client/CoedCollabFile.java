@@ -140,8 +140,10 @@ public class CoedCollabFile implements ICollabObject {
 	@Override
 	public IFuture<Void> goOffline() {
 		CoedFuture<Void> ret = new CoedFuture<Void>();
-		if(ensureOnline(ret))
+		if(ensureOnline(ret)) {
 			isWorkingOnline = false;
+			coll.getConn().send(new GoOfflineMsg(getParent().getPath()));
+		}
 		return ret;
 	}
 

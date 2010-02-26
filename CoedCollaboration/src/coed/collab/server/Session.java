@@ -77,23 +77,33 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((ReleaseLockMsg) msg);
     	else if (msg instanceof GetUserListMsg)
     		handleMessage((GetUserListMsg) msg);
+    	else if( msg instanceof GoOfflineMsg)
+    		handleMessage((GoOfflineMsg)msg);
 	}
+	
+    public void handleMessage(GoOfflineMsg msg) {
+    	System.out.println("going offline with file " + msg.getFileName());
+    	ServerFile file =  server.getServerFile(msg.getFileName());
+		file.removeSession(this);
+		if(file.getNrOfSessions() == 0)
+			server.removeServerFile(file.getPath());
+    }
     
     public void handleMessage(GetChangesMsg msg) {
-    	//System.out.println("get changes request for session "+getUserName());
+    	System.out.println("get changes request for session "+getUserName());
     	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
     	//for (TextModification t : reply.getMods())
-    		//System.out.println(t.toString());
+    		System.out.println(t.toString());
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(AuthentificationMsg msg) {
-    	//System.out.println("authentification");
+    	System.out.println("authentification");
     	setUserName(msg.getUserName());
     }
     
     public void handleMessage(SendChangesMsg msg) {
-    	//System.out.println("send changes");
+    	System.out.println("send changes");
     	ServerFile sf = server.getServerFile(msg.getFile());
     	for (int i=0; i<msg.getMods().length; i++){
     		sf.addChange(msg.getMods()[i], this);
@@ -102,24 +112,24 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(RequestLockMsg msg) {
-    	//System.out.println("requesting lock");
+    	System.out.println("requesting lock");
     	RequestLockReplyMsg reply = new RequestLockReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).RequestLock(msg.getPortion(), this));
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(ReleaseLockMsg msg) {
-    	//System.out.println("releasing lock");
+    	System.out.println("releasing lock");
     	server.getServerFile(msg.getFile()).ReleaseLock(msg.getPortion(), this);
     }
     
     public void handleMessage(GetUserListMsg msg) {
-    	//System.out.println("requesting user list lock");
+    	System.out.println("requesting user list lock");
     	GetUserListReplyMsg reply = new GetUserListReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).getActiveUsers());
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(GetContentsMsg msg) {
-    	//System.out.println("get contents");
+    	System.out.println("get contents");
     	
     	String contents = server.getServerFile(msg.getFileName()).getCurrentContents();
 		conn.reply(msg, new SendContentsMsg(contents));
@@ -133,7 +143,7 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(GoOnlineMsg msg) {
-    	//System.out.println("go online");
+    	System.out.println("go online");
     	
     	class FListener implements IFutureListener<CoedMessage> {
     		private String fileName;
