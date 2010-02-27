@@ -20,6 +20,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Synchronizer;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPart;
@@ -100,11 +101,6 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 * Index of the event to ignore in the IDocumentListener part
 	 */
 	private Long ignoreEvent= null;
-	
-	/**
-	 * Keeping last thread to be able to wait for its completion
-	 */
-	private Thread lastUpdate;
 	
 	/**
 	 * Reference to currently locked lines for the user - in form of an array of line numbers
@@ -403,14 +399,55 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
+	private boolean inQueueFlag = false;
+	private int got = 0, shown = 0;
+	
+	Thread watcherThread = null;
+	
+	class WatcherThread extends Thread
+	{
+		public void run() {
+			while(true) {
+				if(got < shown) {
+					int got1 = got, shown1 = shown;
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					if(got == got1 && shown == shown1) {
+						System.out.println("stalled");
+					}
+				}
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	public synchronized void hasChanges(ICoedObject file) {
 		//TODO: real equality checking
 		logger.info("Collab file has changes: "+file.getPath());
-		if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
-			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, lastUpdate, this);
-			lastUpdate=rnbl;
+		//if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
+			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, this);
+			if(inQueueFlag) {
+				System.out.println("attempt to add one more to queue");
+				//return;
+			}
+			if(watcherThread == null) {
+				watcherThread = new WatcherThread();
+				watcherThread.start();
+			}
+			
+			inQueueFlag = true;
+			got++;
 			Display.getDefault().asyncExec(rnbl);		
-		}
+		//}
 	}
 
 	@Override
@@ -491,16 +528,14 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 * @author Izso
 	 *
 	 */
-	class DocumentUpdater extends Thread {
+	class DocumentUpdater implements Runnable {
 		private ICoedObject file;
 		private IDocument doc;
-		private Thread waitOn;
 		private IDocumentListener outer;
 		
-		public DocumentUpdater(ICoedObject file, IDocument doc, Thread waitOn, IDocumentListener outer) {
+		public DocumentUpdater(ICoedObject file, IDocument doc, IDocumentListener outer) {
 			this.file=file;
 			this.doc=doc;
-			 this.waitOn=waitOn;
 			 this.outer=outer;
 		}
 		
@@ -518,26 +553,16 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				e.printStackTrace();
 			}
 			if (mods!=null && mods.length > 0) {
+				doc.removeDocumentListener(outer);
 				for (int i = 0; i < mods.length; i++) {
-					doc.removeDocumentListener(outer);
 					doc.replace(mods[i].getOffset(), mods[i].getLength(), mods[i].getText());
-					doc.addDocumentListener(outer);
-					
 				}
+				doc.addDocumentListener(outer);
 			}
 		}
 
 		@Override
 		public void run() {
-			if (waitOn!=null){
-				while(waitOn.isAlive()) {
-					try {
-						this.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
 			try {
 				showChanges(file, doc);
 			} catch (NotConnectedException e) {
@@ -545,7 +570,8 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-			this.notifyAll();
+			inQueueFlag = false;
+			shown++;
 		}
 	}
 

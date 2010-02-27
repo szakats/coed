@@ -123,8 +123,14 @@ public class CoedCollabFile implements ICollabObject {
 	@Override
 	public IFuture<Void> addChangeListener(IFileChangeListener listener) {
 		CoedFuture<Void> ret = new CoedFuture<Void>();
-		if(ensureOnline(ret))
-			fileObservers.add(listener);
+		// TODO: don't do this
+		//fileObservers.clear();
+		if(ensureOnline(ret)) {
+			if(fileObservers.contains(listener))
+				System.out.println("CoedCollabFile:addChangeListener: attempt to add duplicate listener");
+			else
+				fileObservers.add(listener);
+		}
 		coll.getConn().send(new AddChangedListenerMsg(getParent().getPath()));
 		return ret;
 	}

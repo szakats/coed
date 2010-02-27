@@ -31,7 +31,7 @@ public class ClientMain {
 		protected ICoedConfig config = new Config();
 		
 		Client() {
-			config.setString("server.host", "172.27.4.14");
+			config.setString("server.host", "localhost");
 			config.setInt("server.port", 1234);
 		}
 		

@@ -68,7 +68,6 @@ public class ChangeQueue{
 		vect.toArray(ret);
 		
 		
-		
 		return ret;
 		
 	}

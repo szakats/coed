@@ -56,9 +56,15 @@ public class Session implements ICoedConnectionListener {
 			it.remove();
 		}	
 	}
+	
+	private int x = 0;
 
 	@Override
 	public void received(CoedMessage msg) {
+		if(x == 1) {
+			System.out.println("concurrent");
+		}
+		x = 1;
     	if(msg instanceof GetChangesMsg)
     		handleMessage((GetChangesMsg)msg);
     	else if(msg instanceof SendChangesMsg)
@@ -79,6 +85,7 @@ public class Session implements ICoedConnectionListener {
     		handleMessage((GetUserListMsg) msg);
     	else if( msg instanceof GoOfflineMsg)
     		handleMessage((GoOfflineMsg)msg);
+    	x = 0;
 	}
 	
     public void handleMessage(GoOfflineMsg msg) {
@@ -92,7 +99,7 @@ public class Session implements ICoedConnectionListener {
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes request for session "+getUserName());
     	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
-    	//for (TextModification t : reply.getMods())
+    	for (TextModification t : reply.getMods())
     		System.out.println(t.toString());
     	conn.reply(msg, reply);
     }

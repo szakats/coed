@@ -9,6 +9,7 @@ import org.apache.mina.common.IoAcceptor;
 import org.apache.mina.common.IoAcceptorConfig;
 import org.apache.mina.common.IoHandlerAdapter;
 import org.apache.mina.common.IoSession;
+import org.apache.mina.common.ThreadModel;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.transport.socket.nio.SocketAcceptor;
@@ -68,7 +69,7 @@ public class CoedConnectionAcceptor extends IoHandlerAdapter {
 	}
 	
 	public CoedConnectionAcceptor() {
-		
+		config.setThreadModel(ThreadModel.MANUAL);
 	}
 	
 	public void listen(int port) {

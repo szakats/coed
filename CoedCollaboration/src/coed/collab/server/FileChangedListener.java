@@ -35,8 +35,11 @@ public class FileChangedListener{
 		return this.session;
 	}
 	
-	public void setStatus(boolean status){
+	public synchronized void setStatus(boolean status){
 		this.changedStatus = status;
+		System.out.println("status is " + status);
+		Exception e = new Exception();
+		e.printStackTrace();
 	}
 	
 	/**
@@ -53,7 +56,7 @@ public class FileChangedListener{
 			System.out.println("fileChangedListener sendind changed notification");
 			session.getConn().send(new FileChangedMsg(fileName));
 		}
-		this.changedStatus = status;
+		this.setStatus(status);
 		//System.out.println("wow, that changed");
 	}
 

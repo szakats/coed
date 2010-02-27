@@ -150,7 +150,7 @@ public class ServerFile {
 			//notify listeners
 			Collection<FileChangedListener> listen = listeners.values();
 			Iterator<FileChangedListener> it = listen.iterator();
-			//System.out.println("number of listeners: "+listen.size());
+			System.out.println("number of listeners: "+listen.size());
 			while (it.hasNext()){
 				FileChangedListener list = it.next();
 				if ( list.getSession() != s)
