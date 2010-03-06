@@ -6,4 +6,9 @@ public interface ICollabStateListener {
 	 * @param to the new state
 	 */
 	public void collabStateChanged(String to);
+	
+	/**
+	 * Called when an error occurs during authentication
+	 */
+	public void authenticationError();
 }

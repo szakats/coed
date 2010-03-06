@@ -266,6 +266,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				activeDocument.addDocumentListener(this);
 			}
 			fileTree.displayFile(editors.get(activeEditor));
+			userList.displayUsers(getCollabUsers(editors.get(activeEditor)));
 		/*
 			IWorkbench wb = PlatformUI.getWorkbench();
 		 	IProgressService ps = wb.getProgressService();
@@ -305,7 +306,6 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		logger.info("Ending collab for: "+texte);
 		
 		fileTree.removeFile(editors.get(activeEditor));
-		
 		if (activeEditor!=null && activeEditor.equals(texte)) {
 			activeDocument.removeDocumentListener(this);
 			editors.get(texte).removeChangeListener(this);
@@ -399,53 +399,11 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
-	private boolean inQueueFlag = false;
-	private int got = 0, shown = 0;
-	
-	Thread watcherThread = null;
-	
-	class WatcherThread extends Thread
-	{
-		public void run() {
-			while(true) {
-				if(got < shown) {
-					int got1 = got, shown1 = shown;
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					if(got == got1 && shown == shown1) {
-						System.out.println("stalled");
-					}
-				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
 	public synchronized void hasChanges(ICoedObject file) {
 		//TODO: real equality checking
 		logger.info("Collab file has changes: "+file.getPath());
 		//if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
 			DocumentUpdater rnbl = new DocumentUpdater(file, activeDocument, this);
-			if(inQueueFlag) {
-				System.out.println("attempt to add one more to queue");
-				//return;
-			}
-			if(watcherThread == null) {
-				watcherThread = new WatcherThread();
-				watcherThread.start();
-			}
-			
-			inQueueFlag = true;
-			got++;
 			Display.getDefault().asyncExec(rnbl);		
 		//}
 	}
@@ -570,13 +528,17 @@ public class StandardController implements IPluginController, IPartListener, IFi
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-			inQueueFlag = false;
-			shown++;
 		}
 	}
 
 	@Override
 	public void collabStateChanged(String to) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void authenticationError() {
 		// TODO Auto-generated method stub
 		
 	}

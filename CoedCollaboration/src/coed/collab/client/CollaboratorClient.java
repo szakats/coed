@@ -10,9 +10,11 @@ import coed.base.data.ICoedObject;
 import coed.base.data.ICollabObject;
 import coed.base.data.exceptions.NotConnectedException;
 import coed.base.util.IFuture;
+import coed.base.util.IFutureListener;
 import coed.collab.connection.CoedKeepAliveConnection;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
+import coed.collab.protocol.AuthenticationReplyMsg;
 import coed.collab.protocol.AuthentificationMsg;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.FileChangedMsg;
@@ -125,15 +127,13 @@ public class CollaboratorClient implements ICoedCollaborator {
 		this.basePath = basePath;
 	}
 	
-	class ConnectionListener implements ICoedConnectionListener {
+	class ConnectionListener implements ICoedConnectionListener, IFutureListener<CoedMessage>{
 		@Override
 		public void connected() {
 			assert(nrOnlineFiles > 0);
 			String username = conf.getString("user.name");
-			conn.send(new AuthentificationMsg(username));
-			// TODO: state should only be set to connected
-			//		 if the auth was successful
-			setState(STATUS_CONNECTED);
+			String password = conf.getString("user.password");
+			conn.sendSeq(new AuthentificationMsg(username, password)).addListener(this);
 		}
 
 		@Override
@@ -154,6 +154,25 @@ public class CollaboratorClient implements ICoedCollaborator {
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
+			
+		}
+
+		@Override
+		public void got(CoedMessage result) {
+			if(result instanceof AuthenticationReplyMsg) {
+				if( ((AuthenticationReplyMsg)result).getResult() == true) {
+					setState(STATUS_CONNECTED);
+				} else {
+					for(ICollabStateListener l : stateListeners)
+						l.authenticationError();
+					endCollab();
+				}
+			}
+		}
+
+		@Override
+		public void caught(Throwable e) {
+			// TODO Auto-generated method stub
 			
 		}
 	}

@@ -397,7 +397,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 	 */
 	@SuppressWarnings("static-access")
 	public FileTreeView() {
-		Activator.getDefault().getController().attachFileTree(this);
+		//Activator.getDefault().getController().attachFileTree(this);
 	}
 
 	/**
@@ -517,7 +517,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 				        IEditorPart editor = page.getActiveEditor();
 				        try {
 				        	AbstractDecoratedTextEditor textEditor = (AbstractDecoratedTextEditor) editor;
-				        	Activator.getController().startCollabFor(textEditor);
+				        	//Activator.getController().startCollabFor(textEditor);
 				        } catch (Exception e) {
 				        	e.printStackTrace();
 				        }
@@ -539,7 +539,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 				        IEditorPart editor = page.getActiveEditor();
 				        try {
 				        	AbstractDecoratedTextEditor textEditor = (AbstractDecoratedTextEditor) editor;
-				        	Activator.getController().endCollabFor(textEditor);
+				        	//Activator.getController().endCollabFor(textEditor);
 				        } catch (Exception e) {
 				        	e.printStackTrace();
 				        }

@@ -18,6 +18,8 @@ public class Session implements ICoedConnectionListener {
 	private HashSet<ServerFile> onlineFiles = new HashSet<ServerFile>();
 	private String userName;
 	
+	private boolean auth = false;
+	
 	/** FileChangeListeners mapped with the fileName as the key**/
 	private HashMap<String,FileChangedListener> listeners;
 	
@@ -61,31 +63,29 @@ public class Session implements ICoedConnectionListener {
 
 	@Override
 	public void received(CoedMessage msg) {
-		if(x == 1) {
-			System.out.println("concurrent");
+		if(auth == false) {
+			if (msg instanceof AuthentificationMsg)
+				handleMessage((AuthentificationMsg) msg);
+		} else {
+	    	if(msg instanceof GetChangesMsg)
+	    		handleMessage((GetChangesMsg)msg);
+	    	else if(msg instanceof SendChangesMsg)
+	    		handleMessage((SendChangesMsg)msg);
+	    	else if(msg instanceof GoOnlineMsg)
+	    		handleMessage((GoOnlineMsg)msg);
+	    	else if(msg instanceof GetContentsMsg)
+	    		handleMessage((GetContentsMsg)msg);
+	    	else if (msg instanceof AddChangedListenerMsg)
+	    		handleMessage((AddChangedListenerMsg) msg);
+	    	else if (msg instanceof RequestLockMsg)
+	    		handleMessage((RequestLockMsg) msg);
+	    	else if (msg instanceof ReleaseLockMsg)
+	    		handleMessage((ReleaseLockMsg) msg);
+	    	else if (msg instanceof GetUserListMsg)
+	    		handleMessage((GetUserListMsg) msg);
+	    	else if( msg instanceof GoOfflineMsg)
+	    		handleMessage((GoOfflineMsg)msg);
 		}
-		x = 1;
-    	if(msg instanceof GetChangesMsg)
-    		handleMessage((GetChangesMsg)msg);
-    	else if(msg instanceof SendChangesMsg)
-    		handleMessage((SendChangesMsg)msg);
-    	else if(msg instanceof GoOnlineMsg)
-    		handleMessage((GoOnlineMsg)msg);
-    	else if(msg instanceof GetContentsMsg)
-    		handleMessage((GetContentsMsg)msg);
-    	else if (msg instanceof AddChangedListenerMsg)
-    		handleMessage((AddChangedListenerMsg) msg);
-    	else if (msg instanceof AuthentificationMsg)
-    		handleMessage((AuthentificationMsg) msg);
-    	else if (msg instanceof RequestLockMsg)
-    		handleMessage((RequestLockMsg) msg);
-    	else if (msg instanceof ReleaseLockMsg)
-    		handleMessage((ReleaseLockMsg) msg);
-    	else if (msg instanceof GetUserListMsg)
-    		handleMessage((GetUserListMsg) msg);
-    	else if( msg instanceof GoOfflineMsg)
-    		handleMessage((GoOfflineMsg)msg);
-    	x = 0;
 	}
 	
     public void handleMessage(GoOfflineMsg msg) {
@@ -106,7 +106,15 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(AuthentificationMsg msg) {
     	System.out.println("authentification");
-    	setUserName(msg.getUserName());
+    	//TODO password verification
+    
+    	boolean result = true;
+    	
+    	conn.reply(msg, new AuthenticationReplyMsg(result));
+    	if(result == true) {
+    		auth = true;
+    		setUserName(msg.getUserName());
+    	}
     }
     
     public void handleMessage(SendChangesMsg msg) {

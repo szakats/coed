@@ -21,7 +21,7 @@ public class Activator extends AbstractUIPlugin{
 
 	// The shared instance
 	private static Activator plugin;
-	private static IPluginController controller;
+	private static IController controller;
 	private static ImageRegistry imageRegistry;
 	
 	/**
@@ -37,7 +37,7 @@ public class Activator extends AbstractUIPlugin{
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		controller = new StandardController();
+		controller = new Controller();
 		imageRegistry = new ImageRegistry();
 		//TODO: add icons
 		/* smthg like:
@@ -65,7 +65,7 @@ public class Activator extends AbstractUIPlugin{
 		return plugin;
 	}
 	
-	public static IPluginController getController() {
+	public static IController getController() {
 		return controller;
 	}
 	

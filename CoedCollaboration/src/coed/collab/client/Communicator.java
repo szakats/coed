@@ -49,7 +49,7 @@ public class Communicator implements ICoedCommunicator {
 
 	@Override
 	public String getState() {
-		return null;
+		return c.getState();
 	}
 	
 	@Override
@@ -74,19 +74,16 @@ public class Communicator implements ICoedCommunicator {
 	 */
 	@Override
 	public void addStateListener(ICollabStateListener stateObserver) {
-		// TODO Auto-generated method stub
-		
+		c.addStateListener(stateObserver);
 	}
 
 	@Override
 	public void removeStateListener(ICollabStateListener stateObserver) {
-		// TODO Auto-generated method stub
-		
+		c.removeStateListener(stateObserver);
 	}
 
 	@Override
 	public ICoedObject addObject(String path) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

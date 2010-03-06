@@ -23,6 +23,14 @@
             id="coed.plugin.views.Users"
             name="Users">
       </view>
+      <view
+            category="CoedView"
+            class="coed.plugin.views.ui.AllSessionsView"
+            icon="icons/coed.png"
+            id="coed.plugin.views.AllSessions"
+            name="All Sessions"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">

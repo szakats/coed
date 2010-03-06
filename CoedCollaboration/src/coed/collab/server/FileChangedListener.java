@@ -37,9 +37,6 @@ public class FileChangedListener{
 	
 	public synchronized void setStatus(boolean status){
 		this.changedStatus = status;
-		System.out.println("status is " + status);
-		Exception e = new Exception();
-		e.printStackTrace();
 	}
 	
 	/**
