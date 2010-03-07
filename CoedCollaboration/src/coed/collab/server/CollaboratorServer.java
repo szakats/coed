@@ -10,11 +10,14 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	private CoedConnectionAcceptor acceptor = new CoedConnectionAcceptor();
     private int port = 1234;
     private FileManager fm;
+    private UserManager um;
+    private String configPath;
 	
-	public CollaboratorServer() {
+	public CollaboratorServer(String configPath) {
 		acceptor.addListener(this);
 		acceptor.listen(port);
 		fm = new FileManager();
+		um = new UserManager(configPath);
 	}
 
 	@Override
@@ -41,5 +44,9 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	
 	public void removeServerFile(String path) {
 		fm.removeFile(path);
+	}
+	
+	public boolean validateUser(String user, String password){
+		return um.validateUser(user, password);
 	}
 }

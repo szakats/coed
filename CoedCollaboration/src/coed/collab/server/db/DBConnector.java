@@ -23,8 +23,12 @@ import coed.base.data.exceptions.InvalidConfigFileException;
 public final class DBConnector{
 	
 	Connection conn = null;
-	public static final DBConnector connector = new DBConnector(); //for thread safe singleton
+	private static final DBConnector connector = new DBConnector(); //for thread safe singleton
     
+	public static DBConnector getInstance(){
+		return connector;
+	}
+	
     private DBConnector(){
     }
     

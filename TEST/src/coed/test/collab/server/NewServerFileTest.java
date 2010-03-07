@@ -8,7 +8,7 @@ import coed.collab.server.Session;
 public class NewServerFileTest {
 	
 	public static void main(String args[]){
-		CollaboratorServer server = new CollaboratorServer();
+		CollaboratorServer server = new CollaboratorServer("..\\.\\config.ini");
 		ServerFile sf1 = new ServerFile("\\x\\o.txt");
 		Session s1 = new Session(null, null); //not interested in connection part yet
 		Session s2 = new Session(null, null); //not interested in connection part yet

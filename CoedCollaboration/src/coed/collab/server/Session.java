@@ -105,10 +105,9 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(AuthentificationMsg msg) {
+    	
     	System.out.println("authentification");
-    	//TODO password verification
-    
-    	boolean result = true;
+    	boolean result = server.validateUser(msg.getUserName(), msg.getPassword());
     	
     	conn.reply(msg, new AuthenticationReplyMsg(result));
     	if(result == true) {

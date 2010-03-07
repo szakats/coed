@@ -102,13 +102,19 @@ public class SessionTest {
 			message2 = msg;
 			return null;
 		}
+
+		@Override
+		public void disconnect() {
+			// TODO Auto-generated method stub
+			
+		}
 		
 	}
 	
 	
 	@Before public void setUp(){
 		conn1 = new MockConnection();
-		server = new CollaboratorServer();
+		server = new CollaboratorServer("..\\.\\config.ini");
 		session1 = new Session(conn1,server);
 		
 		conn2 = new MockConnection();
@@ -117,10 +123,10 @@ public class SessionTest {
 	
 	@Test 
 	public void testAuthentificationMsgHanlde(){
-		session1.received(new AuthentificationMsg("userName1"));
+		session1.received(new AuthentificationMsg("userName1",""));
 		assertTrue(session1.getUserName().equals("userName1"));
 		
-		session2.received(new AuthentificationMsg("userName2"));
+		session2.received(new AuthentificationMsg("userName2",""));
 		assertTrue(session2.getUserName().equals("userName2"));
 	}
 	
