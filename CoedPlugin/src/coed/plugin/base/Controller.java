@@ -3,6 +3,9 @@
  */
 package coed.plugin.base;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -13,6 +16,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
+import coed.base.data.ICoedFile;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.collab.client.CoedCommunicatorFactory;
@@ -24,9 +28,10 @@ import coed.plugin.views.ui.AllSessionsView;
  */
 public class Controller implements IController, ICollabStateListener{
 	
-	ICoedCommunicator communicator;
-	String configPath;
-	AllSessionsView allSessionsView;
+	private ICoedCommunicator communicator;
+	private String configPath;
+	private AllSessionsView allSessionsView;
+	private Map<AbstractDecoratedTextEditor,ICoedFile> editors;
 	
 	Controller() {
 		configPath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
@@ -43,12 +48,13 @@ public class Controller implements IController, ICollabStateListener{
 			e.printStackTrace();
 		}
 		
+		editors = new HashMap<AbstractDecoratedTextEditor,ICoedFile>();
 	}
 
 	@Override
 	public void createSession(AbstractDecoratedTextEditor editor) {
-		// TODO Auto-generated method stub
 		
+		//communicator.createSession(path, contents);
 	}
 
 	@Override
