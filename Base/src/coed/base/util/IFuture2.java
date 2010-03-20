@@ -3,11 +3,16 @@
  */
 package coed.base.util;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 /**
  * @author szakats
  *
  */
-public interface IFuture2<T, U> {
+public interface IFuture2<T, U> extends Future<Pair<T, U>> {
 	/**
 	 * Add a listener to the future that will be called either
 	 * when the result is set or when an error is caught

@@ -6,7 +6,7 @@ import coed.plugin.views.ui.AllSessionsView;
 
 public interface IController {
 	public void createSession(AbstractDecoratedTextEditor editor);
-	public void joinSession(String path, String sessionID);
+	public void joinSession(String path, Integer sessionID);
 	public void leaveSession(AbstractDecoratedTextEditor editor);
 	
 	public void startCollaboration();
