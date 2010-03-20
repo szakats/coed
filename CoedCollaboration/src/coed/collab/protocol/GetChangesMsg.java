@@ -6,24 +6,18 @@ package coed.collab.protocol;
  * @author szakats
  */
 public class GetChangesMsg extends CoedMessage {
-	private String fileName;
+	private Integer Id;
 
-	public GetChangesMsg(String fileName) {
+	public GetChangesMsg(Integer id) {
 		super();
-		this.fileName = fileName;
+		Id = id;
 	}
 
-	/**
-	 * @param fileName the fileName to set
-	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public Integer getId() {
+		return Id;
 	}
 
-	/**
-	 * @return the fileName
-	 */
-	public String getFileName() {
-		return fileName;
+	public void setId(Integer id) {
+		Id = id;
 	}
 }

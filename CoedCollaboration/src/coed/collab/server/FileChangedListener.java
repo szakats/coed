@@ -14,12 +14,12 @@ import coed.collab.protocol.FileChangedMsg;
 public class FileChangedListener{
 	
 	private boolean changedStatus;
-	private String fileName;
+	private Integer id;
 	private Session session;
 	
-	public FileChangedListener(String fileName, Session session){
+	public FileChangedListener(Integer id, Session session){
 		this.changedStatus = false;
-		this.fileName = fileName;
+		this.id = id;
 		this.session = session;
 	}
 	
@@ -27,8 +27,8 @@ public class FileChangedListener{
 		return this.changedStatus;
 	}
 	
-	public String getFileName(){
-		return this.fileName;
+	public Integer getId(){
+		return this.id;
 	}
 	
 	public Session getSession(){

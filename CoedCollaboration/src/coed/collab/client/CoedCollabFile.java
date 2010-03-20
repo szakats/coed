@@ -83,13 +83,13 @@ public class CoedCollabFile implements ICollabFilePart {
 		
 		FListener fl = new FListener();
 		if(ensureOnline(fl.ret))
-			coll.getConn().sendSeq(new GetChangesMsg(getParent().getPath())).addListener(fl);
+			coll.getConn().sendSeq(new GetChangesMsg(getId())).addListener(fl);
 		return fl.ret;
 	}
 	
 	@Override
 	public IFuture<Boolean> releaseLock(TextPortion lock) {
-		coll.getConn().send(new ReleaseLockMsg(getParent().getPath(), lock));
+		coll.getConn().send(new ReleaseLockMsg(getId(), lock));
 		return new CoedFuture<Boolean>(true);
 	}
 
@@ -110,7 +110,7 @@ public class CoedCollabFile implements ICollabFilePart {
 		
 		FListener fl = new FListener();
 		if(ensureOnline(fl.ret))
-			coll.getConn().sendSeq(new RequestLockMsg(getParent().getPath(), lock)).addListener(fl);
+			coll.getConn().sendSeq(new RequestLockMsg(getId(), lock)).addListener(fl);
 		return fl.ret;
 	}
 
@@ -119,7 +119,7 @@ public class CoedCollabFile implements ICollabFilePart {
 		TextModification[] mods = new TextModification[1];
 		mods[0] = line;
 		
-		coll.getConn().send(new SendChangesMsg(getParent().getPath(), mods));
+		coll.getConn().send(new SendChangesMsg(getId(), mods));
 		return new CoedFuture<Boolean>(true);
 	}
 
@@ -134,7 +134,7 @@ public class CoedCollabFile implements ICollabFilePart {
 			else
 				fileObservers.add(listener);
 		}
-		coll.getConn().send(new AddChangedListenerMsg(getParent().getPath()));
+		coll.getConn().send(new AddChangedListenerMsg(getId()));
 		return ret;
 	}
 
@@ -151,7 +151,7 @@ public class CoedCollabFile implements ICollabFilePart {
 		CoedFuture<Void> ret = new CoedFuture<Void>();
 		if(ensureOnline(ret)) {
 			isWorkingOnline = false;
-			coll.getConn().send(new GoOfflineMsg(getParent().getPath()));
+			coll.getConn().send(new GoOfflineMsg(getId()));
 		}
 		return ret;
 	}
@@ -180,7 +180,7 @@ public class CoedCollabFile implements ICollabFilePart {
 		
 		FListener fl = new FListener();
 		if(ensureOnline(fl.ret))
-			coll.getConn().sendSeq(new GetContentsMsg(getParent().getPath())).addListener(fl);
+			coll.getConn().sendSeq(new GetContentsMsg(getId())).addListener(fl);
 		return fl.ret;
 	}
 

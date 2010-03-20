@@ -1,18 +1,19 @@
 package coed.collab.protocol;
 
 public class GetUserListMsg extends CoedMessage{
-	private String file;
-	
-	public GetUserListMsg (String file){
-		this.file = file;
+	private Integer Id;
+
+	public Integer getId() {
+		return Id;
 	}
-	
-	public String getFile(){
-		return this.file;
+
+	public void setId(Integer id) {
+		Id = id;
 	}
-	
-	public void setFile(String file){
-		this.file = file;
+
+	public GetUserListMsg(Integer id) {
+		super();
+		Id = id;
 	}
 
 }

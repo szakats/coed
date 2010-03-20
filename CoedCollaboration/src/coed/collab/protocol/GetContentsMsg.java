@@ -6,25 +6,25 @@ package coed.collab.protocol;
  * @author szakats
  */
 public class GetContentsMsg extends CoedMessage {
-	private String fileName;
+	private Integer id;
 
 	/**
 	 * @param fileName the fileName to set
 	 */
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	public GetContentsMsg(String fileName) {
+	public GetContentsMsg(Integer id) {
 		super();
-		this.fileName = fileName;
+		this.id = id;
 	}
 
 	/**
 	 * @return the fileName
 	 */
-	public String getFileName() {
-		return fileName;
+	public Integer getId() {
+		return id;
 	}
 	
 }

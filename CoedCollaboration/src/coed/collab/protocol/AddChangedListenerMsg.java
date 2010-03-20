@@ -1,23 +1,19 @@
 package coed.collab.protocol;
 
 public class AddChangedListenerMsg extends CoedMessage {
-	private String file;
+	private Integer Id;
 
-	public AddChangedListenerMsg(String file) {
-		this.file = file;
+	public AddChangedListenerMsg(Integer id) {
+		super();
+		Id = id;
 	}
 
-	/**
-	 * @param file the file to set
-	 */
-	public void setFile(String file) {
-		this.file = file;
+	public Integer getId() {
+		return Id;
 	}
 
-	/**
-	 * @return the file
-	 */
-	public String getFile() {
-		return file;
+	public void setId(Integer id) {
+		Id = id;
 	}
+	
 }

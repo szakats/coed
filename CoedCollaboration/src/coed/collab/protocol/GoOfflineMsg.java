@@ -6,18 +6,18 @@ package coed.collab.protocol;
  * @author szakats
  */
 public class GoOfflineMsg extends CoedMessage {
-	private String fileName;
+	private Integer Id;
 
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public GoOfflineMsg(String fileName) {
+	public GoOfflineMsg(Integer id) {
 		super();
-		this.fileName = fileName;
+		Id = id;
+	}
+
+	public Integer getId() {
+		return Id;
+	}
+
+	public void setId(Integer id) {
+		Id = id;
 	}
 }

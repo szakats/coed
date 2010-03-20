@@ -4,24 +4,24 @@ import coed.base.data.TextPortion;
 
 public class ReleaseLockMsg extends CoedMessage{
 	
-	private String file;
+	private Integer Id;
 	private TextPortion portion;
 	
-	public ReleaseLockMsg(String file, TextPortion portion) {
-		this.file = file;
+	public ReleaseLockMsg(Integer Id, TextPortion portion) {
+		this.Id = Id;
 		this.portion = portion;
 	}
 		/**
 	 * @param file the file to set
 	 */
-	public void setFile(String file) {
-		this.file = file;
+	public void setId(Integer Id) {
+		this.Id = Id;
 	}
 		/**
 	 * @return the file
 	 */
-	public String getFile() {
-		return file;
+	public Integer getId() {
+		return this.Id;
 	}
 	
 	public void setPortion(TextPortion portion){

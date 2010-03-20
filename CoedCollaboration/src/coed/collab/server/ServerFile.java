@@ -25,6 +25,7 @@ import coed.base.data.TextPortion;
 public class ServerFile {
 
 	private String path;
+	private Integer Id;
 	/**
 	 * StringBuffer containing the contents of the file.
 	 */
@@ -47,8 +48,9 @@ public class ServerFile {
 	 */
 	private Vector<ServerLock> locks;
 	
-	public ServerFile(String path){
+	public ServerFile(String path, Integer Id){
 		this.path = path;
+		this.Id = Id;
 		this.queue = new ChangeQueue(this);
 		sessions = new HashMap<Session,Integer>();
 		locks = new Vector<ServerLock>();
@@ -75,6 +77,14 @@ public class ServerFile {
 	   }
 	}
 	
+	public Integer getId() {
+		return Id;
+	}
+
+	public void setId(Integer id) {
+		Id = id;
+	}
+
 	/**
 	 * Adds a new session to the sessions registered for this ServerFile. 
 	 * Also, sets the change pointer pointer to topIndex. (i.e. the session has the 

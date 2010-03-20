@@ -22,12 +22,12 @@ public class Session implements ICoedConnectionListener {
 	private boolean auth = false;
 	
 	/** FileChangeListeners mapped with the fileName as the key**/
-	private HashMap<String,FileChangedListener> listeners;
+	private HashMap<Integer,FileChangedListener> listeners;
 	
 	public Session(ICoedConnection conn, CollaboratorServer server) {
 		this.conn = conn;
 		this.server = server;
-		this.listeners = new HashMap<String,FileChangedListener>();
+		this.listeners = new HashMap<Integer,FileChangedListener>();
 	}
 	
 	public String getUserName(){
@@ -55,7 +55,7 @@ public class Session implements ICoedConnectionListener {
 			ServerFile file = ((ServerFile)it.next()); 
 			file.removeSession(this);
 			if(file.getNrOfSessions() == 0)
-				server.removeServerFile(file.getPath());
+				server.removeServerFile(file.getId());
 			it.remove();
 		}	
 	}
@@ -90,16 +90,16 @@ public class Session implements ICoedConnectionListener {
 	}
 	
     public void handleMessage(GoOfflineMsg msg) {
-    	System.out.println("going offline with file " + msg.getFileName());
-    	ServerFile file =  server.getServerFile(msg.getFileName());
+    	System.out.println("going offline with file " + msg.getId());
+    	ServerFile file =  server.getServerFile(msg.getId());
 		file.removeSession(this);
 		if(file.getNrOfSessions() == 0)
-			server.removeServerFile(file.getPath());
+			server.removeServerFile(file.getId());
     }
     
     public void handleMessage(GetChangesMsg msg) {
     	System.out.println("get changes request for session "+getUserName());
-    	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getFileName()).getChangesFor(this));
+    	GetChangesReplyMsg reply = new GetChangesReplyMsg(server.getServerFile(msg.getId()).getChangesFor(this));
     	for (TextModification t : reply.getMods())
     		System.out.println(t.toString());
     	conn.reply(msg, reply);
@@ -119,7 +119,7 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(SendChangesMsg msg) {
     	System.out.println("send changes");
-    	ServerFile sf = server.getServerFile(msg.getFile());
+    	ServerFile sf = server.getServerFile(msg.getId());
     	for (int i=0; i<msg.getMods().length; i++){
     		sf.addChange(msg.getMods()[i], this);
     	}
@@ -128,33 +128,33 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(RequestLockMsg msg) {
     	System.out.println("requesting lock");
-    	RequestLockReplyMsg reply = new RequestLockReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).RequestLock(msg.getPortion(), this));
+    	RequestLockReplyMsg reply = new RequestLockReplyMsg(msg.getId(),server.getServerFile(msg.getId()).RequestLock(msg.getPortion(), this));
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(ReleaseLockMsg msg) {
     	System.out.println("releasing lock");
-    	server.getServerFile(msg.getFile()).ReleaseLock(msg.getPortion(), this);
+    	server.getServerFile(msg.getId()).ReleaseLock(msg.getPortion(), this);
     }
     
     public void handleMessage(GetUserListMsg msg) {
     	System.out.println("requesting user list lock");
-    	GetUserListReplyMsg reply = new GetUserListReplyMsg(msg.getFile(),server.getServerFile(msg.getFile()).getActiveUsers());
+    	GetUserListReplyMsg reply = new GetUserListReplyMsg(msg.getId(),server.getServerFile(msg.getId()).getActiveUsers());
     	conn.reply(msg, reply);
     }
     
     public void handleMessage(GetContentsMsg msg) {
     	System.out.println("get contents");
     	
-    	String contents = server.getServerFile(msg.getFileName()).getCurrentContents();
+    	String contents = server.getServerFile(msg.getId()).getCurrentContents();
 		conn.reply(msg, new SendContentsMsg(contents));
 		// TODO: handle the error
     }
     
     public void handleMessage(AddChangedListenerMsg msg){
-    	FileChangedListener listener = new FileChangedListener(msg.getFile(),this);
-    	listeners.put(msg.getFile(), listener);
-    	server.getServerFile(msg.getFile()).addChangeListener(this, listener);
+    	FileChangedListener listener = new FileChangedListener(msg.getId(),this);
+    	listeners.put(msg.getId(), listener);
+    	server.getServerFile(msg.getId()).addChangeListener(this, listener);
     }
     
     public void handleMessage(CreateSessionMsg msg) {
@@ -170,7 +170,7 @@ public class Session implements ICoedConnectionListener {
     	if(!server.existsSession(msg.getId())) {
     		conn.reply(msg, new NoSuchSessionException());
     	} else {
-    		String contents = server.joinSession(msg.getId());
+    		String contents = server.joinSession(msg.getId(),this);
     		conn.reply(msg, new JoinReplyMsg(contents));
     	}
     		

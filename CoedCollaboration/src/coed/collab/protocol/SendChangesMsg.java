@@ -9,26 +9,26 @@ import coed.base.data.TextModification;
  * - by the server as a reply to the GetChangesMsg
  */
 public class SendChangesMsg extends CoedMessage {
-	private String file;
+	private Integer Id;
 	private TextModification[] mods;
 	
-	public SendChangesMsg(String file, TextModification[] mods) {
-		this.setFile(file);
+	public SendChangesMsg(Integer Id, TextModification[] mods) {
+		this.setId(Id);
 		this.setMods(mods);
 	}
 
 	/**
 	 * @param file the file to set
 	 */
-	public void setFile(String file) {
-		this.file = file;
+	public void setId(Integer Id) {
+		this.Id = Id;
 	}
 
 	/**
 	 * @return the file
 	 */
-	public String getFile() {
-		return file;
+	public Integer getId() {
+		return Id;
 	}
 
 	/**

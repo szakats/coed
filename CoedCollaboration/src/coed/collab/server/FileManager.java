@@ -16,10 +16,11 @@ import java.util.Map;
  */
 public class FileManager {
 	
-	private Map<String,ServerFile> files;
+	private Map<Integer,ServerFile> files;
+	private Integer maxId = 1;
 	
 	public FileManager(){
-		HashMap hashMap = new HashMap<String,ServerFile>();
+		HashMap hashMap = new HashMap<Integer,ServerFile>();
 		files = Collections.synchronizedMap(hashMap);	
 	}
 	
@@ -28,18 +29,19 @@ public class FileManager {
 	 * in the manager.
 	 * @param file the ServerFile object to be added
 	 */
-	public void addFile(ServerFile file){
-		if (! files.containsKey(file.getPath()))
-			files.put(file.getPath(), file);
+	public ServerFile addFile(String path, String contents){
+		    ServerFile result = new ServerFile(path,maxId++);
+			files.put(result.getId(),result);
+			return result;
 	}
 	
 	/**
 	 * Removes a file from the Manager
 	 * @param path the path of the file (key).
 	 */
-	public void removeFile(String path){
-		if (files.containsKey(path))
-			files.remove(path);
+	public void removeFile(Integer id){
+		if (files.containsKey(id))
+			files.remove(id);
 	}
 	
 	/**
@@ -51,7 +53,7 @@ public class FileManager {
 		ServerFile[] result = new ServerFile[files.size()];
 		int i = 0;
 		synchronized(files) {
-			for(Map.Entry<String, ServerFile> entry: files.entrySet()){
+			for(Map.Entry<Integer, ServerFile> entry: files.entrySet()){
 				result[i] = entry.getValue();
 				i++;
 			}
@@ -63,9 +65,9 @@ public class FileManager {
 		return files.containsKey(path);
 	}
 	
-	public ServerFile getFile(String path){
-		if (files.containsKey(path))
-			return (ServerFile)(files.get(path));
+	public ServerFile getFile(Integer id){
+		if (files.containsKey(id))
+			return (ServerFile)(files.get(id));
 		else return null;
 	}
 	

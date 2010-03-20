@@ -34,18 +34,16 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 		return fm.containsFile(path);
 	}
 	
-	public void addNewFile(String path, String contents) throws IOException{
-		ServerFile sf = new ServerFile(path);
-		sf.changeContents(contents);
-		fm.addFile(sf);
+	/*public void addNewFile(String path, String contents) throws IOException{
+		
+	}*/
+	
+	public ServerFile getServerFile(Integer id){
+		return fm.getFile(id);
 	}
 	
-	public ServerFile getServerFile(String path){
-		return fm.getFile(path);
-	}
-	
-	public void removeServerFile(String path) {
-		fm.removeFile(path);
+	public void removeServerFile(Integer id) {
+		fm.removeFile(id);
 	}
 	
 	public boolean validateUser(String user, String password){
@@ -53,24 +51,14 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	}
 	
 	public Integer createSession(String path, String contents) {
-		/* String contents = ((SendContentsMsg)result).getContents();
-		//System.out.println("got contents " + contents);
-		try{
-			server.addNewFile(fileName,((SendContentsMsg)result).getContents());
-			ServerFile sf = server.getServerFile(fileName);
-			onlineFiles.add(sf);
-			sf.addSession(Session.this);
-		}
-		catch(IOException ex) {}*/
-		return 0;
+		ServerFile sf = fm.addFile(path,contents);
+		return sf.getId();
 	}
 	
-	public String joinSession(Integer id) {
-		/*ServerFile sf = server.getServerFile(fileName);
-		onlineFiles.add(sf);
-		sf.addSession(Session.this);
-		conn.reply(msg, new CreateSessionResultMsg(true)).addErrorListener(this);*/
-		return "";
+	public String joinSession(Integer id, Session session) {
+		ServerFile sf = fm.getFile(id);
+		sf.addSession(session);
+		return sf.getCurrentContents();
 	}
 	
 	public boolean existsSession(Integer id) {

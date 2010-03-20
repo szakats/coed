@@ -2,11 +2,11 @@ package coed.collab.protocol;
 
 public class RequestLockReplyMsg extends CoedMessage{
 	private boolean granted;
-	private String file;
+	private Integer Id;
 	
-	public RequestLockReplyMsg(String file, boolean granted){
+	public RequestLockReplyMsg(Integer Id, boolean granted){
 		this.granted = granted;
-		this.file = file;
+		this.Id = Id;
 	}
 	
 	public boolean getResult(){
@@ -17,12 +17,12 @@ public class RequestLockReplyMsg extends CoedMessage{
 		this.granted = granted;
 	}
 	
-	public String getFile(){
-		return this.file;
+	public Integer getId(){
+		return this.Id;
 	}
 	
-	public void setFile(String file){
-		this.file = file;
+	public void setId(Integer Id){
+		this.Id = Id;
 	}
 
 
