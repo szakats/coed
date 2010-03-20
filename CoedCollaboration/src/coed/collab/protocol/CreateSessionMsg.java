@@ -5,8 +5,9 @@ package coed.collab.protocol;
  * - by the client when it want a particular file to be made online
  * @author szakats
  */
-public class GoOnlineMsg extends CoedMessage {
+public class CreateSessionMsg extends CoedMessage {
 	private String fileName;
+	private String contents;
 
 	public String getFileName() {
 		return fileName;
@@ -16,8 +17,17 @@ public class GoOnlineMsg extends CoedMessage {
 		this.fileName = fileName;
 	}
 
-	public GoOnlineMsg(String fileName) {
+	public String getContents() {
+		return contents;
+	}
+
+	public void setContents(String contents) {
+		this.contents = contents;
+	}
+
+	public CreateSessionMsg(String fileName, String contents) {
 		super();
 		this.fileName = fileName;
+		this.contents = contents;
 	}
 }

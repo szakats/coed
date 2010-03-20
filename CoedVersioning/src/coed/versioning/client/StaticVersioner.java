@@ -1,10 +1,10 @@
 package coed.versioning.client;
 
-import coed.base.comm.ICoedVersioner;
-import coed.base.data.ICoedObject;
-import coed.base.data.IVersionedObject;
+import coed.base.comm.ICoedVersionerPart;
+import coed.base.data.ICoedFile;
+import coed.base.data.IVersionedFilePart;
 
-public class StaticVersioner implements ICoedVersioner {
+public class StaticVersioner implements ICoedVersionerPart {
 	
 	@Override
 	public String getType() {
@@ -13,7 +13,7 @@ public class StaticVersioner implements ICoedVersioner {
 	}
 
 	@Override
-	public IVersionedObject makeVersionedObject(ICoedObject obj) {
+	public IVersionedFilePart makeVersionedFile(ICoedFile obj) {
 		return new CoedStaticFile(obj, this);
 	}
 	

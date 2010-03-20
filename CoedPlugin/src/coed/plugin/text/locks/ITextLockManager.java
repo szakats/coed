@@ -2,7 +2,7 @@ package coed.plugin.text.locks;
 
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.base.data.TextPortion;
 
 /**
@@ -13,10 +13,10 @@ import coed.base.data.TextPortion;
  */
 public interface ITextLockManager {
 	
-	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedObject coedo, TextPortion textp);
+	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedFile coedo, TextPortion textp);
 	
-	void releaseLock(ICoedObject coedo, TextPortion ticket);
+	void releaseLock(ICoedFile coedo, TextPortion ticket);
 	
-	void findAndReleaseLocks(ICoedObject coedo, TextPortion zone);
+	void findAndReleaseLocks(ICoedFile coedo, TextPortion zone);
 		
 }

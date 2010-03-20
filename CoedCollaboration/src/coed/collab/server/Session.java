@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import coed.base.data.TextModification;
+import coed.base.data.exceptions.NoSuchSessionException;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.ICoedConnection;
 import coed.collab.connection.ICoedConnectionListener;
@@ -71,8 +72,8 @@ public class Session implements ICoedConnectionListener {
 	    		handleMessage((GetChangesMsg)msg);
 	    	else if(msg instanceof SendChangesMsg)
 	    		handleMessage((SendChangesMsg)msg);
-	    	else if(msg instanceof GoOnlineMsg)
-	    		handleMessage((GoOnlineMsg)msg);
+	    	else if(msg instanceof CreateSessionMsg)
+	    		handleMessage((CreateSessionMsg)msg);
 	    	else if(msg instanceof GetContentsMsg)
 	    		handleMessage((GetContentsMsg)msg);
 	    	else if (msg instanceof AddChangedListenerMsg)
@@ -156,51 +157,22 @@ public class Session implements ICoedConnectionListener {
     	server.getServerFile(msg.getFile()).addChangeListener(this, listener);
     }
     
-    public void handleMessage(GoOnlineMsg msg) {
+    public void handleMessage(CreateSessionMsg msg) {
     	System.out.println("go online");
-    	
-    	class FListener implements IFutureListener<CoedMessage> {
-    		private String fileName;
-    		private boolean isOnline;
-    		
-			public FListener(GoOnlineMsg msg) {
-				this.fileName = msg.getFileName();
-		
-				isOnline = server.isFileOnline(fileName);	
-				
-				if(!isOnline){
-					conn.replySeq(msg, new GoOnlineResultMsg(false)).addListener(this);
-				}
-				else
-				{
-					ServerFile sf = server.getServerFile(fileName);
-					onlineFiles.add(sf);
-					sf.addSession(Session.this);
-					conn.reply(msg, new GoOnlineResultMsg(true)).addErrorListener(this);
-				}
-			}
 
-			@Override
-			public void got(CoedMessage result) {
-				if(result instanceof SendContentsMsg) {
-					String contents = ((SendContentsMsg)result).getContents();
-					//System.out.println("got contents " + contents);
-					try{
-						server.addNewFile(fileName,((SendContentsMsg)result).getContents());
-						ServerFile sf = server.getServerFile(fileName);
-						onlineFiles.add(sf);
-						sf.addSession(Session.this);
-					}
-					catch(IOException ex) {}
-				}
-			}
+    	Integer id = server.createSession(msg.getFileName(), msg.getContents());
+    	conn.reply(msg, new CreateSessionResultMsg(id));
+    }
+    
+    public void handleMessage(JoinSessionMsg msg) {
+    	System.out.println("go online");
 
-			@Override
-			public void caught(Throwable e) {
-				// TODO: handle the error
-			}
+    	if(!server.existsSession(msg.getId())) {
+    		conn.reply(msg, new NoSuchSessionException());
+    	} else {
+    		String contents = server.joinSession(msg.getId());
+    		conn.reply(msg, new JoinReplyMsg(contents));
     	}
-    	
-    	new FListener(msg);
+    		
     }
 }

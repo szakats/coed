@@ -150,4 +150,9 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 	public void disconnect() {
 		conn.disconnect();
 	}
+
+	@Override
+	public IFuture<Void> reply(CoedMessage to, Throwable exception) {
+		return conn.reply(to, exception);
+	}
 }

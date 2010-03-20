@@ -20,8 +20,8 @@ import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.FileChangedMsg;
 import coed.collab.protocol.GetChangesMsg;
 import coed.collab.protocol.GetChangesReplyMsg;
-import coed.collab.protocol.GoOnlineMsg;
-import coed.collab.protocol.GoOnlineResultMsg;
+import coed.collab.protocol.CreateSessionMsg;
+import coed.collab.protocol.CreateSessionResultMsg;
 import coed.collab.protocol.ReleaseLockMsg;
 import coed.collab.protocol.RequestLockMsg;
 import coed.collab.protocol.RequestLockReplyMsg;
@@ -135,9 +135,9 @@ public class SessionTest {
 		session1.setUserName("userName1");
 		session2.setUserName("userName2");
 		//the file is not already online
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 		//now there should have been sent a GoOnlineResult<false> msg to the connection
-		assertTrue( !((GoOnlineResultMsg)message1).isAlreadyOnline() );
+		assertTrue( !((CreateSessionResultMsg)message1).isAlreadyOnline() );
 		//thus, file is not already online.
 		try{
 			Thread.sleep(100);
@@ -151,8 +151,8 @@ public class SessionTest {
 		
 		//if we try to put the file now online again, it should return that it is
 		//already online, sending back GoOnlineResultMsg<true>
-		session2.received(new GoOnlineMsg("fileName"));
-		assertTrue( ((GoOnlineResultMsg)message2).isAlreadyOnline() );
+		session2.received(new CreateSessionMsg("fileName"));
+		assertTrue( ((CreateSessionResultMsg)message2).isAlreadyOnline() );
 		
 		//but, session2 should be registered to this file as well
 		assertEquals(server.getServerFile("fileName").getActiveUsers().length,2);
@@ -163,9 +163,9 @@ public class SessionTest {
 		session1.setUserName("userName1");
 		session2.setUserName("userName2");
 		//put file online
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 		//register session2 to that file
-		session2.received(new GoOnlineMsg("fileName"));
+		session2.received(new CreateSessionMsg("fileName"));
 		
 		//lock portion (3,3) by session1
 		session1.received(new RequestLockMsg("fileName",new TextPortion(3,3)));
@@ -186,9 +186,9 @@ public class SessionTest {
 		session1.setUserName("userName1");
 		session2.setUserName("userName2");
 		
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 		//register session2 to that file
-		session2.received(new GoOnlineMsg("fileName"));
+		session2.received(new CreateSessionMsg("fileName"));
 		
 		//lock portion (3,3) by session1
 		session1.received(new RequestLockMsg("fileName",new TextPortion(3,3)));
@@ -216,11 +216,11 @@ public class SessionTest {
 	public void testSendChangesMsg(){
 		//put file online
 		session1.setUserName("userName1");
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 	
 		//register session2 to that file
 		session2.setUserName("userName2");
-		session2.received(new GoOnlineMsg("fileName"));
+		session2.received(new CreateSessionMsg("fileName"));
 		
 		//send change, but do not put listener on the file
 		TextModification[] mods = new TextModification[1];
@@ -236,9 +236,9 @@ public class SessionTest {
 		session1.setUserName("userName1");
 		session2.setUserName("userName2");
 		//put file online
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 		//register session2 to that file
-		session2.received(new GoOnlineMsg("fileName"));
+		session2.received(new CreateSessionMsg("fileName"));
 		
 		//send change, but do not put listener on the file
 		TextModification[] mods = new TextModification[1];
@@ -265,9 +265,9 @@ public class SessionTest {
 		session2.setUserName("userName2");
 		
 		//put file online
-		session1.received(new GoOnlineMsg("fileName"));
+		session1.received(new CreateSessionMsg("fileName"));
 		//register session2 to that file
-		session2.received(new GoOnlineMsg("fileName"));
+		session2.received(new CreateSessionMsg("fileName"));
 		
 		//add ChangeListener for the first session
 		session1.received(new AddChangedListenerMsg("fileName"));
@@ -279,7 +279,7 @@ public class SessionTest {
 		
 		//now if we verify the last received message , it should be the response for the
 		//goOnline request, thus, no FileChanged message was received by this session
-		assertTrue(message1 instanceof GoOnlineResultMsg);
+		assertTrue(message1 instanceof CreateSessionResultMsg);
 		
 		//add ChangeListener for the second session
 		session2.received(new AddChangedListenerMsg("fileName"));

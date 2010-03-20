@@ -1,7 +1,7 @@
 package coed.base.comm;
 
-import coed.base.data.ICoedObject;
-import coed.base.data.ICollabObject;
+import coed.base.data.ICoedFile;
+import coed.base.data.ICollabFilePart;
 import coed.base.util.IFuture;
 
 /**
@@ -38,20 +38,12 @@ public interface ICoedCollaborator {
 	    * @param stateObserver
 	    */
 	   public void removeStateListener(ICollabStateListener stateObserver);
-
-	   /**
-	    * Make a new a ICollabObject and set it as a child of the given ICoedObject.
-	    * The new object will be created in accordance with the path in its parent.
-	    * @param obj the parent of the object to be created
-	    * @return the new collaboration
-	    */
-	   public ICollabObject makeCollabObject(ICoedObject obj);
 	   
 	   /**
 	    * Return all files which have been put online.
 	    * @return
 	    */
-	   public IFuture<ICollabObject[]> getAllOnlineFiles();
+	   public IFuture<ICollabFilePart[]> getAllOnlineFiles();
 	   
 	   /**
 	    * Start trying to connect to the collaboration server

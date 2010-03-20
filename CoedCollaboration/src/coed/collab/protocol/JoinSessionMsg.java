@@ -1,7 +1,14 @@
+/**
+ * 
+ */
 package coed.collab.protocol;
 
-public class FileChangedMsg extends CoedMessage {
-	private Integer id;
+/**
+ * @author szakats
+ *
+ */
+public class JoinSessionMsg extends CoedMessage {
+	public Integer id;
 
 	public Integer getId() {
 		return id;
@@ -11,8 +18,9 @@ public class FileChangedMsg extends CoedMessage {
 		this.id = id;
 	}
 
-	public FileChangedMsg(Integer id) {
+	public JoinSessionMsg(Integer id) {
 		super();
 		this.id = id;
 	}
+	
 }

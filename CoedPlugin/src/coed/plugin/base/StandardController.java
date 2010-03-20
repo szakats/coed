@@ -31,7 +31,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
 import coed.base.config.Config;
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
@@ -70,7 +70,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	/**
 	 * Currently managed editors, coupled with their ICoedObjects
 	 */
-	private HashMap<AbstractDecoratedTextEditor,ICoedObject> editors;
+	private HashMap<AbstractDecoratedTextEditor,ICoedFile> editors;
 	
 	/**
 	 * The editor which is on-top at the moment
@@ -163,7 +163,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 				}
 		}
 		
-		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedObject>();
+		this.editors = new HashMap<AbstractDecoratedTextEditor, ICoedFile>();
 		this.annotations = new ArrayList<Annotation>(); 
 		this.activeEditor = null;
 	}
@@ -195,7 +195,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 		if (this.userList.equals(userl)) this.userList=null;
 	}
 	
-	private ICoedObject findCoedFileFor(AbstractDecoratedTextEditor texte) throws GetFileInEditorException{
+	private ICoedFile findCoedFileFor(AbstractDecoratedTextEditor texte) throws GetFileInEditorException{
 	   IFile file =null;
 	    	
 	   file = (IFile) texte.getEditorInput().getAdapter(IFile.class);
@@ -327,7 +327,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 
 	@Override
-	public String[] getCollabUsers(ICoedObject file) {
+	public String[] getCollabUsers(ICoedFile file) {
 		try {
 			return file.getActiveUsers().get();
 		} catch (InterruptedException e) {
@@ -341,7 +341,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	}
 
 	@Override
-	public boolean requestVersionAction(String action, ICoedObject file) {
+	public boolean requestVersionAction(String action, ICoedFile file) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -399,7 +399,7 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	//At this moment it will update the active document, and ignore other updates.
 	//ATTENTION: This is just an informing method, it does not contain the actual data
 	
-	public synchronized void hasChanges(ICoedObject file) {
+	public synchronized void hasChanges(ICoedFile file) {
 		//TODO: real equality checking
 		logger.info("Collab file has changes: "+file.getPath());
 		//if (activeEditor!=null && editors.get(activeEditor).getPath().equals(file.getPath())) {
@@ -487,17 +487,17 @@ public class StandardController implements IPluginController, IPartListener, IFi
 	 *
 	 */
 	class DocumentUpdater implements Runnable {
-		private ICoedObject file;
+		private ICoedFile file;
 		private IDocument doc;
 		private IDocumentListener outer;
 		
-		public DocumentUpdater(ICoedObject file, IDocument doc, IDocumentListener outer) {
+		public DocumentUpdater(ICoedFile file, IDocument doc, IDocumentListener outer) {
 			this.file=file;
 			this.doc=doc;
 			 this.outer=outer;
 		}
 		
-		public void showChanges(ICoedObject file, IDocument doc) throws BadLocationException, NotConnectedException {
+		public void showChanges(ICoedFile file, IDocument doc) throws BadLocationException, NotConnectedException {
 			IFuture<TextModification[]> modsF;
 			TextModification[] mods = null;
 			try {

@@ -3,7 +3,7 @@ package coed.plugin.mocksfordebug;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.base.data.ICollabObject;
 import coed.base.data.IVersionedObject;
 import coed.base.data.exceptions.InvalidConfigFileException;
@@ -17,13 +17,13 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	}
 	
 	@Override
-	public ICoedObject addObject(String path) {
+	public ICoedFile addObject(String path) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ICoedObject getObject(String path) {
+	public ICoedFile getObject(String path) {
 		System.out.println("Mock created for:"+path);
 		return new MockCoedObject(path);
 	}
@@ -42,7 +42,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	}
 
 	@Override
-	public IVersionedObject makeVersionedObject(ICoedObject obj) {
+	public IVersionedObject makeVersionedObject(ICoedFile obj) {
 		// TODO Auto-generated method stub
 		return (IVersionedObject) new MockCoedObject(obj.getPath());
 	}
@@ -60,7 +60,7 @@ public class MockCoedCollaborator implements coed.base.comm.ICoedCommunicator {
 	}
 
 	@Override
-	public ICollabObject makeCollabObject(ICoedObject obj) {
+	public ICollabObject makeCollabObject(ICoedFile obj) {
 		// TODO Auto-generated method stub
 		return null;
 	}

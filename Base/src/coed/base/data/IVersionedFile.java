@@ -1,6 +1,6 @@
 package coed.base.data;
 
-public interface IVersionedPart {
+public interface IVersionedFile {
 	public boolean commit();
 	public boolean checkout();
 }

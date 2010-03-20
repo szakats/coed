@@ -107,7 +107,7 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
     	synchronized(this) {
 	    	l = seqListeners.remove(new Long(id));
     	}
-    	
+    
 	    if(l != null)
 	    	l.received(msg);
 	    else
@@ -166,7 +166,10 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 	
 				@Override
 				public void received(CoedMessage msg) {
-					future.set(msg);
+			    	if(msg instanceof ExceptionMsg)
+			    		future.throwEx(((ExceptionMsg)msg).getException());
+			    	else
+			    		future.set(msg);
 				}
 	
 				@Override
@@ -218,5 +221,27 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 		System.out.println("connection closed.");
 		for(ICoedConnectionListener listener : allListeners)
 			listener.disconnected();
+	}
+	
+	class ExceptionMsg extends CoedMessage {
+		public Throwable exception;
+
+		public Throwable getException() {
+			return exception;
+		}
+
+		public void setException(Throwable exception) {
+			this.exception = exception;
+		}
+
+		public ExceptionMsg(Throwable exception) {
+			super();
+			this.exception = exception;
+		}
+	}
+
+	@Override
+	public IFuture<Void> reply(CoedMessage to, Throwable exception) {
+		return reply(to, new ExceptionMsg(exception));
 	}
 }

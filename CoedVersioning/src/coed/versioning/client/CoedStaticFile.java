@@ -1,13 +1,13 @@
 package coed.versioning.client;
 
-import coed.base.data.ICoedObject;
-import coed.base.data.IVersionedObject;
+import coed.base.data.ICoedFile;
+import coed.base.data.IVersionedFilePart;
 
-public class CoedStaticFile implements IVersionedObject {
+public class CoedStaticFile implements IVersionedFilePart {
 	private StaticVersioner ver;
-	private ICoedObject obj;
+	private ICoedFile obj;
 	
-	public CoedStaticFile(ICoedObject obj, StaticVersioner ver) {
+	public CoedStaticFile(ICoedFile obj, StaticVersioner ver) {
 		this.obj = obj;
 		this.ver = ver;
 	}
@@ -25,7 +25,7 @@ public class CoedStaticFile implements IVersionedObject {
 	}
 
 	@Override
-	public ICoedObject getParent() {
+	public ICoedFile getParent() {
 		return obj;
 	}
 

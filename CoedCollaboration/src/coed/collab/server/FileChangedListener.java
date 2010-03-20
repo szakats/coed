@@ -51,7 +51,8 @@ public class FileChangedListener{
 			// the first change occurred since the session got the changes. 
 			//send a message.
 			System.out.println("fileChangedListener sendind changed notification");
-			session.getConn().send(new FileChangedMsg(fileName));
+			//session.getConn().send(new FileChangedMsg(fileName));
+			//TODO: fielname -> id
 		}
 		this.setStatus(status);
 		//System.out.println("wow, that changed");

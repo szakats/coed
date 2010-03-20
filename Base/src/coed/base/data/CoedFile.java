@@ -9,19 +9,17 @@ import coed.base.util.IFuture;
  * @author Neobi
  *
  */
-public class CoedObject implements ICoedObject {
+public class CoedFile implements ICoedFile {
 	
-	private IVersionedObject vo;
-	private ICollabObject co;
+	private IVersionedFilePart vo;
+	private ICollabFilePart co;
 	private String path;
-	private boolean isFile;
 	
-	public CoedObject(String path, boolean isFile) {
+	public CoedFile(String path) {
 		this.path = path;
-		this.isFile = isFile;
 	}
 	
-	public void init(IVersionedObject vo, ICollabObject co) {
+	public void init(IVersionedFilePart vo, ICollabFilePart co) {
 		this.co = co;
 		this.vo = vo;
 	}
@@ -72,27 +70,27 @@ public class CoedObject implements ICoedObject {
 	}
 
 	@Override
-	public IFuture<Void> goOffline() {
-		return co.goOffline();
-	}
-
-	@Override
-	public IFuture<String> goOnline(String contents) {
-		return co.goOnline(contents);
+	public IFuture<Void> endSession() {
+		return co.endSession();
 	}
 
 	@Override
 	public String getPath() {
 		return this.path;
 	}
-	
-	@Override
-	public boolean isFile(){
-		return this.isFile;
-	}
 
 	@Override
 	public IFuture<String> getRemoteContents() {
 		return co.getRemoteContents();
+	}
+
+	@Override
+	public Integer getId() {
+		return co.getId();
+	}
+
+	@Override
+	public IFuture<Void> goOffline() {
+		return co.goOffline();
 	}
 }

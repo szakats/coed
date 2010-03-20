@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import coed.collab.connection.CoedConnection;
 import coed.collab.connection.CoedConnectionAcceptor;
+import coed.collab.protocol.CreateSessionResultMsg;
+import coed.collab.protocol.SendContentsMsg;
 
 public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 
@@ -48,5 +50,30 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	
 	public boolean validateUser(String user, String password){
 		return um.validateUser(user, password);
+	}
+	
+	public Integer createSession(String path, String contents) {
+		/* String contents = ((SendContentsMsg)result).getContents();
+		//System.out.println("got contents " + contents);
+		try{
+			server.addNewFile(fileName,((SendContentsMsg)result).getContents());
+			ServerFile sf = server.getServerFile(fileName);
+			onlineFiles.add(sf);
+			sf.addSession(Session.this);
+		}
+		catch(IOException ex) {}*/
+		return 0;
+	}
+	
+	public String joinSession(Integer id) {
+		/*ServerFile sf = server.getServerFile(fileName);
+		onlineFiles.add(sf);
+		sf.addSession(Session.this);
+		conn.reply(msg, new CreateSessionResultMsg(true)).addErrorListener(this);*/
+		return "";
+	}
+	
+	public boolean existsSession(Integer id) {
+		return true;
 	}
 }

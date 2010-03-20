@@ -1,6 +1,6 @@
 package coed.plugin.views;
 
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 
 /**
  * Interface for a view which will display files that are edited 
@@ -17,14 +17,14 @@ public interface IFileTree {
 	 * containing directories,subdirectories and the respective files
 	 * @param files - array of coed objects
 	 */
-	public void displayFileTree(ICoedObject[] files);
+	public void displayFileTree(ICoedFile[] files);
 	
 	/**
 	 * Method that receives a file and adds it to the file tree
 	 * structure. If the structure does not exists, it is created.
 	 * @param file - file that must be added to tree structure
 	 */
-	public void displayFile(ICoedObject file);
+	public void displayFile(ICoedFile file);
 	
 	/**
 	 * Method that receives a file as argument and has to remove it
@@ -32,7 +32,7 @@ public interface IFileTree {
 	 * nothing happens.
 	 * @param file - file that must be removed
 	 */
-	public void removeFile(ICoedObject file);
+	public void removeFile(ICoedFile file);
 	
 	/**
 	 * Method used to delete the file tree when user goes offline

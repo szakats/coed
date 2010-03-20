@@ -2,14 +2,21 @@ package coed.collab.client;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import coed.base.comm.ICoedCollaborator;
+import coed.base.comm.ICoedCollaboratorPart;
 import coed.base.comm.ICollabStateListener;
 import coed.base.config.ICoedConfig;
-import coed.base.data.ICoedObject;
-import coed.base.data.ICollabObject;
+import coed.base.data.CoedFile;
+import coed.base.data.ICoedFile;
+import coed.base.data.ICollabFile;
+import coed.base.data.ICollabFilePart;
 import coed.base.data.exceptions.NotConnectedException;
+import coed.base.util.CoedFuture;
+import coed.base.util.CoedFuture2;
 import coed.base.util.IFuture;
+import coed.base.util.IFuture2;
 import coed.base.util.IFutureListener;
 import coed.collab.connection.CoedKeepAliveConnection;
 import coed.collab.connection.ICoedConnection;
@@ -18,6 +25,10 @@ import coed.collab.protocol.AuthenticationReplyMsg;
 import coed.collab.protocol.AuthentificationMsg;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.FileChangedMsg;
+import coed.collab.protocol.CreateSessionMsg;
+import coed.collab.protocol.CreateSessionResultMsg;
+import coed.collab.protocol.JoinReplyMsg;
+import coed.collab.protocol.JoinSessionMsg;
 
 
 /**
@@ -28,15 +39,15 @@ import coed.collab.protocol.FileChangedMsg;
  * @author Neobi
  *
  */
-public class CollaboratorClient implements ICoedCollaborator {
+public class CollaboratorClient implements ICoedCollaboratorPart {
 	
 	private CoedKeepAliveConnection conn;
 	private int nrOnlineFiles;
 	private LinkedList<ICollabStateListener> stateListeners;
 	/// cache for storing path-CoedObject pairs
-	private HashMap<String,ICollabObject> cache;
 	private String state;
 	private ConnectionListener connListener = new ConnectionListener();
+	private Map<Integer, ICoedFile> cache; 
 	
 	private String basePath;
 	
@@ -48,9 +59,9 @@ public class CollaboratorClient implements ICoedCollaborator {
 	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
 		stateListeners = new LinkedList<ICollabStateListener>();
-		cache = new HashMap<String,ICollabObject>();
 		this.basePath = basePath;
 		this.conf = conf;
+		cache = new HashMap<Integer, ICoedFile>();
 		setState(STATUS_OFFLINE);
 
 		host = conf.getString("server.host");
@@ -87,28 +98,6 @@ public class CollaboratorClient implements ICoedCollaborator {
 	@Override
 	public void removeStateListener(ICollabStateListener stateObserver) {
 		stateListeners.remove(stateObserver);
-	}
-	
-	/**
-	 * Creates a CollabObject from a CoedObject, if called for first time.
-	 * If the collabObject is already present in the system, then a reference to
-	 * it is returned. Else, the object is created, stored in the cache memory 
-	 * of the CollaboratorClient, and the reference is returned. Polymorphically 
-	 * creates CollebFile or CollabFolder, depending or wether or not the argument 
-	 * given was a file or folder.
-	 */
-	@Override
-	public ICollabObject makeCollabObject(ICoedObject obj) {
-		ICollabObject ret = null;
-		if (! cache.containsKey(obj.getPath() )){
-			if(obj.isFile()) {
-				ret = new CoedCollabFile(obj, this);
-			} else
-				ret = new CoedCollabFolder(obj, this);
-			cache.put(obj.getPath(), ret);
-		} else 
-			ret = cache.get(obj.getPath());
-		return ret;
 	}
 	
 	public ICoedConnection getConn() {
@@ -150,7 +139,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 		
 		public void handleMessage(FileChangedMsg msg) {
 			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
-			ICollabObject obj = cache.get(msg.getFileName());
+			ICoedFile obj = cache.get(msg.getId());
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
@@ -178,7 +167,7 @@ public class CollaboratorClient implements ICoedCollaborator {
 	}
 
 	@Override
-	public IFuture<ICollabObject[]> getAllOnlineFiles() {
+	public IFuture<ICollabFilePart[]> getAllOnlineFiles() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -199,5 +188,85 @@ public class CollaboratorClient implements ICoedCollaborator {
 			conn = new CoedKeepAliveConnection(host, port);
 			conn.addListener(connListener);
 		}
+	}
+	
+	ICollabFilePart makeCollabFile(ICoedFile file, Integer id) {
+		cache.put(id, file);
+		return new CoedCollabFile(file, this, id);
+	}
+	
+	@Override
+	public IFuture<ICollabFilePart> createCollabSession(String path, String contents, CoedFile file) {
+		// listener class for future messages in the sequence
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<ICollabFilePart> ret = new CoedFuture<ICollabFilePart>();
+			public CoedFile file;
+		
+			public FListener(CoedFile file) {
+				this.file = file;
+			}
+
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof CreateSessionResultMsg) {
+					CreateSessionResultMsg msg = ((CreateSessionResultMsg)result);
+					ret.set(makeCollabFile(file, msg.getId()));
+				} else
+					ret.throwEx(new Exception("unknown message received"));
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				// if an error occured anywhere along the sequence
+				// then pass the error along to the chained future
+				ret.throwEx(e);
+			}
+		}
+
+		FListener fl = new FListener(file);
+		// send the path to the file and its contents
+		conn.sendSeq(new CreateSessionMsg(path, contents))
+			.addListener(fl); // expects a CreateSessionResultMsg
+		return fl.ret;
+	}
+
+	@Override
+	public IFuture2<ICollabFilePart, String> joinCollabSession(String path, Integer id, CoedFile file) {
+		// listener class for future messages in the sequence
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture2<ICollabFilePart, String> ret = new CoedFuture2<ICollabFilePart, String>();
+			public CoedFile file;
+			public Integer id;
+			public String path;
+		
+			public FListener(String path, Integer id, CoedFile file) {
+				this.path = path;
+				this.id = id;
+				this.file = file;
+			}
+
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof JoinReplyMsg) {
+					JoinReplyMsg msg = ((JoinReplyMsg)result);
+					String remoteContents = msg.getContents();
+					System.out.println("got remote contents: " + remoteContents);
+					ret.set(makeCollabFile(file, id), remoteContents);
+				}
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				// if an error occured anywhere along the sequence
+				// then pass the error along to the chained future
+				ret.throwEx(e);
+			}
+		}
+
+		FListener fl = new FListener(path, id, file);
+		// first send which file should be shared
+		conn.sendSeq(new JoinSessionMsg(id))
+			.addListener(fl); // expects a GoOnlineResultMsg
+		return fl.ret;
 	}
 }

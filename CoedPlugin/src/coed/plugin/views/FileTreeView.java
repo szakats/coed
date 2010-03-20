@@ -17,7 +17,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
 
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.plugin.base.Activator;
 import coed.plugin.mocksfordebug.MockCoedObject;
 
@@ -205,7 +205,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 			return sorted;
 		}
 		
-		private boolean remove(ICoedObject file1){
+		private boolean remove(ICoedFile file1){
 			String[] temp=null;
 			try {
 				temp=processString(file1.getPath());
@@ -263,7 +263,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		 * Function that adds a file to the file tree
 		 * @param file1 - file that must be added
 		 */
-		private void add(ICoedObject file1){
+		private void add(ICoedFile file1){
 			String[] temp=null;
 			int j;
 			if(invisibleRoot==null) invisibleRoot = new TreeParent("");
@@ -322,7 +322,7 @@ public class FileTreeView extends ViewPart implements IFileTree{
 		 * Function that processes the array of files and creates the tree structure
 		 * @param files - array containing all files
 		 */
-		private void initialize(ICoedObject[] files) {
+		private void initialize(ICoedFile[] files) {
 			int nrOfFiles=files.length;
 			String[] temp=null;
 			String[] paths= new String[files.length];
@@ -440,19 +440,19 @@ public class FileTreeView extends ViewPart implements IFileTree{
 	 * Method used to display the File Tree in a view
 	 * @param files - ICoedObject array containing the files that will be displayed
 	 */
-	public void displayFileTree(ICoedObject[] files) {
+	public void displayFileTree(ICoedFile[] files) {
 		v.initialize(files);
 		viewer.setContentProvider(v);
 		viewer.setInput(getViewSite());
 	}
 	
-	public void displayFile(ICoedObject file){
+	public void displayFile(ICoedFile file){
 		v.add(file);
 		viewer.setContentProvider(v);
 		viewer.setInput(getViewSite());
 	}
 	
-	public void removeFile(ICoedObject file){
+	public void removeFile(ICoedFile file){
 		if(v.remove(file))
 		{
 			viewer.setContentProvider(v);

@@ -9,6 +9,6 @@ package coed.base.data;
  */
 public interface IFileChangeListener {
    
-   public void hasChanges(ICoedObject file);
+   public void hasChanges(ICoedFile file);
    
 }

@@ -4,8 +4,8 @@
 package coed.collab.client;
 
 import java.util.LinkedList;
-import coed.base.data.ICoedObject;
-import coed.base.data.ICollabObject;
+import coed.base.data.ICoedFile;
+import coed.base.data.ICollabFilePart;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
@@ -20,12 +20,13 @@ import coed.collab.protocol.*;
  * @author Neobi008
  *
  */
-public class CoedCollabFile implements ICollabObject {
+public class CoedCollabFile implements ICollabFilePart {
 	
 	private CollaboratorClient coll;
-	private ICoedObject obj;
+	private ICoedFile obj;
 	private boolean isWorkingOnline;
 	private LinkedList<IFileChangeListener> fileObservers;
+	private Integer id;
 	
 	private <T> boolean ensureOnline(CoedFuture<T> future) {
 		if(!isWorkingOnline) {
@@ -44,14 +45,16 @@ public class CoedCollabFile implements ICollabObject {
 			assert false;
 	}
 	
-	public CoedCollabFile(ICoedObject obj, CollaboratorClient coll) {
+	public CoedCollabFile(ICoedFile obj, CollaboratorClient coll, Integer id) {
 		this.obj = obj;
 		this.coll = coll;
+		this.id = id;
 		this.fileObservers = new LinkedList<IFileChangeListener>();
+		this.isWorkingOnline = true;
 	}
 	
 	@Override
-	public ICoedObject getParent() {
+	public ICoedFile getParent() {
 		return obj;
 	}
 	
@@ -152,66 +155,8 @@ public class CoedCollabFile implements ICollabObject {
 		}
 		return ret;
 	}
-
 	
-	@Override
-	public IFuture<String> goOnline(String contents) {
-		
-		// listener class for future messages in the sequence
-		class FListener implements IFutureListener<CoedMessage> {
-			public CoedFuture<String> ret = new CoedFuture<String>();
-			public String localContents;
-		
-			public FListener(String localContents) {
-				this.localContents = localContents;
-			}
-			
-			void finish(String contents) {
-				//notify the chained future of the result
-				isWorkingOnline = true;
-				ret.set(contents);
-			}
-
-			@Override
-			public void got(CoedMessage result) {
-				if(result instanceof GoOnlineResultMsg) {
-					GoOnlineResultMsg msg = ((GoOnlineResultMsg)result);
-					System.out.println("got online result: " + msg.isAlreadyOnline());
-					if(msg.isAlreadyOnline()) {
-						// if online, get the remote contents for this file
-						coll.getConn().sendSeq(new GetContentsMsg(getParent().getPath()))
-							.addListener(this);	// expects a SendContentsMsg
-					} else {
-						// otherwise send the local contents of the file
-						coll.getConn().reply(msg, new SendContentsMsg(localContents))
-							.addErrorListener(this);
-						// no new contents was received, return null
-						finish(null);
-					}
-				} else if(result instanceof SendContentsMsg) {
-					String remoteContents = ((SendContentsMsg)result).getContents();
-					System.out.println("got remote contents: " + remoteContents);
-					// return the remote contents
-					finish(remoteContents);
-				}
-			}
-
-			@Override
-			public void caught(Throwable e) {
-				// if an error occured anywhere along the sequence
-				// then pass the error along to the chained future
-				ret.throwEx(e);
-			}
-		}
-
-		FListener fl = new FListener(contents);
-		// first send which file should be shared
-		coll.getConn().sendSeq(new GoOnlineMsg(getParent().getPath()))
-			.addListener(fl); // expects a GoOnlineResultMsg
-		return fl.ret;
-	}
-	
-	public void notifyChangeListeners(ICoedObject obj) {
+	public void notifyChangeListeners(ICoedFile obj) {
 		for(IFileChangeListener obs : fileObservers)
 			obs.hasChanges(obj);
 	}
@@ -237,5 +182,21 @@ public class CoedCollabFile implements ICollabObject {
 		if(ensureOnline(fl.ret))
 			coll.getConn().sendSeq(new GetContentsMsg(getParent().getPath())).addListener(fl);
 		return fl.ret;
+	}
+
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	@Override
+	public IFuture<Void> endSession() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Integer getId() {
+		return id;
 	}
 }

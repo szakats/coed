@@ -6,8 +6,8 @@ import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICollabStateListener;
 import coed.base.config.Config;
 import coed.base.config.ICoedConfig;
-import coed.base.data.CoedObject;
-import coed.base.data.ICoedObject;
+import coed.base.data.CoedFile;
+import coed.base.data.ICoedFile;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
@@ -27,7 +27,7 @@ public class ClientMain {
 	 */
 	class Client extends Thread implements ICollabStateListener {
 		protected CollaboratorClient collab;
-		protected CoedObject obj;
+		protected CoedFile obj;
 		protected ICoedConfig config = new Config();
 		
 		Client() {
@@ -43,7 +43,7 @@ public class ClientMain {
 			collab = new CollaboratorClient(config, "");
 			StaticVersioner vers = new StaticVersioner();
 			
-			obj = new CoedObject("file", true);
+			obj = new CoedFile("file", true);
 			obj.init(vers.makeVersionedObject(obj), collab.makeCollabObject(obj));
 			
 			collab.addStateListener(this);
@@ -137,7 +137,7 @@ public class ClientMain {
 		}
 
 		@Override
-		public synchronized void hasChanges(ICoedObject file) {
+		public synchronized void hasChanges(ICoedFile file) {
 			System.out.println("client2 got notified of new changes");
 			notify();
 		}

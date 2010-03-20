@@ -7,24 +7,24 @@ import java.util.concurrent.ExecutionException;
 import org.apache.log4j.Logger;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.base.data.TextPortion;
 import coed.plugin.base.StandardController;
 
 public class BasicTextLockManager implements ITextLockManager {
 	private static Logger logger = Logger.getLogger(BasicTextLockManager.class.toString()); 
 	private Integer delay;
-	private HashMap<ICoedObject,ArrayList<TextPortion>> activeLocks;
-	private HashMap<ICoedObject,ArrayList<TextPortion>> waitingLocks;
+	private HashMap<ICoedFile,ArrayList<TextPortion>> activeLocks;
+	private HashMap<ICoedFile,ArrayList<TextPortion>> waitingLocks;
 	
 	public BasicTextLockManager(Integer releaseDelay) {
 		this.delay=releaseDelay;
-		activeLocks = new HashMap<ICoedObject, ArrayList<TextPortion>>();
-		waitingLocks = new HashMap<ICoedObject, ArrayList<TextPortion>>();
+		activeLocks = new HashMap<ICoedFile, ArrayList<TextPortion>>();
+		waitingLocks = new HashMap<ICoedFile, ArrayList<TextPortion>>();
 	}
 
 	@Override
-	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedObject coedo, TextPortion textp) {
+	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedFile coedo, TextPortion textp) {
 		TextPortion newLock = getLockZone(texte, textp);
 		
 		logger.info("Lock for zone "+textp+" is: "+newLock);
@@ -66,12 +66,12 @@ public class BasicTextLockManager implements ITextLockManager {
 	}
 
 	@Override
-	public void findAndReleaseLocks(ICoedObject coedo, TextPortion zone) {
+	public void findAndReleaseLocks(ICoedFile coedo, TextPortion zone) {
 		// TODO Auto-generated method stub		
 	}
 
 	@Override
-	public void releaseLock(ICoedObject coedo, TextPortion ticket) {
+	public void releaseLock(ICoedFile coedo, TextPortion ticket) {
 		if (delay==0) {
 			logger.info("Lock is RELEASED for: "+ticket);
 			coedo.releaseLock(ticket);
@@ -86,10 +86,10 @@ public class BasicTextLockManager implements ITextLockManager {
 	
 	private class Releaser implements Runnable {
 		
-		private ICoedObject coedo;
+		private ICoedFile coedo;
 		private TextPortion ticket;
 
-		public Releaser(ICoedObject coedo, TextPortion ticket){
+		public Releaser(ICoedFile coedo, TextPortion ticket){
 			this.coedo=coedo;
 			this.ticket=ticket;
 		}

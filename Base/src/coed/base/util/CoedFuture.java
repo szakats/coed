@@ -112,6 +112,7 @@ public class CoedFuture<T> implements IFuture<T> {
 		notifyDone();
 	}
 	
+	@Override
 	public synchronized void chain(IFuture<T> future) {
 		addListener(new IFutureListener<T>() {
 			@Override

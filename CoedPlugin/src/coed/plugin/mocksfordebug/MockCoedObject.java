@@ -2,14 +2,14 @@ package coed.plugin.mocksfordebug;
 
 import java.util.ArrayList;
 
-import coed.base.data.ICoedObject;
+import coed.base.data.ICoedFile;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
 import coed.base.util.CoedFuture;
 import coed.base.util.IFuture;
 
-public class MockCoedObject implements ICoedObject {
+public class MockCoedObject implements ICoedFile {
 	private String path;
 	private TextModification change = new TextModification(1, 0, "xcc");
 	private ArrayList<IFileChangeListener> listeners;

@@ -3,15 +3,23 @@ package coed.collab.client;
 import java.io.File;
 
 import coed.base.comm.ICoedCollaborator;
+import coed.base.comm.ICoedCollaboratorPart;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICoedVersioner;
+import coed.base.comm.ICoedVersionerPart;
 import coed.base.comm.ICollabStateListener;
 import coed.base.config.ICoedConfig;
-import coed.base.data.CoedObject;
-import coed.base.data.ICoedObject;
-import coed.base.data.ICollabObject;
-import coed.base.data.IVersionedObject;
+import coed.base.data.CoedFile;
+import coed.base.data.ICoedFile;
+import coed.base.data.ICollabFilePart;
+import coed.base.data.IVersionedFilePart;
+import coed.base.util.CoedFuture;
+import coed.base.util.CoedFuture2;
 import coed.base.util.IFuture;
+import coed.base.util.IFuture2;
+import coed.base.util.IFuture2Listener;
+import coed.base.util.IFutureListener;
+import coed.collab.protocol.CoedMessage;
 
 /**
  * This represents an object that will deal with all kinds of communication between 
@@ -24,17 +32,17 @@ import coed.base.util.IFuture;
  */
 public class Communicator implements ICoedCommunicator {
 
-	private ICoedVersioner v;  // versioner
-	private ICoedCollaborator c; // collaborator
+	private ICoedVersionerPart v;  // versioner
+	private ICoedCollaboratorPart c; // collaborator
 	private ICoedConfig conf; //configurator, containing information regarding user account
-	
+
 	/**
 	 * the path relative to which the other paths are given
 	 * eg. the project path
 	 */
 	private String basePath; 
 	
-	public Communicator(ICoedVersioner versioner, ICoedCollaborator collaborator, ICoedConfig config, String basePath)
+	public Communicator(ICoedVersionerPart versioner, ICoedCollaboratorPart collaborator, ICoedConfig config, String basePath)
 	{
 		this.v = versioner;
 		this.c = collaborator;
@@ -42,11 +50,6 @@ public class Communicator implements ICoedCommunicator {
 		this.basePath = basePath;
 	}
 	
-	@Override
-	public String[] getProjectList() {
-		return null;
-	}
-
 	@Override
 	public String getState() {
 		return c.getState();
@@ -83,34 +86,7 @@ public class Communicator implements ICoedCommunicator {
 	}
 
 	@Override
-	public ICoedObject addObject(String path) {
-		return null;
-	}
-	
-	/**
-	 * Returns an ICoedObject given by the relative path
-	 */
-	@Override
-	public ICoedObject getObject(String path) {
-		// TODO Auto-generated method stub
-		File f = new File(basePath+path);
-		CoedObject ret = new CoedObject(path, f.isFile());
-		ret.init(makeVersionedObject(ret), makeCollabObject(ret));
-		return ret;
-	}
-
-	@Override
-	public IVersionedObject makeVersionedObject(ICoedObject obj) {
-		return v.makeVersionedObject(obj);
-	}
-
-	@Override
-	public ICollabObject makeCollabObject(ICoedObject obj) {
-		return c.makeCollabObject(obj);
-	}
-
-	@Override
-	public IFuture<ICollabObject[]> getAllOnlineFiles() {
+	public IFuture<ICollabFilePart[]> getAllOnlineFiles() {
 		return c.getAllOnlineFiles();
 	}
 
@@ -122,5 +98,62 @@ public class Communicator implements ICoedCommunicator {
 	@Override
 	public void startCollab() {
 		c.startCollab();
+	}
+	
+	class CreateSessionListener implements IFutureListener<ICollabFilePart> {
+		public CoedFuture<ICoedFile> future;
+		public CoedFile file;
+		
+		CreateSessionListener(String path) {
+			 file = new CoedFile(path);
+			 future = new CoedFuture<ICoedFile>();
+		}
+
+		@Override
+		public void got(ICollabFilePart result) {
+			file.init(v.makeVersionedFile(file), result); 
+			future.set(file);
+		}
+
+		@Override
+		public void caught(Throwable e) {
+			future.throwEx(e);
+		}
+	}
+	
+	class JoinSessionListener implements IFuture2Listener<ICollabFilePart, String> {
+		public CoedFuture2<ICoedFile, String> future;
+		public CoedFile file;
+		
+		JoinSessionListener(String path) {
+			 file = new CoedFile(path);
+			 future = new CoedFuture2<ICoedFile, String>();
+		}
+
+		@Override
+		public void got(ICollabFilePart part, String contents) {
+			file.init(v.makeVersionedFile(file), part); 
+			future.set(file, contents);
+		}
+
+		@Override
+		public void caught(Throwable e) {
+			future.throwEx(e);
+		}
+	}
+
+	@Override
+	public IFuture<ICoedFile> createSession(String path, String contents) {
+		CreateSessionListener fl = new CreateSessionListener(path);
+		c.createCollabSession(path, contents, null).addListener(fl);
+		return fl.future;
+	}
+
+	@Override
+	public IFuture2<ICoedFile, String> joinSession(String path, Integer id) {
+		
+		JoinSessionListener fl = new JoinSessionListener(path);
+		c.joinCollabSession(path, id, null).addListener(fl);
+		return fl.future;
 	}
 }

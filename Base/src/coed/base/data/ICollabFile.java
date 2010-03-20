@@ -1,8 +1,15 @@
+/**
+ * 
+ */
 package coed.base.data;
 
 import coed.base.util.IFuture;
 
-public interface ICollabPart {
+/**
+ * @author szakats
+ *
+ */
+public interface ICollabFile {
 
 	/**
 	 * Notify the server (and consequently other connected clients)
@@ -72,25 +79,18 @@ public interface ICollabPart {
   public IFuture<Boolean> releaseLock(TextPortion lock);
   
   /**
-   * Turn on the collaborative editing mode for this file,
-   * only works if the object is a file.
-   * The method takes the local version of the file and
-   * returns a future containing its remote version. 
-   * @param contents the contents of the local version
-   * 		of the file
-   * @return a future string containing the remote version
-   * 		of the file or if the file has not been registered
-   * 		as online yet or the content happens to be the same
-   * 		then a future null
-   * @throws future NotConnectedException
-   */
-  public IFuture<String> goOnline(String contents);
-  
-  /**
    * Turn off the collaborative mode for this file.
    * No further change updates will be received.
    * @throws future NotOnlineException
    * @return TODO
    */
+  public IFuture<Void> endSession();
+  
+  /**
+   * TODO
+   * @return
+   */
   public IFuture<Void> goOffline();
+  
+  public Integer getId();
 }

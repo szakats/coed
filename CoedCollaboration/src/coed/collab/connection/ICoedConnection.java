@@ -14,6 +14,7 @@ public interface ICoedConnection {
     public IFuture<CoedMessage> sendSeq(CoedMessage msg);
     
     public IFuture<Void> reply(CoedMessage to, CoedMessage with);
+    public IFuture<Void> reply(CoedMessage to, Throwable exception);
     
     public IFuture<CoedMessage> replySeq(CoedMessage to, CoedMessage with);
     
