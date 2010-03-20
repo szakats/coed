@@ -3,9 +3,11 @@
  */
 package coed.collab.server;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**Class for managing files on the server. Contains a synchronized map, that 
  * contains the path of the file as key, and the corresponding ServerFile object
@@ -93,4 +95,7 @@ public class FileManager {
 		}
 	}
 
+	public Collection<ServerFile> getServerFiles() {
+		return files.values();
+	}
 }

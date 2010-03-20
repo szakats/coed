@@ -64,4 +64,8 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	public boolean existsSession(Integer id) {
 		return true;
 	}
+	
+	public FileManager getFileManager() {
+		return this.fm;
+	}
 }

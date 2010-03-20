@@ -5,6 +5,7 @@ package coed.plugin.views.ui;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
@@ -30,7 +31,7 @@ import coed.plugin.views.model.ModelObject;
  * @author neobi008
  *
  */
-public abstract class SessionView extends ViewPart{
+public abstract class SessionView extends ViewPart implements IDoubleClickListener {
 	
 	private Text text;
 	private TreeViewer treeViewer;
@@ -81,6 +82,8 @@ public abstract class SessionView extends ViewPart{
 		
 		treeViewer.setInput(getModelRoot());
 		treeViewer.expandAll();
+		
+		treeViewer.addDoubleClickListener(this);
 	}
 	
 	protected AbstractDecoratedTextEditor getEditor() {
@@ -152,12 +155,12 @@ public abstract class SessionView extends ViewPart{
 			public void run() {
 				String state = Activator.getController().getCollabState();
 				if(state == ICoedCollaborator.STATUS_OFFLINE) {
-					Activator.getController().startCollaboration();
+					Activator.getController().loginToServer();
 					loginAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 							getImageDescriptor(ISharedImages.IMG_DEF_VIEW));
 					loginAction.setToolTipText("Logging in ...");
 				} else {
-					Activator.getController().endCollaboration();
+					Activator.getController().logoffFromServer();
 					loginAction.setToolTipText("Log in to the collaboration server");
 					loginAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 							getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
@@ -275,5 +278,9 @@ public abstract class SessionView extends ViewPart{
 		loginAction.setToolTipText("Log in to the collaboration server");
 		loginAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
 				getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
+	}
+	
+	public void refreshView() {
+		treeViewer.refresh(getModelRoot(), false);
 	}
 }

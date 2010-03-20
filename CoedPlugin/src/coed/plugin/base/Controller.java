@@ -25,6 +25,8 @@ import coed.base.comm.ICollabStateListener;
 import coed.base.data.ICoedFile;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
+import coed.base.util.IFuture2Listener;
+import coed.base.util.IFutureListener;
 import coed.base.util.Pair;
 import coed.collab.client.CoedCommunicatorFactory;
 import coed.plugin.views.ui.AllSessionsView;
@@ -84,17 +86,36 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 		String contents = getEditorContents(editor);
 		if(path != null && contents != null) {
 			ICoedFile coedFile;
-			try {
-				coedFile = communicator.createSession(path, contents).get();
-				editorToFile.put(editor, coedFile);
-				fileToEditor.put(coedFile, editor);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			class CreateJob implements Runnable {
+				String contents, path;
+				AbstractDecoratedTextEditor editor;
+			
+				public CreateJob(String contents, String path,
+						AbstractDecoratedTextEditor editor) {
+					super();
+					this.contents = contents;
+					this.path = path;
+					this.editor = editor;
+				}
+
+				@Override
+				public void run() {
+					try {
+						
+						ICoedFile coedFile = communicator.createSession(path, contents).get();
+						editorToFile.put(editor, coedFile);
+						fileToEditor.put(coedFile, editor);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
+			
+			Display.getDefault().asyncExec(new CreateJob(contents, path, editor));
 		}
 	}
 	
@@ -105,21 +126,24 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 		document.set(content);
 		document.addDocumentListener(this);
 	}
-
+	
 	@Override
 	public void joinSession(String path, Integer collabID) {
-		try {
-			Pair<ICoedFile, String> pair = communicator.joinSession(path, collabID).get();
-			AbstractDecoratedTextEditor editor = fileToEditor.get(pair.getFirst());
-			assert editor != null;
-			setEditorContent(editor, pair.getSecond());
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		class FListener implements IFuture2Listener<ICoedFile, String> {
+
+			@Override
+			public void got(ICoedFile result1, String result2) {
+				AbstractDecoratedTextEditor editor = fileToEditor.get(result1);
+				assert editor != null;
+				setEditorContent(editor, result2);
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				e.printStackTrace();
+			}
 		}
+		communicator.joinSession(path, collabID).addListener(new FListener());
 	}
 
 	@Override
@@ -132,18 +156,46 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 	public void collabStateChanged(String to) {
 		if(to == ICoedCollaborator.STATUS_CONNECTED) {
 			allSessionsView.notifyConnected();
+			
+			if(allSessionsView != null) {
+				class GetSessionJob implements Runnable {
+
+					@Override
+					public void run() {
+						try {
+							Map<Integer, String> sessionMap = communicator.getCollabSessions().get();
+							for(Map.Entry<Integer, String> e : sessionMap.entrySet()) {
+								allSessionsView.addFile(e.getValue(), e.getKey().toString());
+								System.out.println("got session " + e.getKey());
+							}
+							if(!sessionMap.isEmpty()) {
+								allSessionsView.refreshView();
+							}
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (ExecutionException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				
+				Display.getDefault().asyncExec(new GetSessionJob());
+			}
 		}
 	}
 
 	@Override
-	public void endCollaboration() {
+	public void logoffFromServer() {
 		communicator.endCollab();
 	}
 
 	@Override
-	public void startCollaboration() {
+	public void loginToServer() {
 		communicator.startCollab();
 	}
+	
 
 	@Override
 	public String getCollabState() {
@@ -157,21 +209,18 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 
 	@Override
 	public void authenticationError() {
-		Display.getDefault().asyncExec(new AuthErrorMessage());
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				Status status = new Status(IStatus.ERROR, "CoED plugin", 0,
+						"Invalid username or password", null);
+
+		        // Display the dialog
+		        ErrorDialog.openError(Display.getCurrent().getActiveShell(),
+		            "CoED Error", "Authentication Failure", status);
+			}
+		});
 		allSessionsView.notifyAuthError();
-	}
-	
-	class AuthErrorMessage implements Runnable {
-
-		@Override
-		public void run() {
-			Status status = new Status(IStatus.ERROR, "CoED plugin", 0,
-					"Invalid username or password", null);
-
-	        // Display the dialog
-	        ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-	            "CoED Error", "Authentication Failure", status);
-		}
 	}
 
 	@Override

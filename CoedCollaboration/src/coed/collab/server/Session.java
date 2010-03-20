@@ -86,6 +86,10 @@ public class Session implements ICoedConnectionListener {
 	    		handleMessage((GetUserListMsg) msg);
 	    	else if( msg instanceof GoOfflineMsg)
 	    		handleMessage((GoOfflineMsg)msg);
+	    	else if( msg instanceof GetCollabSessionsMsg)
+	    		handleMessage((GetCollabSessionsMsg)msg);
+	    	else if( msg instanceof JoinSessionMsg)
+	    		handleMessage((JoinSessionMsg)msg);
 		}
 	}
 	
@@ -165,14 +169,24 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(JoinSessionMsg msg) {
-    	System.out.println("go online");
+    	System.out.println(getUserName() + " is joining session " + msg.getId());
 
     	if(!server.existsSession(msg.getId())) {
+    		System.out.println("Id " + msg.getId() + "does not exist");
     		conn.reply(msg, new NoSuchSessionException());
     	} else {
     		String contents = server.joinSession(msg.getId(),this);
     		conn.reply(msg, new JoinReplyMsg(contents));
     	}
-    		
+    }
+    
+    public void handleMessage(GetCollabSessionsMsg msg) {
+    	System.out.println("sending list of sessions to " + getUserName());
+    	GetCollabSessionsReplyMsg ret = new GetCollabSessionsReplyMsg();
+    	for(ServerFile s : server.getFileManager().getServerFiles()) {
+    		ret.addSession(s.getId(), s.getPath());
+    	}
+    	
+    	conn.reply(msg, ret);
     }
 }

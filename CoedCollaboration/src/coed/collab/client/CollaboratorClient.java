@@ -27,6 +27,8 @@ import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.FileChangedMsg;
 import coed.collab.protocol.CreateSessionMsg;
 import coed.collab.protocol.CreateSessionResultMsg;
+import coed.collab.protocol.GetCollabSessionsMsg;
+import coed.collab.protocol.GetCollabSessionsReplyMsg;
 import coed.collab.protocol.JoinReplyMsg;
 import coed.collab.protocol.JoinSessionMsg;
 
@@ -237,10 +239,8 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 			public CoedFuture2<ICollabFilePart, String> ret = new CoedFuture2<ICollabFilePart, String>();
 			public CoedFile file;
 			public Integer id;
-			public String path;
 		
-			public FListener(String path, Integer id, CoedFile file) {
-				this.path = path;
+			public FListener(Integer id, CoedFile file) {
 				this.id = id;
 				this.file = file;
 			}
@@ -263,10 +263,38 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 			}
 		}
 
-		FListener fl = new FListener(path, id, file);
+		FListener fl = new FListener(id, file);
 		// first send which file should be shared
 		conn.sendSeq(new JoinSessionMsg(id))
 			.addListener(fl); // expects a GoOnlineResultMsg
+		return fl.ret;
+	}
+
+	@Override
+	public IFuture<Map<Integer, String>> getCollabSessions() {
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<Map<Integer, String>> ret = new CoedFuture<Map<Integer, String>>();
+
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof GetCollabSessionsReplyMsg) {
+					ret.set(((GetCollabSessionsReplyMsg)result).getSessions());
+				} else
+					ret.throwEx(new Exception("unknown message received"));
+			}
+
+			@Override
+			public void caught(Throwable e) {
+				// if an error occured anywhere along the sequence
+				// then pass the error along to the chained future
+				ret.throwEx(e);
+			}
+		}
+
+		FListener fl = new FListener();
+		// send the path to the file and its contents
+		conn.sendSeq(new GetCollabSessionsMsg())
+			.addListener(fl); // expects a CreateSessionResultMsg
 		return fl.ret;
 	}
 }

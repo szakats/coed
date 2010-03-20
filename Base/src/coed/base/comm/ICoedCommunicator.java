@@ -1,5 +1,7 @@
 package coed.base.comm;
 
+import java.util.Map;
+
 import coed.base.data.ICoedFile;
 import coed.base.util.IFuture;
 import coed.base.util.IFuture2;
@@ -23,7 +25,6 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator {
 	   * @throws future NotConnectedException
 	   */
 	public IFuture<ICoedFile> createSession(String path, String contents);
-	
 	
 	public IFuture2<ICoedFile, String> joinSession(String path, Integer id);
 }

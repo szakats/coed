@@ -46,6 +46,7 @@ public class CoedCollabFile implements ICollabFilePart {
 	}
 	
 	public CoedCollabFile(ICoedFile obj, CollaboratorClient coll, Integer id) {
+		assert obj != null && coll != null && id != null;
 		this.obj = obj;
 		this.coll = coll;
 		this.id = id;

@@ -9,8 +9,8 @@ public interface IController {
 	public void joinSession(String path, Integer sessionID);
 	public void leaveSession(AbstractDecoratedTextEditor editor);
 	
-	public void startCollaboration();
-	public void endCollaboration();
+	public void loginToServer();
+	public void logoffFromServer();
 	
 	public String getCollabState();
 	

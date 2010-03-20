@@ -1,5 +1,7 @@
 package coed.base.comm;
 
+import java.util.Map;
+
 import coed.base.data.ICoedFile;
 import coed.base.data.ICollabFilePart;
 import coed.base.util.IFuture;
@@ -55,4 +57,7 @@ public interface ICoedCollaborator {
 	    * Disconnect from the server and stop trying to connect
 	    */
 	   public void endCollab();
+	   
+		
+	   public IFuture<Map<Integer, String>> getCollabSessions();
 }

@@ -1,6 +1,7 @@
 package coed.collab.client;
 
 import java.io.File;
+import java.util.Map;
 
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCollaboratorPart;
@@ -144,16 +145,22 @@ public class Communicator implements ICoedCommunicator {
 
 	@Override
 	public IFuture<ICoedFile> createSession(String path, String contents) {
+		System.out.println("creating session for " + path);
 		CreateSessionListener fl = new CreateSessionListener(path);
-		c.createCollabSession(path, contents, null).addListener(fl);
+		c.createCollabSession(path, contents, fl.file).addListener(fl);
 		return fl.future;
 	}
 
 	@Override
 	public IFuture2<ICoedFile, String> joinSession(String path, Integer id) {
-		
+		System.out.println("joining session " + path + "(" + id + ")");
 		JoinSessionListener fl = new JoinSessionListener(path);
-		c.joinCollabSession(path, id, null).addListener(fl);
+		c.joinCollabSession(path, id, fl.file).addListener(fl);
 		return fl.future;
+	}
+
+	@Override
+	public IFuture<Map<Integer, String>> getCollabSessions() {
+		return c.getCollabSessions();
 	}
 }

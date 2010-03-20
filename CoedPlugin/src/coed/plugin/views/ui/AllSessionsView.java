@@ -3,10 +3,15 @@
  */
 package coed.plugin.views.ui;
 
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Composite;
 
 import coed.plugin.base.Activator;
 import coed.plugin.views.model.ModelDirectory;
+import coed.plugin.views.model.ModelFile;
 import coed.plugin.views.model.ModelObject;
 
 /**
@@ -33,13 +38,13 @@ public class AllSessionsView extends SessionView {
 		addLeaveSessionAction();
 		addLoginAction();
 		
-		addFile("asdf", "yt");
+		/*addFile("asdf", "yt");
 		addFile("asdf1", "");
 		addFile("a324sdf", "");
 		addFile("xyz/tuv", "");
 		addFile("xyz/yut", "");
 		addFile("xyz/tuv/hjh", "asdf");
-		addFile("xyz/hgh/thd", "fjf");
+		addFile("xyz/hgh/thd", "fjf");*/
 	}
 
 	@Override
@@ -49,4 +54,16 @@ public class AllSessionsView extends SessionView {
 		return root;
 	}
 
+	@Override
+	public void doubleClick(DoubleClickEvent event) {
+		// TODO Auto-generated method stub
+		ISelection sel = event.getSelection();
+		if(sel instanceof TreeSelection) {
+			Object elem = ((TreeSelection)sel).getFirstElement();
+			if(elem instanceof ModelFile) {
+				ModelFile mf = ((ModelFile)elem);
+				Activator.getController().joinSession(mf.getPath(), Integer.parseInt(mf.getMeta()));
+			}
+		}
+	}
 }
