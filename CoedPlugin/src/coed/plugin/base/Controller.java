@@ -3,19 +3,38 @@
  */
 package coed.plugin.base;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.jdt.ui.actions.*;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.WorkbenchException;
+import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
@@ -26,8 +45,8 @@ import coed.base.data.ICoedFile;
 import coed.base.data.exceptions.InvalidConfigFileException;
 import coed.base.data.exceptions.UnknownVersionerTypeException;
 import coed.base.util.IFuture2Listener;
-import coed.base.util.IFutureListener;
 import coed.base.util.Pair;
+
 import coed.collab.client.CoedCommunicatorFactory;
 import coed.plugin.views.ui.AllSessionsView;
 
@@ -129,13 +148,67 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 	
 	@Override
 	public void joinSession(String path, Integer collabID) {
+		
+		class OpenEditorJob implements Runnable{
+			
+			private IFile file;
+			private ICoedFile coedFile;
+			private String contents;
+			
+			public OpenEditorJob(IFile file, ICoedFile coedFile, String contents){
+				this.file = file;
+				this.coedFile = coedFile;
+				this.contents = contents;
+			}
+			
+			@Override
+			public void run() {
+				IWorkbenchWindow dw = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				try {
+				   if (dw != null) {
+					   IWorkbenchPage page = dw.getActivePage();
+					   System.out.println("workbench window accessed");
+					   if (page != null) {
+						   IEditorPart editor = IDE.openEditor(page, file, true); 
+						 //TODO when we will have listeners, remove and then re-add the listener
+						   ((AbstractDecoratedTextEditor)editor).getDocumentProvider().getDocument(editor.getEditorInput()).set(contents);
+						   fileToEditor.put(coedFile,(AbstractDecoratedTextEditor)editor);
+						   editorToFile.put((AbstractDecoratedTextEditor)editor,coedFile);
+						   System.out.println("editor opened");
+					   }
+					   else
+					   {
+						   page = dw.openPage(null);
+						   IEditorPart editor = IDE.openEditor(page, file, true);
+						   //TODO when we will have listeners, remove and then re-add the listener
+						   ((AbstractDecoratedTextEditor)editor).getDocumentProvider().getDocument(editor.getEditorInput()).set(contents);
+						   fileToEditor.put(coedFile,(AbstractDecoratedTextEditor)editor);
+						   editorToFile.put((AbstractDecoratedTextEditor)editor,coedFile);
+						   System.out.println("editor opened new page");	   
+					   }
+				   }
+				} catch (PartInitException e) {
+				    	e.printStackTrace();	
+				} catch (WorkbenchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}	
+		
 		class FListener implements IFuture2Listener<ICoedFile, String> {
 
 			@Override
 			public void got(ICoedFile result1, String result2) {
-				AbstractDecoratedTextEditor editor = fileToEditor.get(result1);
-				assert editor != null;
-				setEditorContent(editor, result2);
+				
+				String filePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString()+"\\testttt\\"+result1.getPath();
+				//File fileToOpen = new File(filePath);
+				
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(filePath));
+				System.out.println("opening file "+filePath);
+				
+				
+				Display.getDefault().asyncExec(new OpenEditorJob(file,result1,result2));
 			}
 
 			@Override

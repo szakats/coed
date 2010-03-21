@@ -3,6 +3,7 @@
  */
 package coed.collab.server;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,6 +34,12 @@ public class FileManager {
 	 */
 	public ServerFile addFile(String path, String contents){
 		    ServerFile result = new ServerFile(path,maxId++);
+		    try {
+				result.changeContents(contents);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			files.put(result.getId(),result);
 			return result;
 	}

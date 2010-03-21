@@ -28,7 +28,7 @@ public class AllSessionsView extends SessionView {
 	public AllSessionsView() {
 		// TODO Auto-generated constructor stub
 		Activator.getController().attachView(this);
-		root =  new ModelDirectory(null, "asdf");
+		root =  new ModelDirectory(null, "");
 	}
 	
 	@Override

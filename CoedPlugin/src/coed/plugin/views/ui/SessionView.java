@@ -6,6 +6,7 @@ package coed.plugin.views.ui;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
@@ -31,7 +32,7 @@ import coed.plugin.views.model.ModelObject;
  * @author neobi008
  *
  */
-public abstract class SessionView extends ViewPart implements IDoubleClickListener {
+public abstract class SessionView extends ViewPart implements IDoubleClickListener{
 	
 	private Text text;
 	private TreeViewer treeViewer;
