@@ -50,8 +50,9 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 		return um.validateUser(user, password);
 	}
 	
-	public Integer createSession(String path, String contents) {
+	public Integer createSession(String path, String contents, Session session) {
 		ServerFile sf = fm.addFile(path,contents);
+		sf.addSession(session);
 		return sf.getId();
 	}
 	

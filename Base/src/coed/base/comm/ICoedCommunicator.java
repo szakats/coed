@@ -27,4 +27,6 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator {
 	public IFuture<ICoedFile> createSession(String path, String contents);
 	
 	public IFuture2<ICoedFile, String> joinSession(String path, Integer id);
+	
+	public String getUserName();
 }

@@ -163,4 +163,9 @@ public class Communicator implements ICoedCommunicator {
 	public IFuture<Map<Integer, String>> getCollabSessions() {
 		return c.getCollabSessions();
 	}
+
+	@Override
+	public String getUserName() {
+		return conf.getString("user.name");
+	}
 }

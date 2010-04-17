@@ -49,7 +49,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	/// cache for storing path-CoedObject pairs
 	private String state;
 	private ConnectionListener connListener = new ConnectionListener();
-	private Map<Integer, ICoedFile> cache; 
+	private Map<Integer, ICollabFilePart> cache; 
 	
 	private String basePath;
 	
@@ -63,7 +63,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		stateListeners = new LinkedList<ICollabStateListener>();
 		this.basePath = basePath;
 		this.conf = conf;
-		cache = new HashMap<Integer, ICoedFile>();
+		cache = new HashMap<Integer, ICollabFilePart>();
 		setState(STATUS_OFFLINE);
 
 		host = conf.getString("server.host");
@@ -141,7 +141,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		
 		public void handleMessage(FileChangedMsg msg) {
 			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
-			ICoedFile obj = cache.get(msg.getId());
+			ICollabFilePart obj = cache.get(msg.getId());
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
@@ -193,8 +193,10 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	}
 	
 	ICollabFilePart makeCollabFile(ICoedFile file, Integer id) {
-		cache.put(id, file);
-		return new CoedCollabFile(file, this, id);
+		CoedCollabFile collab_file = new CoedCollabFile(file, this, id);
+		cache.put(id, collab_file);
+		return collab_file;
+		
 	}
 	
 	@Override

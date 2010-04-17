@@ -162,7 +162,7 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(CreateSessionMsg msg) {
-    	Integer id = server.createSession(msg.getFileName(), msg.getContents());
+    	Integer id = server.createSession(msg.getFileName(), msg.getContents(), this);
     	conn.reply(msg, new CreateSessionResultMsg(id));
     	
     	System.out.println("go online with " + msg.getFileName() + " (" + id + ")");

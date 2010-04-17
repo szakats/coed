@@ -133,9 +133,8 @@ public class ServerFile {
 	 * @return
 	 */
 	public int getChangePointer(Session s){
-		if (sessions.containsKey(s))
-			return ((Integer)sessions.get(s)).intValue();
-		else return -1;
+		assert sessions.containsKey(s);
+		return ((Integer)sessions.get(s)).intValue();
 	}
 	
 	/**

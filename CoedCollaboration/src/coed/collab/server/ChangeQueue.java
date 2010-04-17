@@ -49,12 +49,14 @@ public class ChangeQueue{
 	}
 	
 	public TextModification[] getChangesFor(Session s){
+		assert s != null;
 		
 		Vector<TextModification> vect = new Vector<TextModification>();
 		int  k = 0;
 		//System.out.println("changepointer for session:"+ file.getChangePointer(s)+ " x "+s.getUserName()+"x");
 		for (int i=file.getChangePointer(s); i<top; i++){
 			TextModification chg = getChangeAt(i);
+			assert chg != null && chg.getMetaInfo() != null;
 			
 			//System.out.println("metainfo:"+chg.toString());
 			if (!( chg.getMetaInfo().equals(s.getUserName()))){

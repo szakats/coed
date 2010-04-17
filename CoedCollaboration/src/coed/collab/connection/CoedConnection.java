@@ -108,11 +108,23 @@ public class CoedConnection extends IoHandlerAdapter implements ICoedConnection 
 	    	l = seqListeners.remove(new Long(id));
     	}
     
-	    if(l != null)
-	    	l.received(msg);
+    	// NOTE: try catch to make sure any exception in the message handlers
+    	// does not propagate further
+	    if(l != null) 
+	    	try {
+	    		l.received(msg);
+	    	} catch(Exception e) {
+	    		System.out.println("error occured while handling " + msg.toString());
+	    		e.printStackTrace();
+	    	}
 	    else
 	    	for(ICoedConnectionListener cl : allListeners)
-	    		cl.received(msg);
+	    		try {
+	    			cl.received(msg);
+				} catch(Exception e) {
+					System.out.println("error occured while handling " + msg.toString());
+					e.printStackTrace();
+				}
     }
     
 	@Override
