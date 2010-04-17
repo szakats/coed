@@ -261,37 +261,46 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 			allSessionsView.notifyConnected();
 			
 			if(allSessionsView != null) {
-				class GetSessionJob implements Runnable {
+				communicator.getCollabSessions().addListener(new IFutureListener< Map<Integer, String> >() {
+					@Override
+					public void got(Map<Integer, String> sessionMap) {
+						if(sessionMap == null)
+							return; 
+						
+						for(Map.Entry<Integer, String> e : sessionMap.entrySet()) {
+							allSessionsView.addFile(e.getValue(), e.getKey().toString());
+							System.out.println("got session " + e.getKey());
+						}
+						
+						refreshAllSessionsView();
+					}
 
 					@Override
-					public void run() {
-						try {
-							Map<Integer, String> sessionMap = communicator.getCollabSessions().get();
-							for(Map.Entry<Integer, String> e : sessionMap.entrySet()) {
-								allSessionsView.addFile(e.getValue(), e.getKey().toString());
-								System.out.println("got session " + e.getKey());
-							}
-							if(!sessionMap.isEmpty()) {
-								allSessionsView.refreshView();
-							}
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+					public void caught(Throwable e) {
+						// TODO Auto-generated method stub
 					}
-				}
-				
-				Display.getDefault().asyncExec(new GetSessionJob());
+				});
 			}
 		}
+	}
+	
+	void refreshAllSessionsView() {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if(allSessionsView != null) allSessionsView.refreshView();
+			}
+		});
 	}
 
 	@Override
 	public void logoffFromServer() {
 		communicator.endCollab();
+		if(allSessionsView != null)  {
+			allSessionsView.clearModel();
+			refreshAllSessionsView();
+		}
 	}
 
 	@Override

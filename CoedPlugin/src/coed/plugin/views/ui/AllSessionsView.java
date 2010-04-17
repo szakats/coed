@@ -46,6 +46,11 @@ public class AllSessionsView extends SessionView {
 		addFile("xyz/tuv/hjh", "asdf");
 		addFile("xyz/hgh/thd", "fjf");*/
 	}
+	
+	public void clearModel(){
+		assert root instanceof ModelDirectory;
+		((ModelDirectory)root).clearChildren();
+	}
 
 	@Override
 	public Object getModelRoot() {

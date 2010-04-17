@@ -34,6 +34,10 @@ public class ModelDirectory extends ModelObject {
 		 return children; 
 	 }
 	 
+	 public void clearChildren() {
+		 children.clear();
+	 }
+	 
 	 public String toString() {
 		 return getName();
 	 }
