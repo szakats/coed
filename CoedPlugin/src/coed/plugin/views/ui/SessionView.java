@@ -192,7 +192,7 @@ public abstract class SessionView extends ViewPart implements IDoubleClickListen
 	
 	public void addFile(String path, String meta) {
 		String[] names = path.split("\\/");
-		recAddFile((ModelDirectory)getModelRoot(), names, 0, meta);
+		recAddFile((ModelDirectory)getModelRoot(), path, names, 0, meta);
 	}
 	
 	public void removeFile(String path, String meta) {
@@ -200,12 +200,12 @@ public abstract class SessionView extends ViewPart implements IDoubleClickListen
 		recRemoveFile((ModelDirectory)getModelRoot(), names, 0, meta);
 	}
 	
-	private void recAddFile(ModelDirectory parent, String[] names, int idx, String meta) {
+	private void recAddFile(ModelDirectory parent, String fullPath, String[] names, int idx, String meta) {
 		if(idx == names.length ) 
 			return;
 		
 		if(idx == names.length - 1)
-			parent.addObject(new ModelFile(parent, names[idx], meta));
+			parent.addObject(new ModelFile(parent, fullPath, meta));
 		else {
 			ModelDirectory child = null;
 			for(ModelObject c : parent.getChildren())
@@ -219,7 +219,7 @@ public abstract class SessionView extends ViewPart implements IDoubleClickListen
 				parent.addObject(child);
 			}
 			
-			recAddFile(child, names, idx + 1, meta);
+			recAddFile(child, fullPath, names, idx + 1, meta);
 		}
 	}
 	

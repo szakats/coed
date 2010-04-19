@@ -3,13 +3,10 @@
  */
 package coed.plugin.base;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -221,9 +218,11 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 		class FListener implements IFuture2Listener<ICoedFile, String> {
 
 			@Override
-			public void got(ICoedFile result1, String result2) {
+			public void got(ICoedFile coedFile, String contents) {
 				
-				String filePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString()+"\\testttt\\"+result1.getPath();
+				//String relativePath = getEditorFilePath() 
+				//String filePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString()+"\\testttt\\"+result1.getPath();
+				String filePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString() + coedFile.getPath();
 				
 				//if does not exists, create directory structure and file
 			/*	File fileToOpen = new File(filePath);
@@ -235,10 +234,10 @@ public class Controller implements IController, ICollabStateListener, IDocumentL
 				}*/
 				
 				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(filePath));
-				System.out.println("opening file "+filePath);
+				//System.out.println("opening file "+filePath);
 				
 				
-				Display.getDefault().asyncExec(new OpenEditorJob(file,result1,result2));
+				Display.getDefault().asyncExec(new OpenEditorJob(file,coedFile,contents));
 			}
 
 			@Override
