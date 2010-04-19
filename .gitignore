@@ -3,3 +3,4 @@
 CoedPlugin/lib/*
 *.orig
 *.prefs
+config.ini
