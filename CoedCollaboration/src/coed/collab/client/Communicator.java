@@ -3,6 +3,7 @@ package coed.collab.client;
 import java.io.File;
 import java.util.Map;
 
+import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCollaboratorPart;
 import coed.base.comm.ICoedCommunicator;
@@ -167,5 +168,17 @@ public class Communicator implements ICoedCommunicator {
 	@Override
 	public String getUserName() {
 		return conf.getString("user.name");
+	}
+
+	@Override
+	public void addAllSessionsListener(IAllSessionsListener listener) {
+		c.addAllSessionsListener(listener);
+		
+	}
+
+	@Override
+	public void removeAllSessionsListener(IAllSessionsListener listener) {
+		c.removeAllSessionsListener(listener);
+		
 	}
 }

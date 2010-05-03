@@ -84,6 +84,7 @@ public class CoedKeepAliveConnection implements ICoedConnection {
 	        		setConnection(conn);
 	        	}
 	        }
+	        CoedKeepAliveConnection.this.disconnect();
 	        System.out.println("conn thread shutting down");
 		}
 	}

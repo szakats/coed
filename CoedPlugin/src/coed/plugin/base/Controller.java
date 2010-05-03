@@ -29,6 +29,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
+import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
@@ -52,7 +53,7 @@ import coed.plugin.views.ui.AllSessionsView;
  * 
  */
 public class Controller implements IController, ICollabStateListener,
-		IDocumentListener, IPartListener, IFileChangeListener {
+		IDocumentListener, IPartListener, IFileChangeListener, IAllSessionsListener {
 
 	private ICoedCommunicator communicator;
 	private String configPath;
@@ -308,6 +309,7 @@ public class Controller implements IController, ICollabStateListener,
 			allSessionsView.notifyConnected();
 
 			if (allSessionsView != null) {
+				communicator.addAllSessionsListener(this);
 				communicator.getCollabSessions().addListener(
 						new IFutureListener<Map<Integer, String>>() {
 							@Override
@@ -332,6 +334,8 @@ public class Controller implements IController, ICollabStateListener,
 							}
 						});
 			}
+		} else  {
+			communicator.removeAllSessionsListener(this);
 		}
 	}
 
@@ -541,5 +545,18 @@ public class Controller implements IController, ICollabStateListener,
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void sessionAdded(Integer id, String path) {
+		allSessionsView.addFile(path,id.toString());
+		refreshAllSessionsView();
+		
+	}
+
+	@Override
+	public void sessionRemoved(Integer id, String path) {
+		allSessionsView.removeFile(path, id.toString());
+		refreshAllSessionsView();
 	}
 }

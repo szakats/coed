@@ -54,11 +54,10 @@ public class Session implements ICoedConnectionListener {
 		Iterator<ServerFile> it = onlineFiles.iterator();
 		while (it.hasNext()){
 			ServerFile file = ((ServerFile)it.next()); 
-			file.removeSession(this);
-			if(file.getNrOfSessions() == 0)
-				server.removeServerFile(file.getId());
+			removeFromFile(file);
 			it.remove();
 		}	
+		server.unregisterSession(this);	
 	}
 	
 	private int x = 0;
@@ -94,12 +93,20 @@ public class Session implements ICoedConnectionListener {
 		}
 	}
 	
+	void removeFromFile(ServerFile file) {
+		file.removeSession(this);
+		if(file.getNrOfSessions() == 0)
+		{
+			server.removeServerFile(file.getId());
+			server.broadcast(new RemoveCollabSessionMsg(file.getId(), file.getPath()));
+		}
+	}
+	
     public void handleMessage(GoOfflineMsg msg) {
     	System.out.println("going offline with file " + msg.getId());
     	ServerFile file =  server.getServerFile(msg.getId());
-		file.removeSession(this);
-		if(file.getNrOfSessions() == 0)
-			server.removeServerFile(file.getId());
+    	onlineFiles.remove(file);
+		removeFromFile(file);
     }
     
     public void handleMessage(GetChangesMsg msg) {
@@ -119,6 +126,7 @@ public class Session implements ICoedConnectionListener {
     	if(result == true) {
     		auth = true;
     		setUserName(msg.getUserName());
+    		server.registerSession(this);
     	}
     }
     
@@ -164,17 +172,15 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(CreateSessionMsg msg) {
     	Integer id = server.createSession(msg.getFileName(), msg.getContents(), this);
+    	onlineFiles.add(server.getFileManager().getFile(id));
     	conn.reply(msg, new CreateSessionResultMsg(id));
+    	
     	
     	//send notification to all clients that a new session is on server
     	// TODO: not good..we need all the connected users, regardless of the fact that they are registered to a file or not.
-    	List<Session> allSessions = server.getFileManager().getAllSessions();
-    	Iterator<Session> iter = allSessions.iterator();
-    	NewCollabSessionOnServerMsg message = new NewCollabSessionOnServerMsg(id,msg.getFileName());
-    	while (iter.hasNext()){
-    		iter.next().getConn().send(message);
-    	} 	
-    	
+  
+    	server.broadcast(new NewCollabSessionOnServerMsg(id,msg.getFileName()));
+    
     	System.out.println("go online with " + msg.getFileName() + " (" + id + ")");
     }
     
@@ -187,6 +193,7 @@ public class Session implements ICoedConnectionListener {
     	} else {
     		String contents = server.joinSession(msg.getId(),this);
     		conn.reply(msg, new JoinReplyMsg(contents));
+    		onlineFiles.add(server.getFileManager().getFile(msg.getId()));
     	}
     }
     

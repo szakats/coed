@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCollaboratorPart;
 import coed.base.comm.ICollabStateListener;
@@ -32,6 +33,7 @@ import coed.collab.protocol.GetCollabSessionsReplyMsg;
 import coed.collab.protocol.JoinReplyMsg;
 import coed.collab.protocol.JoinSessionMsg;
 import coed.collab.protocol.NewCollabSessionOnServerMsg;
+import coed.collab.protocol.RemoveCollabSessionMsg;
 
 
 /**
@@ -53,6 +55,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	private Map<Integer, ICollabFilePart> cache; 
 //	private NewSessionListener newSessionListener;
 	private String basePath;
+	private LinkedList<IAllSessionsListener> sessionListeners;
 	
 	private String host;
 	private int port;
@@ -62,6 +65,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	public CollaboratorClient(ICoedConfig conf, String basePath) {
 		nrOnlineFiles = 0;
 		stateListeners = new LinkedList<ICollabStateListener>();
+		sessionListeners = new LinkedList<IAllSessionsListener>();
 		this.basePath = basePath;
 		this.conf = conf;
 		cache = new HashMap<Integer, ICollabFilePart>();
@@ -140,6 +144,8 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 				handleMessage((FileChangedMsg)msg);
 			if (msg instanceof NewCollabSessionOnServerMsg)
 				handleMessage((NewCollabSessionOnServerMsg)msg);
+			if (msg instanceof RemoveCollabSessionMsg)
+				handleMessage((RemoveCollabSessionMsg)msg);
 		}
 		
 		public void handleMessage(FileChangedMsg msg) {
@@ -153,11 +159,17 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		
 		public void handleMessage(NewCollabSessionOnServerMsg msg) {
 
-			/*ICollabFilePart obj = cache.get(msg.getId());
-			assert obj instanceof CoedCollabFile;
-			CoedCollabFile file = (CoedCollabFile)obj;
-			file.notifyChangeListeners(file.getParent());*/
-			System.out.println("new session on server "+msg.getPath());
+			for (IAllSessionsListener l:sessionListeners)
+				l.sessionAdded(msg.getId(), msg.getPath());
+			//System.out.println("new session on server "+msg.getPath());
+			
+		}
+		
+		public void handleMessage(RemoveCollabSessionMsg msg) {
+
+			for (IAllSessionsListener l:sessionListeners)
+				l.sessionRemoved(msg.getId(), msg.getPath());
+			//System.out.println("new session on server "+msg.getPath());
 			
 		}
 
@@ -311,5 +323,17 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		conn.sendSeq(new GetCollabSessionsMsg())
 			.addListener(fl); // expects a CreateSessionResultMsg
 		return fl.ret;
+	}
+
+	@Override
+	public void addAllSessionsListener(IAllSessionsListener listener) {
+		sessionListeners.add(listener);
+		
+	}
+
+	@Override
+	public void removeAllSessionsListener(IAllSessionsListener listener) {
+		sessionListeners.remove(listener);
+		
 	}
 }

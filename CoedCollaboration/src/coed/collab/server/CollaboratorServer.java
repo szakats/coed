@@ -1,9 +1,11 @@
 package coed.collab.server;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import coed.collab.connection.CoedConnection;
 import coed.collab.connection.CoedConnectionAcceptor;
+import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.CreateSessionResultMsg;
 import coed.collab.protocol.SendContentsMsg;
 
@@ -14,6 +16,7 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
     private FileManager fm;
     private UserManager um;
     private String configPath;
+    private HashSet<Session> sessionSet = new HashSet();
 	
 	public CollaboratorServer(String configPath) {
 		acceptor.addListener(this);
@@ -48,6 +51,20 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 	
 	public boolean validateUser(String user, String password){
 		return um.validateUser(user, password);
+	}
+	
+	public void registerSession(Session s){
+		sessionSet.add(s);
+	}
+	
+	public void unregisterSession(Session s){
+		sessionSet.remove(s);
+	}
+	
+	public void broadcast(CoedMessage msg){
+		for(Session s:sessionSet){
+			s.getConn().send(msg);
+		}
 	}
 	
 	public Integer createSession(String path, String contents, Session session) {
