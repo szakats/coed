@@ -9,7 +9,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.data.ICoedFile;
 import coed.base.data.TextPortion;
-import coed.plugin.base.StandardController;
+import coed.plugin.base.Controller;
 
 public class BasicTextLockManager implements ITextLockManager {
 	private static Logger logger = Logger.getLogger(BasicTextLockManager.class.toString()); 

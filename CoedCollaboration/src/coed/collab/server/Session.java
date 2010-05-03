@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import coed.base.data.TextModification;
 import coed.base.data.exceptions.NoSuchSessionException;
@@ -164,6 +165,14 @@ public class Session implements ICoedConnectionListener {
     public void handleMessage(CreateSessionMsg msg) {
     	Integer id = server.createSession(msg.getFileName(), msg.getContents(), this);
     	conn.reply(msg, new CreateSessionResultMsg(id));
+    	
+    	//send notification to all clients that a new session is on server
+    	List<Session> allSessions = server.getFileManager().getAllSessions();
+    	Iterator<Session> iter = allSessions.iterator();
+    	NewCollabSessionOnServerMsg message = new NewCollabSessionOnServerMsg(id,msg.getFileName());
+    	while (iter.hasNext()){
+    		iter.next().getConn().send(message);
+    	} 	
     	
     	System.out.println("go online with " + msg.getFileName() + " (" + id + ")");
     }

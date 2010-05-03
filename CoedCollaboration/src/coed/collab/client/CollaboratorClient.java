@@ -31,6 +31,7 @@ import coed.collab.protocol.GetCollabSessionsMsg;
 import coed.collab.protocol.GetCollabSessionsReplyMsg;
 import coed.collab.protocol.JoinReplyMsg;
 import coed.collab.protocol.JoinSessionMsg;
+import coed.collab.protocol.NewCollabSessionOnServerMsg;
 
 
 /**
@@ -50,7 +51,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	private String state;
 	private ConnectionListener connListener = new ConnectionListener();
 	private Map<Integer, ICollabFilePart> cache; 
-	
+//	private NewSessionListener newSessionListener;
 	private String basePath;
 	
 	private String host;
@@ -137,6 +138,8 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		public void received(CoedMessage msg) {
 			if(msg instanceof FileChangedMsg)
 				handleMessage((FileChangedMsg)msg);
+			if (msg instanceof NewCollabSessionOnServerMsg)
+				handleMessage((NewCollabSessionOnServerMsg)msg);
 		}
 		
 		public void handleMessage(FileChangedMsg msg) {
@@ -145,6 +148,16 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 			assert obj instanceof CoedCollabFile;
 			CoedCollabFile file = (CoedCollabFile)obj;
 			file.notifyChangeListeners(file.getParent());
+			
+		}
+		
+		public void handleMessage(NewCollabSessionOnServerMsg msg) {
+
+			/*ICollabFilePart obj = cache.get(msg.getId());
+			assert obj instanceof CoedCollabFile;
+			CoedCollabFile file = (CoedCollabFile)obj;
+			file.notifyChangeListeners(file.getParent());*/
+			System.out.println("new session on server "+msg.getPath());
 			
 		}
 

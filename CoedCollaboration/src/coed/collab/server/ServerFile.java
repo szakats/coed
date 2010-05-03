@@ -4,10 +4,12 @@
 package coed.collab.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
@@ -332,8 +334,17 @@ public class ServerFile {
 		setChangePointer(s,queue.getTopIndex());
 		if (listeners.get(s) != null )
 			listeners.get(s).setStatus(false);
+		return result;	
+	}
+	
+	public List<Session> getAllSessions(){
+		ArrayList<Session> result = new ArrayList<Session>();
+		Set sess = sessions.entrySet();
+		Iterator<Session> it = sess.iterator();
+		while (it.hasNext()){
+			result.add(it.next());
+		}
 		return result;
-		
 	}
 	
 }

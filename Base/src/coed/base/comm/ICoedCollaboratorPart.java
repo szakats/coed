@@ -36,4 +36,6 @@ public interface ICoedCollaboratorPart extends ICoedCollaborator {
 	 * @throws NoSuchSessionException if the session does not exist
 	 */
 	public IFuture2<ICollabFilePart, String> joinCollabSession(String path, Integer id, CoedFile file);
+	
+//	public void addNewSessionListener(INewSessionListener listener);
 }
