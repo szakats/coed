@@ -167,6 +167,7 @@ public class Session implements ICoedConnectionListener {
     	conn.reply(msg, new CreateSessionResultMsg(id));
     	
     	//send notification to all clients that a new session is on server
+    	// TODO: not good..we need all the connected users, regardless of the fact that they are registered to a file or not.
     	List<Session> allSessions = server.getFileManager().getAllSessions();
     	Iterator<Session> iter = allSessions.iterator();
     	NewCollabSessionOnServerMsg message = new NewCollabSessionOnServerMsg(id,msg.getFileName());

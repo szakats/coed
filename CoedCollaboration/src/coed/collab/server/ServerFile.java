@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import coed.base.data.TextModification;
 import coed.base.data.TextPortion;
@@ -340,9 +341,9 @@ public class ServerFile {
 	public List<Session> getAllSessions(){
 		ArrayList<Session> result = new ArrayList<Session>();
 		Set sess = sessions.entrySet();
-		Iterator<Session> it = sess.iterator();
+		Iterator<Entry> it = sess.iterator();
 		while (it.hasNext()){
-			result.add(it.next());
+			result.add((Session)(it.next().getKey()));
 		}
 		return result;
 	}
