@@ -120,26 +120,13 @@ public abstract class SessionView extends ViewPart implements IDoubleClickListen
 		getToolBar().add(createSessionAction);
 	}
 	
-	public void addJoinSessionAction() {
-		
-		joinSessionAction = new Action() {
-			public void run() {
-				//Activator.getController().joinSession()
-			}
-		};
-		
-		joinSessionAction.setToolTipText("Join the selected collaboration session");
-		joinSessionAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJ_ELEMENT));
-		
-		getToolBar().add(joinSessionAction);
-	}
-	
 	public void addLeaveSessionAction() {
 		
 		leaveSessionAction = new Action() {
 			public void run() {
-
+				AbstractDecoratedTextEditor editor = getEditor();
+				if(editor != null)
+					Activator.getController().leaveSession(editor);
 			}
 		};
 		

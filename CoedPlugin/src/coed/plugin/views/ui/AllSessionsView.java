@@ -34,7 +34,6 @@ public class AllSessionsView extends SessionView {
 	@Override
 	public void createOtherControls() {
 		addCreateSessionAction();
-		addJoinSessionAction();
 		addLeaveSessionAction();
 		addLoginAction();
 		

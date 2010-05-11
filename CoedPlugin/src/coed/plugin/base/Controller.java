@@ -308,43 +308,71 @@ public class Controller implements IController, ICollabStateListener,
 
 	@Override
 	public void leaveSession(AbstractDecoratedTextEditor editor) {
-		// TODO Auto-generated method stub
+		ICoedFile file = editorToFile.get(editor);
+		if(file != null) {
+			file.goOffline();
+			editorToFile.remove(editor);
+			fileToEditor.remove(file);
+		}
+	}
+	
+	/**
+	 * Executed when the connection to the server is lost,
+	 * either due to user input or unexpectedly
+	 */
+	public void onDisconnectFromServer() {
+		communicator.removeAllSessionsListener(this);
+		editorToFile.clear();
+		fileToEditor.clear();
+		if (allSessionsView != null) {
+			allSessionsView.clearModel();
+			refreshAllSessionsView();
+		}
+	}
+	
+	/**
+	 * Executed when a connection to the server is established
+	 */
+	public void onConnectToServer() {
+		allSessionsView.notifyConnected();
 
+		if (allSessionsView != null) {
+			communicator.addAllSessionsListener(this);
+			communicator.getCollabSessions().addListener(
+					new IFutureListener<Map<Integer, String>>() {
+						@Override
+						public void got(Map<Integer, String> sessionMap) {
+							if (sessionMap == null)
+								return;
+
+							for (Map.Entry<Integer, String> e : sessionMap
+									.entrySet()) {
+								allSessionsView.addFile(e.getValue(), e
+										.getKey().toString());
+								System.out.println("got session "
+										+ e.getKey());
+							}
+
+							refreshAllSessionsView();
+						}
+
+						@Override
+						public void caught(Throwable e) {
+							// TODO Auto-generated method stub
+						}
+					});
+		}
 	}
 
+	/**
+	 * from ICollabStateListener: called when the connection status to the server changes
+	 */
 	@Override
 	public void collabStateChanged(String to) {
 		if (to == ICoedCollaborator.STATUS_CONNECTED) {
-			allSessionsView.notifyConnected();
-
-			if (allSessionsView != null) {
-				communicator.addAllSessionsListener(this);
-				communicator.getCollabSessions().addListener(
-						new IFutureListener<Map<Integer, String>>() {
-							@Override
-							public void got(Map<Integer, String> sessionMap) {
-								if (sessionMap == null)
-									return;
-
-								for (Map.Entry<Integer, String> e : sessionMap
-										.entrySet()) {
-									allSessionsView.addFile(e.getValue(), e
-											.getKey().toString());
-									System.out.println("got session "
-											+ e.getKey());
-								}
-
-								refreshAllSessionsView();
-							}
-
-							@Override
-							public void caught(Throwable e) {
-								// TODO Auto-generated method stub
-							}
-						});
-			}
+			onConnectToServer();
 		} else  {
-			communicator.removeAllSessionsListener(this);
+			onDisconnectFromServer();
 		}
 	}
 
@@ -361,11 +389,8 @@ public class Controller implements IController, ICollabStateListener,
 
 	@Override
 	public void logoffFromServer() {
+		onDisconnectFromServer();
 		communicator.endCollab();
-		if (allSessionsView != null) {
-			allSessionsView.clearModel();
-			refreshAllSessionsView();
-		}
 	}
 
 	@Override
@@ -423,7 +448,7 @@ public class Controller implements IController, ICollabStateListener,
 			// e.g if the content is changed during join
 			if (!editorToFile.containsKey(activeEditor))
 				return;
-			try {
+			/*try {
 				
 				Integer eLine;
 				eLine = event.fDocument.getLineOfOffset(event.fOffset);
@@ -470,10 +495,10 @@ public class Controller implements IController, ICollabStateListener,
 					e.printStackTrace();
 				}
 
-			} else if (lock!=null) {
+			} else if (lock!=null) { */
 				System.out.println("Sending changes from offset "+event.fOffset+" with length "+event.fLength);
 				editorToFile.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, communicator.getUserName()));
-			}
+			//}
 		}
 	}
 
