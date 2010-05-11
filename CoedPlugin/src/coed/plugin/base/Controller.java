@@ -3,13 +3,18 @@
  */
 package coed.plugin.base;
 
+import org.eclipse.jface.action.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
@@ -18,6 +23,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IWorkbenchPage;
@@ -62,6 +68,8 @@ public class Controller implements IController, ICollabStateListener,
 	private Map<ICoedFile, AbstractDecoratedTextEditor> fileToEditor;
 	private AbstractDecoratedTextEditor activeEditor;
 	private ITextLockManager lockManager;
+	private ArrayList<IMarker> markers;
+	private int activeLine = -1;
 	/**
 	 * Index of the event to ignore in the IDocumentListener part
 	 */
@@ -108,6 +116,7 @@ public class Controller implements IController, ICollabStateListener,
 		editorToFile = new HashMap<AbstractDecoratedTextEditor, ICoedFile>();
 		fileToEditor = new HashMap<ICoedFile, AbstractDecoratedTextEditor>();
 		activeEditor = null;
+		markers = new ArrayList<IMarker>();
 	}
 
 	private IDocument getEditorDocument(AbstractDecoratedTextEditor editor) {
@@ -414,8 +423,35 @@ public class Controller implements IController, ICollabStateListener,
 			// e.g if the content is changed during join
 			if (!editorToFile.containsKey(activeEditor))
 				return;
-			
-			lock = lockManager.requestLock(activeEditor, editorToFile.get(activeEditor), lock);
+			try {
+				
+				Integer eLine;
+				eLine = event.fDocument.getLineOfOffset(event.fOffset);
+				if (eLine != activeLine){
+					System.out.println("Lock released for line "+lock.getOffset());
+					lockManager.releaseLock(editorToFile.get(activeEditor), lock);
+					//also delete the marker
+					lockedLines=null;
+					lock = lockManager.requestLock(Controller.this.getEditorDocument(activeEditor), 
+							editorToFile.get(activeEditor), eLine);
+					System.out.println("Lock requested for line "+lock.getOffset());
+					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
+					IMarker marker = file.createMarker(IMarker.TASK);
+					marker.setAttribute(IMarker.MESSAGE, "A sample marker message");
+					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+					marker.setAttribute(IMarker.LINE_NUMBER, eLine+1); 
+					markers.add(marker);
+					activeLine = eLine;
+					
+				}
+		        //TODO do not forget to delete markers.
+				
+			} catch (BadLocationException e1) {
+				System.out.print("Controller:InputProcessor");e1.printStackTrace();
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (lock==null){
 				ignoreEvent=event.fModificationStamp;
 			} 
@@ -435,11 +471,8 @@ public class Controller implements IController, ICollabStateListener,
 				}
 
 			} else if (lock!=null) {
-				System.out.println("Lock aquired for "+lock.getOffset()+" with length "+lock.getLength());
+				System.out.println("Sending changes from offset "+event.fOffset+" with length "+event.fLength);
 				editorToFile.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, communicator.getUserName()));
-				//editors.get(activeEditor).releaseLock(lock);
-				lockManager.releaseLock(editorToFile.get(activeEditor), lock);
-				lockedLines=null;
 			}
 		}
 	}

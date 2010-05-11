@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.log4j.Logger;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.data.ICoedFile;
@@ -24,10 +26,12 @@ public class BasicTextLockManager implements ITextLockManager {
 	}
 
 	@Override
-	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedFile coedo, TextPortion textp) {
-		TextPortion newLock = getLockZone(texte, textp);
+	public TextPortion requestLock(IDocument doc, ICoedFile coedo, Integer lineNr) {
 		
-		logger.info("Lock for zone "+textp+" is: "+newLock);
+		TextPortion newLock = getLockZone(doc,lineNr);
+		if (newLock != null)
+		{
+		logger.info("Lock for line "+lineNr+" is: "+newLock);
 		
 		synchronized (activeLocks){
 			if (!activeLocks.containsKey(coedo)) activeLocks.put(coedo, new ArrayList<TextPortion>());
@@ -57,12 +61,22 @@ public class BasicTextLockManager implements ITextLockManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		}
 		logger.info("Lock FAIL on: "+newLock);
 		return null;
 	}
 
-	private TextPortion getLockZone(AbstractDecoratedTextEditor texte, TextPortion textp) {
-		return textp;
+	private TextPortion getLockZone(IDocument doc, int lineNr) {
+		
+		TextPortion result;
+		try {
+			result = new TextPortion(doc.getLineOffset(lineNr),doc.getLineLength(lineNr));
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		return result;
 	}
 
 	@Override

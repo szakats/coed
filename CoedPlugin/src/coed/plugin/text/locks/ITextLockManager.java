@@ -1,5 +1,6 @@
 package coed.plugin.text.locks;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
 import coed.base.data.ICoedFile;
@@ -13,7 +14,7 @@ import coed.base.data.TextPortion;
  */
 public interface ITextLockManager {
 	
-	public TextPortion requestLock(AbstractDecoratedTextEditor texte, ICoedFile coedo, TextPortion textp);
+	public TextPortion requestLock(IDocument doc, ICoedFile coedo, Integer lineNr);
 	
 	void releaseLock(ICoedFile coedo, TextPortion ticket);
 	

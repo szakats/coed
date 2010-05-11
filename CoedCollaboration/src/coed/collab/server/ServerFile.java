@@ -156,8 +156,8 @@ public class ServerFile {
 			updateChangeOffset(change,s);
 			//put the change into the ChangeQueue
 			queue.enQueueChange(new CoedFileChange(change,new Date()));
-			//insert the change into the file
-			contents.insert(change.getOffset(),change.getText());
+			//insert/replace the contents in the file
+			contents.replace(change.getOffset(), change.getOffset() + change.getLength(), change.getText());
 		
 			//notify listeners
 			Collection<FileChangedListener> listen = listeners.values();
