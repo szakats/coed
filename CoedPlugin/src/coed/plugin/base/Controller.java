@@ -52,7 +52,9 @@ import coed.plugin.text.locks.ITextLockManager;
 import coed.plugin.text.locks.TextLockFactory;
 
 import coed.collab.client.CoedCommunicatorFactory;
+import coed.plugin.views.UserListView;
 import coed.plugin.views.ui.AllSessionsView;
+import coed.plugin.views.ui.UsersView;
 
 /**
  * @author neobi008
@@ -64,6 +66,7 @@ public class Controller implements IController, ICollabStateListener,
 	private ICoedCommunicator communicator;
 	private String configPath;
 	private AllSessionsView allSessionsView;
+	private UsersView usersView;
 	private Map<AbstractDecoratedTextEditor, ICoedFile> editorToFile;
 	private Map<ICoedFile, AbstractDecoratedTextEditor> fileToEditor;
 	private AbstractDecoratedTextEditor activeEditor;
@@ -402,10 +405,11 @@ public class Controller implements IController, ICollabStateListener,
 	public String getCollabState() {
 		return communicator.getState();
 	}
-
+	
 	@Override
-	public void attachView(AllSessionsView view) {
+	public void attachAllSessionsView(AllSessionsView view) {
 		allSessionsView = view;
+		
 	}
 
 	@Override
@@ -616,5 +620,10 @@ public class Controller implements IController, ICollabStateListener,
 	public void sessionRemoved(Integer id, String path) {
 		allSessionsView.removeFile(path, id.toString());
 		refreshAllSessionsView();
+	}
+
+	@Override
+	public void attachUsersView(UsersView view) {
+		usersView = view;		
 	}
 }

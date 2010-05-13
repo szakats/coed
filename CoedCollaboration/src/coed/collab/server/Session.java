@@ -151,7 +151,7 @@ public class Session implements ICoedConnectionListener {
     }
     
     public void handleMessage(GetUserListMsg msg) {
-    	System.out.println("requesting user list lock");
+    	System.out.println("requesting user list");
     	GetUserListReplyMsg reply = new GetUserListReplyMsg(msg.getId(),server.getServerFile(msg.getId()).getActiveUsers());
     	conn.reply(msg, reply);
     }

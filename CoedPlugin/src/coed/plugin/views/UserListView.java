@@ -138,7 +138,7 @@ public class UserListView extends ViewPart implements IUserList {
 	 */
 	@SuppressWarnings("static-access")
 	public UserListView() {
-		//Activator.getDefault().getController().attachUserList(this);
+		//Activator.getDefault().getController().attachUserListView(this);
 	}
 
 	/**

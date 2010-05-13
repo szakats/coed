@@ -8,6 +8,7 @@ import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCollaboratorPart;
 import coed.base.comm.ICollabStateListener;
+import coed.base.comm.IUserChangeListener;
 import coed.base.config.ICoedConfig;
 import coed.base.data.CoedFile;
 import coed.base.data.ICoedFile;
@@ -56,6 +57,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 //	private NewSessionListener newSessionListener;
 	private String basePath;
 	private LinkedList<IAllSessionsListener> sessionListeners;
+	private LinkedList<IUserChangeListener> userListeners;
 	
 	private String host;
 	private int port;

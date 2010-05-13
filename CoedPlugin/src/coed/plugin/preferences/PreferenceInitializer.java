@@ -30,10 +30,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 			e.printStackTrace();
 		}
 		
-		store.setDefault(PreferenceConstants.P_STRING1,config.getString("versioner.type"));
-		store.setDefault(PreferenceConstants.P_STRING2,config.getString("server.host"));
-		store.setDefault(PreferenceConstants.P_STRING3,config.getString("server.port"));
-		store.setDefault(PreferenceConstants.P_STRING4,config.getString("user.name"));
+		store.setDefault(PreferenceConstants.P_STRING1,config.getString("user.name"));
+		store.setDefault(PreferenceConstants.P_STRING2,"");
+		store.setDefault(PreferenceConstants.P_STRING3,config.getString("server.host"));
+		store.setDefault(PreferenceConstants.P_STRING4,config.getString("server.port"));
+		
 		
 	}
 

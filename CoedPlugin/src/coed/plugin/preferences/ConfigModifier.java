@@ -1,5 +1,8 @@
 package coed.plugin.preferences;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.*;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -70,14 +73,15 @@ public class ConfigModifier
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		e1=new StringFieldEditor(PreferenceConstants.P_STRING1, "versioner.type", getFieldEditorParent());
-		e2=new StringFieldEditor(PreferenceConstants.P_STRING2, "server.host", getFieldEditorParent());
-		e3=new StringFieldEditor(PreferenceConstants.P_STRING3, "server.port", getFieldEditorParent());
-		e4=new StringFieldEditor(PreferenceConstants.P_STRING4, "user.name", getFieldEditorParent());
-		addField(e1);		  
+		e1=new StringFieldEditor(PreferenceConstants.P_STRING1, "Username", getFieldEditorParent());
+		e2=new StringFieldEditor(PreferenceConstants.P_STRING2, "Password", getFieldEditorParent());
+		e3=new StringFieldEditor(PreferenceConstants.P_STRING3, "Server Hostname", getFieldEditorParent());
+		e4=new StringFieldEditor(PreferenceConstants.P_STRING4, "Server Port", getFieldEditorParent());
+		
+		addField(e4);		  
 		addField(e2);			
 		addField(e3);			
-		addField(e4);			
+		addField(e1);			
 	}
 
 	/**
@@ -86,20 +90,33 @@ public class ConfigModifier
 	 * Method sets the field editors
 	 */
 	public void setFieldEditors(){
-		e1.setStringValue("static");
-		e2.setStringValue("localhost");
-		e3.setStringValue("1234");
-		e4.setStringValue("jozsi");
+		e1.setStringValue("jozsi");
+		e2.setStringValue("pass");
+		e3.setStringValue("localhost");
+		e4.setStringValue("1234");
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public boolean performOk(){
-		config.setString("versioner.type",e1.getStringValue());
-		config.setString("server.host",e2.getStringValue());
-		config.setString("server.port",e3.getStringValue());
-		config.setString("user.name",e4.getStringValue());
-	    config.writeConfigFile();
+		config.setString("user.password", e2.getStringValue());
+		config.setString("server.host",e3.getStringValue());
+		config.setString("server.port",e4.getStringValue());
+		config.setString("user.name",e1.getStringValue());
+		
+	/*	 MessageDigest digest;
+		try {
+			digest = java.security.MessageDigest.getInstance("MD5");
+
+			digest.update(e1.getStringValue().getBytes());
+		 	byte[] hash = digest.digest();
+		 
+		    config.writeConfigFile();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
 		return true;
 	}
 	
