@@ -11,6 +11,7 @@ import coed.base.comm.ICoedVersioner;
 import coed.base.comm.ICoedVersionerPart;
 import coed.base.comm.ICollabStateListener;
 import coed.base.comm.IUserChangeListener;
+import coed.base.config.Config;
 import coed.base.config.ICoedConfig;
 import coed.base.data.CoedFile;
 import coed.base.data.ICoedFile;
@@ -181,5 +182,11 @@ public class Communicator implements ICoedCommunicator {
 	public void removeAllSessionsListener(IAllSessionsListener listener) {
 		c.removeAllSessionsListener(listener);
 		
+	}
+
+	@Override
+	public ICoedConfig getConfig() {
+		// TODO Auto-generated method stub
+		return conf;
 	}
 }

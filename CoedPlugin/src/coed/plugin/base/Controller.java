@@ -50,6 +50,7 @@ import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
 import coed.base.comm.IUserChangeListener;
 import coed.base.config.Config;
+import coed.base.config.ICoedConfig;
 import coed.base.data.ICoedFile;
 import coed.base.data.IFileChangeListener;
 import coed.base.data.TextModification;
@@ -198,7 +199,8 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			communicator = new CoedCommunicatorFactory().create(configPath);
 			communicator.addStateListener(this);
 
-			Config conf = new Config(configPath + "\\.coed\\config.ini");
+			ICoedConfig conf = communicator.getConfig();
+			//new Config(configPath + "\\.coed\\config.ini");
 
 			String lockStrategy = (conf.getString("lock.strategy") == null) ? TextLockFactory.BASIC_MANAGER
 					: conf.getString("lock.strategy");
@@ -882,5 +884,10 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			usersView.removeUserFromSession(sessionId, name);
 			refreshUsersView();
 		}
+	}
+
+	@Override
+	public ICoedConfig getConfig() {
+		return communicator.getConfig();
 	}
 }

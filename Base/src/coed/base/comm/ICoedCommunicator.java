@@ -2,6 +2,8 @@ package coed.base.comm;
 
 import java.util.Map;
 
+import coed.base.config.Config;
+import coed.base.config.ICoedConfig;
 import coed.base.data.ICoedFile;
 import coed.base.util.IFuture;
 import coed.base.util.IFuture2;
@@ -29,4 +31,6 @@ public interface ICoedCommunicator extends ICoedVersioner, ICoedCollaborator {
 	public IFuture2<ICoedFile, String> joinSession(String path, Integer id);
 	
 	public String getUserName();
+	
+	public ICoedConfig getConfig();
 }

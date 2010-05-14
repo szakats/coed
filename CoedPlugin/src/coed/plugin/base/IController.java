@@ -2,6 +2,8 @@ package coed.plugin.base;
 
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
+import coed.base.config.Config;
+import coed.base.config.ICoedConfig;
 import coed.plugin.views.UserListView;
 import coed.plugin.views.ui.AllSessionsView;
 import coed.plugin.views.ui.UsersView;
@@ -18,4 +20,6 @@ public interface IController {
 	
 	public void attachAllSessionsView(AllSessionsView view);
 	public void attachUsersView(UsersView view);
+	
+	public ICoedConfig getConfig();
 }

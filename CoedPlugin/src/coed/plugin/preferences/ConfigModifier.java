@@ -67,12 +67,13 @@ public class ConfigModifier
 		}, getFieldEditorParent()));*/
 		String configLocation=ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
 		
-		try {
-			config = new Config(configLocation+"\\.coed\\config.ini");
-		} catch (InvalidConfigFileException e) {
+		//try {
+			//config = new Config(configLocation+"\\.coed\\config.ini");
+			config = Activator.getDefault().getController().getConfig();
+		//} catch (InvalidConfigFileException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			//e.printStackTrace();
+		//}
 		e1=new StringFieldEditor(PreferenceConstants.P_STRING1, "Username", getFieldEditorParent());
 		e2=new StringFieldEditor(PreferenceConstants.P_STRING2, "Password", getFieldEditorParent());
 		e3=new StringFieldEditor(PreferenceConstants.P_STRING3, "Server Hostname", getFieldEditorParent());
@@ -104,18 +105,7 @@ public class ConfigModifier
 		config.setString("server.port",e4.getStringValue());
 		config.setString("user.name",e1.getStringValue());
 		
-	/*	 MessageDigest digest;
-		try {
-			digest = java.security.MessageDigest.getInstance("MD5");
-
-			digest.update(e1.getStringValue().getBytes());
-		 	byte[] hash = digest.digest();
-		 
-		    config.writeConfigFile();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		 config.writeConfigFile();
 		
 		return true;
 	}
