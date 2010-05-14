@@ -3,8 +3,11 @@
  */
 package coed.plugin.base;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.action.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,8 +66,9 @@ import coed.plugin.views.ui.UsersView;
  * @author neobi008
  * 
  */
-public class Controller implements IController, ICollabStateListener, IUserChangeListener,
-		IDocumentListener, IPartListener, IFileChangeListener, IAllSessionsListener {
+public class Controller implements IController, ICollabStateListener,
+		IUserChangeListener, IDocumentListener, IPartListener,
+		IFileChangeListener, IAllSessionsListener {
 
 	private ICoedCommunicator communicator;
 	private String configPath;
@@ -78,15 +82,17 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	/**
 	 * Index of the event to ignore in the IDocumentListener part
 	 */
-	private Long ignoreEvent= null;
-	
+	private Long ignoreEvent = null;
+
 	/**
-	 * Reference to currently locked lines for the user - in form of an array of line numbers
+	 * Reference to currently locked lines for the user - in form of an array of
+	 * line numbers
 	 */
 	private TextPortion lockedLines = null;
-	
+
 	class MarkerExpireTask extends TimerTask {
 		private IMarker marker;
+
 		public IMarker getMarker() {
 			return marker;
 		}
@@ -110,10 +116,10 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 		}
 
 		private MarkerKey key;
-		
+
 		@Override
 		public void run() {
-			synchronized(markerLock) {
+			synchronized (markerLock) {
 				markerMap.remove(key);
 				try {
 					marker.delete();
@@ -124,55 +130,64 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			}
 		}
 	}
-	
+
 	class MarkerKey {
 		private Integer line;
 		private AbstractDecoratedTextEditor editor;
+
 		public Integer getLine() {
 			return line;
 		}
+
 		public void setLine(Integer line) {
 			this.line = line;
 		}
+
 		public AbstractDecoratedTextEditor getEditor() {
 			return editor;
 		}
+
 		public void setEditor(AbstractDecoratedTextEditor editor) {
 			this.editor = editor;
 		}
+
 		public MarkerKey(Integer line, AbstractDecoratedTextEditor editor) {
 			super();
 			this.line = line;
 			this.editor = editor;
 		}
 	}
-	
+
 	private HashMap<MarkerKey, MarkerExpireTask> markerMap;
 	private Object markerLock = new Object();
 	private Timer timer = new Timer();
-	
+
 	void addMarker(AbstractDecoratedTextEditor editor, Integer line, String user) {
 		// make a task if used from anywhere other than input processor !!
-		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
+		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(
+				IFile.class);
 		IMarker marker;
 		try {
 			MarkerKey key = new MarkerKey(line, editor);
-			
+
 			final Integer delay = 4000;
-			
-			synchronized(markerLock) {
+
+			synchronized (markerLock) {
 				MarkerExpireTask task = markerMap.get(key);
-				if(task == null) {
+				if (task == null) {
 					marker = file.createMarker(IMarker.TASK);
 					marker.setAttribute(IMarker.MESSAGE, "edited by " + user);
-					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+					marker
+							.setAttribute(IMarker.PRIORITY,
+									IMarker.PRIORITY_HIGH);
 					marker.setAttribute(IMarker.LINE_NUMBER, line);
 					task = new MarkerExpireTask(marker, key);
 					markerMap.put(key, task);
 					timer.schedule(task, delay);
 				} else {
 					task.cancel();
-					MarkerExpireTask newTask = new MarkerExpireTask(task.getMarker(), key);
+					MarkerExpireTask newTask = new MarkerExpireTask(task
+							.getMarker(), key);
 					markerMap.put(key, newTask);
 					timer.schedule(newTask, delay);
 				}
@@ -286,7 +301,8 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 						registerFileEditor(coedFile, editor);
 						setEditorAndFileAsActive(editor);
 						coedFile.getActiveUsers().addListener(
-								new GetSessionActiveUsersListener(coedFile.getPath(), coedFile.getId()));
+								new GetSessionActiveUsersListener(coedFile
+										.getPath(), coedFile.getId()));
 
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -310,17 +326,17 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 		document.set(content);
 		document.addDocumentListener(this);
 	}
-	
+
 	class GetSessionActiveUsersListener implements IFutureListener<String[]> {
 		private Integer sessionId;
 		private String sessionPath;
 
 		@Override
 		public void got(String[] result) {
-			if(usersView != null) {
+			if (usersView != null) {
 				usersView.removeSession(sessionId);
 				usersView.addSession(sessionPath, sessionId);
-				for(String user : result) {
+				for (String user : result) {
 					usersView.addUserToSession(sessionId, user);
 				}
 				refreshUsersView();
@@ -330,30 +346,31 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 		@Override
 		public void caught(Throwable e) {
 			// TODO Auto-generated method stub
-			
+
 		}
-		
-		public GetSessionActiveUsersListener(String sessionPath, Integer sessionId) {
+
+		public GetSessionActiveUsersListener(String sessionPath,
+				Integer sessionId) {
 			this.sessionPath = sessionPath;
 			this.sessionId = sessionId;
 		}
 	}
-	
-	void registerFileEditor(ICoedFile coedFile, AbstractDecoratedTextEditor editor)	{
+
+	void registerFileEditor(ICoedFile coedFile,
+			AbstractDecoratedTextEditor editor) {
 		fileToEditor.put(coedFile, editor);
 		editorToFile.put(editor, coedFile);
-		if(usersView != null) {
+		if (usersView != null) {
 			coedFile.addUserChangeListener(this);
 		}
 	}
-	
-	void unregisterFileEditor(ICoedFile coedFile, AbstractDecoratedTextEditor editor)	{
+
+	void unregisterFileEditor(ICoedFile coedFile,
+			AbstractDecoratedTextEditor editor) {
 		editorToFile.remove(editor);
 		fileToEditor.remove(coedFile);
 		coedFile.removeUserChangeListener(this);
 	}
-	
-
 
 	@Override
 	public void joinSession(String path, Integer collabID) {
@@ -428,11 +445,15 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 						+ coedFile.getPath();
 
 				// if does not exists, create directory structure and file
-				/*
-				 * File fileToOpen = new File(filePath); try {
-				 * FileUtils.touch(fileToOpen); } catch (IOException e) { //
-				 * TODO Auto-generated catch block e.printStackTrace(); }
-				 */
+				
+			/*	 File fileToOpen = new File(filePath); 
+				 try {
+					 FileUtils.touch(fileToOpen); 
+					 } 
+				 catch (IOException e) { 
+					 e.printStackTrace(); 
+					}*/
+				 
 
 				IFile file = ResourcesPlugin.getWorkspace().getRoot()
 						.getFileForLocation(new Path(filePath));
@@ -456,19 +477,19 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	@Override
 	public void leaveSession(AbstractDecoratedTextEditor editor) {
 		ICoedFile file = editorToFile.get(editor);
-		if(file != null) {
+		if (file != null) {
 			file.goOffline();
 			unregisterFileEditor(file, editor);
-			if(usersView != null) {
+			if (usersView != null) {
 				usersView.removeSession(file.getId());
 				refreshUsersView();
 			}
 		}
 	}
-	
+
 	/**
-	 * Executed when the connection to the server is lost,
-	 * either due to user input or unexpectedly
+	 * Executed when the connection to the server is lost, either due to user
+	 * input or unexpectedly
 	 */
 	public void onDisconnectFromServer() {
 		communicator.removeAllSessionsListener(this);
@@ -478,12 +499,12 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			allSessionsView.clearModel();
 			refreshAllSessionsView();
 		}
-		if(usersView != null) {
+		if (usersView != null) {
 			usersView.clearModel();
 			refreshUsersView();
 		}
 	}
-	
+
 	/**
 	 * Executed when a connection to the server is established
 	 */
@@ -503,8 +524,7 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 									.entrySet()) {
 								allSessionsView.addFile(e.getValue(), e
 										.getKey().toString());
-								System.out.println("got session "
-										+ e.getKey());
+								System.out.println("got session " + e.getKey());
 							}
 
 							refreshAllSessionsView();
@@ -519,13 +539,14 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	}
 
 	/**
-	 * from ICollabStateListener: called when the connection status to the server changes
+	 * from ICollabStateListener: called when the connection status to the
+	 * server changes
 	 */
 	@Override
 	public void collabStateChanged(String to) {
 		if (to == ICoedCollaborator.STATUS_CONNECTED) {
 			onConnectToServer();
-		} else  {
+		} else {
 			onDisconnectFromServer();
 		}
 	}
@@ -540,7 +561,7 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			}
 		});
 	}
-	
+
 	void refreshUsersView() {
 		Display.getDefault().asyncExec(new Runnable() {
 
@@ -567,11 +588,11 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	public String getCollabState() {
 		return communicator.getState();
 	}
-	
+
 	@Override
 	public void attachAllSessionsView(AllSessionsView view) {
 		allSessionsView = view;
-		
+
 	}
 
 	@Override
@@ -592,12 +613,13 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
-		lockedLines = new TextPortion(event.fOffset, event.fLength+event.fText.length());
+		lockedLines = new TextPortion(event.fOffset, event.fLength
+				+ event.fText.length());
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		Display.getCurrent().asyncExec(new InputProcessor(event,lockedLines));
+		Display.getCurrent().asyncExec(new InputProcessor(event, lockedLines));
 	}
 
 	class InputProcessor implements Runnable {
@@ -614,60 +636,57 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			// e.g if the content is changed during join
 			if (!editorToFile.containsKey(activeEditor))
 				return;
-			
-			
 
-			/*try {
-				
-				Integer eLine;
-				eLine = event.fDocument.getLineOfOffset(event.fOffset);
-				if (eLine != activeLine){
-					System.out.println("Lock released for line "+lock.getOffset());
-					lockManager.releaseLock(editorToFile.get(activeEditor), lock);
-					//also delete the marker
-					lockedLines=null;
-					lock = lockManager.requestLock(Controller.this.getEditorDocument(activeEditor), 
-							editorToFile.get(activeEditor), eLine);
-					System.out.println("Lock requested for line "+lock.getOffset());
-					IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
-					IMarker marker = file.createMarker(IMarker.TASK);
-					marker.setAttribute(IMarker.MESSAGE, "A sample marker message");
-					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-					marker.setAttribute(IMarker.LINE_NUMBER, eLine+1); 
-					markers.add(marker);
-					activeLine = eLine;
-					
-				}
-		        //TODO do not forget to delete markers.
-				
-			} catch (BadLocationException e1) {
-				System.out.print("Controller:InputProcessor");e1.printStackTrace();
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (lock==null){
-				ignoreEvent=event.fModificationStamp;
-			} 
-			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
-				
-				ignoreEvent=null;
-				
-				try {
-					// delete the things that the user tried to type in
-					getEditorDocument(activeEditor).removeDocumentListener(Controller.this);
-					synchronized (event.fDocument) {
-						event.fDocument.replace(event.fOffset, event.getText().length(), "");
-					}
-					getEditorDocument(activeEditor).addDocumentListener(Controller.this);
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
-
-			} else if (lock!=null) { */
-				System.out.println("Sending changes from offset "+event.fOffset+" with length "+event.fLength);
-				editorToFile.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, communicator.getUserName()));
-			//}
+			/*
+			 * try {
+			 * 
+			 * Integer eLine; eLine =
+			 * event.fDocument.getLineOfOffset(event.fOffset); if (eLine !=
+			 * activeLine){
+			 * System.out.println("Lock released for line "+lock.getOffset());
+			 * lockManager.releaseLock(editorToFile.get(activeEditor), lock);
+			 * //also delete the marker lockedLines=null; lock =
+			 * lockManager.requestLock
+			 * (Controller.this.getEditorDocument(activeEditor),
+			 * editorToFile.get(activeEditor), eLine);
+			 * System.out.println("Lock requested for line "+lock.getOffset());
+			 * IFile file = (IFile)
+			 * activeEditor.getEditorInput().getAdapter(IFile.class); IMarker
+			 * marker = file.createMarker(IMarker.TASK);
+			 * marker.setAttribute(IMarker.MESSAGE, "A sample marker message");
+			 * marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+			 * marker.setAttribute(IMarker.LINE_NUMBER, eLine+1);
+			 * markers.add(marker); activeLine = eLine;
+			 * 
+			 * } //TODO do not forget to delete markers.
+			 * 
+			 * } catch (BadLocationException e1) {
+			 * System.out.print("Controller:InputProcessor"
+			 * );e1.printStackTrace(); } catch (CoreException e) { // TODO
+			 * Auto-generated catch block e.printStackTrace(); } if
+			 * (lock==null){ ignoreEvent=event.fModificationStamp; } if
+			 * (ignoreEvent!=null &&
+			 * ignoreEvent.equals(event.fModificationStamp)){
+			 * 
+			 * ignoreEvent=null;
+			 * 
+			 * try { // delete the things that the user tried to type in
+			 * getEditorDocument
+			 * (activeEditor).removeDocumentListener(Controller.this);
+			 * synchronized (event.fDocument) {
+			 * event.fDocument.replace(event.fOffset, event.getText().length(),
+			 * ""); }
+			 * getEditorDocument(activeEditor).addDocumentListener(Controller
+			 * .this); } catch (BadLocationException e) { e.printStackTrace(); }
+			 * 
+			 * } else if (lock!=null) {
+			 */
+			System.out.println("Sending changes from offset " + event.fOffset
+					+ " with length " + event.fLength);
+			editorToFile.get(activeEditor).sendChanges(
+					new TextModification(event.fOffset, event.fLength,
+							event.fText, communicator.getUserName()));
+			// }
 		}
 	}
 
@@ -758,18 +777,23 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 				for (int i = 0; i < mods.length; i++) {
 					doc.replace(mods[i].getOffset(), mods[i].getLength(),
 							mods[i].getText());
-					
+
 					Integer eLine, eLine1;
 					try {
-						
+
 						eLine = doc.getLineOfOffset(mods[i].getOffset());
-						if( (mods[i].getText().length() >= 1 && mods[i].getText().charAt(0) == '\n') ||
-							(mods[i].getText().length() >= 2 && mods[i].getText().charAt(0) == '\r' && mods[i].getText().charAt(1) == '\n'))
+						if ((mods[i].getText().length() >= 1 && mods[i]
+								.getText().charAt(0) == '\n')
+								|| (mods[i].getText().length() >= 2
+										&& mods[i].getText().charAt(0) == '\r' && mods[i]
+										.getText().charAt(1) == '\n'))
 							eLine = eLine + 1;
-						
-						eLine1 = doc.getLineOfOffset(mods[i].getOffset() + mods[i].getText().length());
-						for(int j = eLine; j <= eLine1; j++)
-							addMarker(activeEditor, j+1, mods[i].getMetaInfo());
+
+						eLine1 = doc.getLineOfOffset(mods[i].getOffset()
+								+ mods[i].getText().length());
+						for (int j = eLine; j <= eLine1; j++)
+							addMarker(activeEditor, j + 1, mods[i]
+									.getMetaInfo());
 					} catch (BadLocationException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -792,9 +816,9 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 
 	@Override
 	public void sessionAdded(Integer id, String path) {
-		allSessionsView.addFile(path,id.toString());
+		allSessionsView.addFile(path, id.toString());
 		refreshAllSessionsView();
-		
+
 	}
 
 	@Override
@@ -805,12 +829,12 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 
 	@Override
 	public void attachUsersView(UsersView view) {
-		usersView = view;		
+		usersView = view;
 	}
 
 	@Override
 	public void userAdded(String name, Integer sessionId) {
-		if(usersView != null) {
+		if (usersView != null) {
 			usersView.addUserToSession(sessionId, name);
 			refreshUsersView();
 		}
@@ -818,7 +842,7 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 
 	@Override
 	public void userRemoved(String name, Integer sessionId) {
-		if(usersView != null) {
+		if (usersView != null) {
 			usersView.removeUserFromSession(sessionId, name);
 			refreshUsersView();
 		}
