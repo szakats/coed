@@ -3,8 +3,13 @@
  */
 package coed.plugin.base;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jface.action.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -36,6 +42,7 @@ import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditorExtension3.InsertMode;
 
 import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
@@ -354,6 +361,25 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	}
 	
 
+	public FileOutputStream openOutputStream(File file) throws IOException {
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                throw new IOException("File '" + file + "' exists but is a directory");
+            }
+            if (file.canWrite() == false) {
+                throw new IOException("File '" + file + "' cannot be written to");
+            }
+        } else {
+            File parent = file.getParentFile();
+            if (parent != null && parent.exists() == false) {
+                if (parent.mkdirs() == false) {
+                    throw new IOException("File '" + file + "' could not be created");
+                }
+            }
+        }
+        return new FileOutputStream(file);
+    }
+
 
 	@Override
 	public void joinSession(String path, Integer collabID) {
@@ -377,6 +403,13 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 
 			@Override
 			public void run() {
+				try {
+					ResourcesPlugin.getWorkspace().getRoot().refreshLocal(IResource.DEPTH_INFINITE, null);
+				} catch (CoreException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				IWorkbenchWindow dw = PlatformUI.getWorkbench()
 						.getActiveWorkbenchWindow();
 				try {
@@ -426,13 +459,36 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 				String filePath = ResourcesPlugin.getWorkspace().getRoot()
 						.getRawLocation().toOSString()
 						+ coedFile.getPath();
+				
 
 				// if does not exists, create directory structure and file
-				/*
-				 * File fileToOpen = new File(filePath); try {
-				 * FileUtils.touch(fileToOpen); } catch (IOException e) { //
-				 * TODO Auto-generated catch block e.printStackTrace(); }
+				
+				File file1 = new File(filePath); 
+
+		        if (!file1.exists()) {
+		            OutputStream out;
+					try {
+						out = openOutputStream(file1);
+			            out.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+		            //IOUtils.closeQuietly(out);
+		        }
+		        /*boolean success = file.setLastModified(System.currentTimeMillis());
+		        if (!success) {
+		            throw new IOException("Unable to set the last modification time for " + file);
+		        }*/
+		        
+		       /*File fileToOpen = new File(filePath); 
+
+				  				  try {
+					  FileUtils.touch(fileToOpen); } catch (IOException e) { //
+				 //TODO Auto-generated catch block e.printStackTrace(); 
+					  }
 				 */
+
 
 				IFile file = ResourcesPlugin.getWorkspace().getRoot()
 						.getFileForLocation(new Path(filePath));
@@ -593,11 +649,13 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	@Override
 	public void documentAboutToBeChanged(DocumentEvent event) {
 		lockedLines = new TextPortion(event.fOffset, event.fLength+event.fText.length());
+		
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
 		Display.getCurrent().asyncExec(new InputProcessor(event,lockedLines));
+		
 	}
 
 	class InputProcessor implements Runnable {
@@ -651,20 +709,22 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			} 
 			if (ignoreEvent!=null && ignoreEvent.equals(event.fModificationStamp)){
 				
-				ignoreEvent=null;
+				ignoreEvent=null; */
 				
-				try {
+				/*try {
+					activeEditor.getEditorInput().
 					// delete the things that the user tried to type in
 					getEditorDocument(activeEditor).removeDocumentListener(Controller.this);
+					//getEditorDocument(activeEditor).getDocumentPartitioner().disconnect();
 					synchronized (event.fDocument) {
 						event.fDocument.replace(event.fOffset, event.getText().length(), "");
 					}
 					getEditorDocument(activeEditor).addDocumentListener(Controller.this);
 				} catch (BadLocationException e) {
 					e.printStackTrace();
-				}
+				}*/
 
-			} else if (lock!=null) { */
+			/*} else if (lock!=null) { */
 				System.out.println("Sending changes from offset "+event.fOffset+" with length "+event.fLength);
 				editorToFile.get(activeEditor).sendChanges(new TextModification(event.fOffset, event.fLength, event.fText, communicator.getUserName()));
 			//}

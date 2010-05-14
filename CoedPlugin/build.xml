@@ -53,6 +53,8 @@
         <pathelement location="${CoedCollaboration.location}/lib/mina-filter-ssl-1.1.7.jar"/>
         <pathelement location="${CoedCollaboration.location}/lib/slf4j-api-1.5.8.jar"/>
         <pathelement location="${CoedCollaboration.location}/lib/slf4j-log4j12-1.5.8.jar"/>
+    	<pathelement location="${CoedCollaboration.location}/lib/commons-io-1.4.jar"/>
+    	<pathelement location="${CoedCollaboration.location}/lib/commons-io-1.4-sources.jar"/>
     </path>
     <path id="CoedPlugin.classpath">
         <path refid="Base.classpath"/>
