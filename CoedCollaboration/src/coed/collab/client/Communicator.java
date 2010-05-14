@@ -10,6 +10,7 @@ import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICoedVersioner;
 import coed.base.comm.ICoedVersionerPart;
 import coed.base.comm.ICollabStateListener;
+import coed.base.comm.IUserChangeListener;
 import coed.base.config.ICoedConfig;
 import coed.base.data.CoedFile;
 import coed.base.data.ICoedFile;
@@ -42,7 +43,7 @@ public class Communicator implements ICoedCommunicator {
 	 * the path relative to which the other paths are given
 	 * eg. the project path
 	 */
-	private String basePath; 
+	private String basePath;
 	
 	public Communicator(ICoedVersionerPart versioner, ICoedCollaboratorPart collaborator, ICoedConfig config, String basePath)
 	{

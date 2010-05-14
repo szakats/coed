@@ -39,6 +39,7 @@ import coed.base.comm.IAllSessionsListener;
 import coed.base.comm.ICoedCollaborator;
 import coed.base.comm.ICoedCommunicator;
 import coed.base.comm.ICollabStateListener;
+import coed.base.comm.IUserChangeListener;
 import coed.base.config.Config;
 import coed.base.data.ICoedFile;
 import coed.base.data.IFileChangeListener;
@@ -60,7 +61,7 @@ import coed.plugin.views.ui.UsersView;
  * @author neobi008
  * 
  */
-public class Controller implements IController, ICollabStateListener,
+public class Controller implements IController, ICollabStateListener, IUserChangeListener,
 		IDocumentListener, IPartListener, IFileChangeListener, IAllSessionsListener {
 
 	private ICoedCommunicator communicator;
@@ -183,9 +184,10 @@ public class Controller implements IController, ICollabStateListener,
 
 						ICoedFile coedFile = communicator.createSession(path,
 								contents).get();
-						editorToFile.put(editor, coedFile);
-						fileToEditor.put(coedFile, editor);
+						registerFileEditor(coedFile, editor);
 						setEditorAndFileAsActive(editor);
+						coedFile.getActiveUsers().addListener(
+								new GetSessionActiveUsersListener(coedFile.getPath(), coedFile.getId()));
 
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -209,6 +211,50 @@ public class Controller implements IController, ICollabStateListener,
 		document.set(content);
 		document.addDocumentListener(this);
 	}
+	
+	class GetSessionActiveUsersListener implements IFutureListener<String[]> {
+		private Integer sessionId;
+		private String sessionPath;
+
+		@Override
+		public void got(String[] result) {
+			if(usersView != null) {
+				usersView.removeSession(sessionId);
+				usersView.addSession(sessionPath, sessionId);
+				for(String user : result) {
+					usersView.addUserToSession(sessionId, user);
+				}
+				refreshUsersView();
+			}
+		}
+
+		@Override
+		public void caught(Throwable e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		public GetSessionActiveUsersListener(String sessionPath, Integer sessionId) {
+			this.sessionPath = sessionPath;
+			this.sessionId = sessionId;
+		}
+	}
+	
+	void registerFileEditor(ICoedFile coedFile, AbstractDecoratedTextEditor editor)	{
+		fileToEditor.put(coedFile, editor);
+		editorToFile.put(editor, coedFile);
+		if(usersView != null) {
+			coedFile.addUserChangeListener(this);
+		}
+	}
+	
+	void unregisterFileEditor(ICoedFile coedFile, AbstractDecoratedTextEditor editor)	{
+		editorToFile.remove(editor);
+		fileToEditor.remove(coedFile);
+		coedFile.removeUserChangeListener(this);
+	}
+	
+
 
 	@Override
 	public void joinSession(String path, Integer collabID) {
@@ -248,8 +294,7 @@ public class Controller implements IController, ICollabStateListener,
 							AbstractDecoratedTextEditor editor = (AbstractDecoratedTextEditor) IDE
 									.openEditor(page, file, true);
 							setEditorContent(editor, contents);
-							fileToEditor.put(coedFile, editor);
-							editorToFile.put(editor, coedFile);
+							registerFileEditor(coedFile, editor);
 							controller.setEditorAndFileAsActive(editor);
 							System.out.println("editor opened");
 						} else {
@@ -257,10 +302,7 @@ public class Controller implements IController, ICollabStateListener,
 							AbstractDecoratedTextEditor editor = (AbstractDecoratedTextEditor) IDE
 									.openEditor(page, file, true);
 							setEditorContent(editor, contents);
-							fileToEditor.put(coedFile, editor);
-							editorToFile.put(
-									(AbstractDecoratedTextEditor) editor,
-									coedFile);
+							registerFileEditor(coedFile, editor);
 							controller.setEditorAndFileAsActive(editor);
 							System.out.println("editor opened new page");
 						}
@@ -299,7 +341,10 @@ public class Controller implements IController, ICollabStateListener,
 
 				Display.getDefault().asyncExec(
 						new OpenEditorJob(file, coedFile, contents));
-			}
+				
+				coedFile.getActiveUsers().addListener(
+						new GetSessionActiveUsersListener(coedFile.getPath(), coedFile.getId()));
+				}
 
 			@Override
 			public void caught(Throwable e) {
@@ -314,8 +359,11 @@ public class Controller implements IController, ICollabStateListener,
 		ICoedFile file = editorToFile.get(editor);
 		if(file != null) {
 			file.goOffline();
-			editorToFile.remove(editor);
-			fileToEditor.remove(file);
+			unregisterFileEditor(file, editor);
+			if(usersView != null) {
+				usersView.removeSession(file.getId());
+				refreshUsersView();
+			}
 		}
 	}
 	
@@ -330,6 +378,10 @@ public class Controller implements IController, ICollabStateListener,
 		if (allSessionsView != null) {
 			allSessionsView.clearModel();
 			refreshAllSessionsView();
+		}
+		if(usersView != null) {
+			usersView.clearModel();
+			refreshUsersView();
 		}
 	}
 	
@@ -386,6 +438,17 @@ public class Controller implements IController, ICollabStateListener,
 			public void run() {
 				if (allSessionsView != null)
 					allSessionsView.refreshView();
+			}
+		});
+	}
+	
+	void refreshUsersView() {
+		Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				if (usersView != null)
+					usersView.refreshView();
 			}
 		});
 	}
@@ -625,5 +688,21 @@ public class Controller implements IController, ICollabStateListener,
 	@Override
 	public void attachUsersView(UsersView view) {
 		usersView = view;		
+	}
+
+	@Override
+	public void userAdded(String name, Integer sessionId) {
+		if(usersView != null) {
+			usersView.addUserToSession(sessionId, name);
+			refreshUsersView();
+		}
+	}
+
+	@Override
+	public void userRemoved(String name, Integer sessionId) {
+		if(usersView != null) {
+			usersView.removeUserFromSession(sessionId, name);
+			refreshUsersView();
+		}
 	}
 }

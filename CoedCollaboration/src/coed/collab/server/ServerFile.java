@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ public class ServerFile {
 	
 	private HashMap<Session,Integer> sessions; 
 	private HashMap<Session, FileChangedListener> listeners;
+	private HashSet<Session> userChangeListeners;
 	
 	private ChangeQueue queue;
 	
@@ -58,6 +60,19 @@ public class ServerFile {
 		sessions = new HashMap<Session,Integer>();
 		locks = new Vector<ServerLock>();
 		listeners = new HashMap<Session,FileChangedListener>();
+		userChangeListeners = new HashSet<Session>();
+	}
+	
+	public void addUserChangeListener(Session s) {
+		userChangeListeners.add(s);
+	}
+	
+	public void removeUserChangeListener(Session s) {
+		userChangeListeners.remove(s);
+	}
+	
+	public Collection<Session> getUserChangeListeners() {
+		return userChangeListeners;
 	}
 
 	public String getPath() {
@@ -100,6 +115,8 @@ public class ServerFile {
 	}
 	
 	public void removeSession(Session s){
+		listeners.remove(s);
+		userChangeListeners.remove(s);
 		if (sessions.containsKey(s))
 			sessions.remove(s);
 	}

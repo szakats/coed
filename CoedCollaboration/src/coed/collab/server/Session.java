@@ -23,12 +23,12 @@ public class Session implements ICoedConnectionListener {
 	private boolean auth = false;
 	
 	/** FileChangeListeners mapped with the fileName as the key**/
-	private HashMap<Integer,FileChangedListener> listeners;
+	private HashMap<Integer,FileChangedListener> fileChangelisteners;
 	
 	public Session(ICoedConnection conn, CollaboratorServer server) {
 		this.conn = conn;
 		this.server = server;
-		this.listeners = new HashMap<Integer,FileChangedListener>();
+		this.fileChangelisteners = new HashMap<Integer,FileChangedListener>();
 	}
 	
 	public String getUserName(){
@@ -53,15 +53,13 @@ public class Session implements ICoedConnectionListener {
 		System.out.println("session ending");
 		Iterator<ServerFile> it = onlineFiles.iterator();
 		while (it.hasNext()){
-			ServerFile file = ((ServerFile)it.next()); 
+			ServerFile file = ((ServerFile)it.next());
 			removeFromFile(file);
 			it.remove();
 		}	
 		server.unregisterSession(this);	
 	}
 	
-	private int x = 0;
-
 	@Override
 	public void received(CoedMessage msg) {
 		if(auth == false) {
@@ -88,13 +86,35 @@ public class Session implements ICoedConnectionListener {
 	    		handleMessage((GoOfflineMsg)msg);
 	    	else if( msg instanceof GetCollabSessionsMsg)
 	    		handleMessage((GetCollabSessionsMsg)msg);
+	    	else if( msg instanceof UserSessionListenerMsg)
+	    		handleMessage((UserSessionListenerMsg)msg);
 	    	else if( msg instanceof JoinSessionMsg)
 	    		handleMessage((JoinSessionMsg)msg);
+	    	
 		}
 	}
 	
+    public void handleMessage(UserSessionListenerMsg msg) {
+    	ServerFile file = server.getFileManager().getFile(msg.getSessionId());
+    	if(file == null) {
+    		System.out.println("no file by the given id found (" + msg.getSessionId() + ")");
+    		return;
+    	}
+    	if(msg.getAdd()) {
+    		System.out.println("adding user listener for session " + msg.getSessionId());
+    		file.addUserChangeListener(this);
+    	} else {
+    		System.out.println("removing user listener for session " + msg.getSessionId());
+    		file.removeUserChangeListener(this);
+    	}
+    }
+	
 	void removeFromFile(ServerFile file) {
 		file.removeSession(this);
+		// tell others that I am being removed
+		for(Session s : file.getUserChangeListeners())
+			s.getConn().send(new UserSessionChangeMsg(file.getId(), getUserName(), false));
+			
 		if(file.getNrOfSessions() == 0)
 		{
 			server.removeServerFile(file.getId());
@@ -166,7 +186,7 @@ public class Session implements ICoedConnectionListener {
     
     public void handleMessage(AddChangedListenerMsg msg){
     	FileChangedListener listener = new FileChangedListener(msg.getId(),this);
-    	listeners.put(msg.getId(), listener);
+    	fileChangelisteners.put(msg.getId(), listener);
     	server.getServerFile(msg.getId()).addChangeListener(this, listener);
     }
     
@@ -206,4 +226,6 @@ public class Session implements ICoedConnectionListener {
     	
     	conn.reply(msg, ret);
     }
+    
+
 }

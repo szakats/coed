@@ -62,5 +62,5 @@ public interface ICoedCollaborator {
 	   public IFuture<Map<Integer, String>> getCollabSessions();
 	   
 	   public void addAllSessionsListener(IAllSessionsListener listener);
-		public void removeAllSessionsListener(IAllSessionsListener listener);
+	   public void removeAllSessionsListener(IAllSessionsListener listener);
 }

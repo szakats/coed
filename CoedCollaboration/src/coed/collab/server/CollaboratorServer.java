@@ -8,6 +8,7 @@ import coed.collab.connection.CoedConnectionAcceptor;
 import coed.collab.protocol.CoedMessage;
 import coed.collab.protocol.CreateSessionResultMsg;
 import coed.collab.protocol.SendContentsMsg;
+import coed.collab.protocol.UserSessionChangeMsg;
 
 public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 
@@ -73,9 +74,12 @@ public class CollaboratorServer implements CoedConnectionAcceptor.Listener {
 		return sf.getId();
 	}
 	
-	public String joinSession(Integer id, Session session) {
-		ServerFile sf = fm.getFile(id);
-		sf.addSession(session);
+	public String joinSession(Integer idWhich, Session sesWho) {
+		ServerFile sf = fm.getFile(idWhich);
+		sf.addSession(sesWho);
+		for(Session s : sf.getUserChangeListeners()) {
+			s.getConn().send(new UserSessionChangeMsg(idWhich, sesWho.getUserName(), true));
+		}
 		return sf.getCurrentContents();
 	}
 	

@@ -14,8 +14,8 @@ public class ModelDirectory extends ModelObject {
 
 	private List<ModelObject> children = new LinkedList<ModelObject>();
 	
-	public ModelDirectory(ModelDirectory parent, String path) {
-		super(parent, path);
+	public ModelDirectory(ModelDirectory parent, String path, String meta) {
+		super(parent, path, meta);
 	}
 	
 	public void addObject(ModelObject object){

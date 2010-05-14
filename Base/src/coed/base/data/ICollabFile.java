@@ -3,6 +3,7 @@
  */
 package coed.base.data;
 
+import coed.base.comm.IUserChangeListener;
 import coed.base.util.IFuture;
 
 /**
@@ -93,4 +94,7 @@ public interface ICollabFile {
   public IFuture<Void> goOffline();
   
   public Integer getId();
+  
+  public void addUserChangeListener(IUserChangeListener listener);
+  public void removeUserChangeListener(IUserChangeListener listener);
 }

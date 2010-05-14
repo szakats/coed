@@ -202,7 +202,7 @@ public abstract class SessionView extends ViewPart implements IDoubleClickListen
 				}
 				
 			if(child == null) {
-				child = new ModelDirectory(parent, names[idx]);
+				child = new ModelDirectory(parent, names[idx], "");
 				parent.addObject(child);
 			}
 			

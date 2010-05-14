@@ -16,12 +16,12 @@
             name="Live Files">
       </view>
       <view
-            allowMultiple="false"
             category="CoedView"
-            class="coed.plugin.views.UserListView"
+            class="coed.plugin.views.ui.MySessionUsersView"
             icon="icons/coed.png"
-            id="coed.plugin.views.Users"
-            name="Users">
+            id="coed.plugin.views.ui.Users"
+            name="Users"
+            restorable="true">
       </view>
       <view
             category="CoedView"

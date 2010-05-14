@@ -3,6 +3,7 @@
  */
 package coed.base.data;
 
+import coed.base.comm.IUserChangeListener;
 import coed.base.util.IFuture;
 
 /**
@@ -92,5 +93,15 @@ public class CoedFile implements ICoedFile {
 	@Override
 	public IFuture<Void> goOffline() {
 		return co.goOffline();
+	}
+
+	@Override
+	public void addUserChangeListener(IUserChangeListener listener) {
+		co.addUserChangeListener(listener);
+	}
+
+	@Override
+	public void removeUserChangeListener(IUserChangeListener listener) {
+		co.removeUserChangeListener(listener);
 	}
 }

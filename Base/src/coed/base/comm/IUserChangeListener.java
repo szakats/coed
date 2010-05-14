@@ -9,6 +9,6 @@ package coed.base.comm;
  */
 public interface IUserChangeListener {
 	
-	public void userAdded(String name);
-	public void userRemoved(String name);
+	public void userAdded(String name, Integer sessionId);
+	public void userRemoved(String name, Integer sessionId);
 }

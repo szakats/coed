@@ -4,6 +4,8 @@
 package coed.collab.client;
 
 import java.util.LinkedList;
+
+import coed.base.comm.IUserChangeListener;
 import coed.base.data.ICoedFile;
 import coed.base.data.ICollabFilePart;
 import coed.base.data.IFileChangeListener;
@@ -27,6 +29,7 @@ public class CoedCollabFile implements ICollabFilePart {
 	private boolean isWorkingOnline;
 	private LinkedList<IFileChangeListener> fileObservers;
 	private Integer id;
+	private LinkedList<IUserChangeListener> userListeners;
 	
 	private <T> boolean ensureOnline(CoedFuture<T> future) {
 		if(!isWorkingOnline) {
@@ -52,6 +55,7 @@ public class CoedCollabFile implements ICollabFilePart {
 		this.id = id;
 		this.fileObservers = new LinkedList<IFileChangeListener>();
 		this.isWorkingOnline = true;
+		this.userListeners = new LinkedList<IUserChangeListener>();
 	}
 	
 	@Override
@@ -62,8 +66,23 @@ public class CoedCollabFile implements ICollabFilePart {
 	
 	@Override
 	public IFuture<String[]> getActiveUsers() {
-
-		return null;
+		class FListener implements IFutureListener<CoedMessage> {
+			public CoedFuture<String[]> ret = new CoedFuture<String[]>();
+			@Override
+			public void got(CoedMessage result) {
+				if(result instanceof GetUserListReplyMsg)
+					ret.set(((GetUserListReplyMsg)result).getUserList());
+			}
+			@Override
+			public void caught(Throwable e) {
+				rethrow(e, ret);
+			}
+		}
+		
+		FListener fl = new FListener();
+		if(ensureOnline(fl.ret))
+			coll.getConn().sendSeq(new GetUserListMsg(getId())).addListener(fl);
+		return fl.ret;
 	}
 
 	@Override
@@ -199,5 +218,31 @@ public class CoedCollabFile implements ICollabFilePart {
 	@Override
 	public Integer getId() {
 		return id;
+	}
+
+	@Override
+	public void addUserChangeListener(IUserChangeListener listener) {
+		if(userListeners.size() == 0) {
+			coll.getConn().send(new UserSessionListenerMsg(getId(), true));
+		}
+		userListeners.add(listener);
+		
+	}
+
+	@Override
+	public void removeUserChangeListener(IUserChangeListener listener) {
+		userListeners.remove(listener);
+		if(userListeners.size() == 0) {
+			coll.getConn().send(new UserSessionListenerMsg(getId(), false));
+		}
+	}
+	
+	public void notifyUserChange(String userName, boolean joined) {
+		if(joined)
+			for(IUserChangeListener l: userListeners)
+				l.userAdded(userName, getParent().getId());
+		else
+			for(IUserChangeListener l: userListeners)
+				l.userRemoved(userName, getParent().getId());
 	}
 }

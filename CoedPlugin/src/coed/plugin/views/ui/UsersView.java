@@ -3,7 +3,6 @@ package coed.plugin.views.ui;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.IDoubleClickListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.swt.SWT;
@@ -12,14 +11,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditor;
 
-import coed.base.comm.ICoedCollaborator;
 import coed.plugin.base.Activator;
 import coed.plugin.views.model.ModelDirectory;
 import coed.plugin.views.model.ModelFile;
@@ -36,7 +33,6 @@ public abstract class UsersView extends ViewPart implements IDoubleClickListener
 	private SessionViewLabelProvider labelProvider;
 	private Action createSessionAction, joinSessionAction, leaveSessionAction, loginAction;
 	protected ViewerSorter dirfileSorter;
-	private ModelObject root;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -84,7 +80,6 @@ public abstract class UsersView extends ViewPart implements IDoubleClickListener
 		
 		treeViewer.addDoubleClickListener(this);
 		Activator.getController().attachUsersView(this);
-		root =  new ModelDirectory(null, "");
 	}
 	
 	protected AbstractDecoratedTextEditor getEditor() {
@@ -119,19 +114,26 @@ public abstract class UsersView extends ViewPart implements IDoubleClickListener
 		
 	}
 	
-	public void addUserToSession(String session, String user) {
+	public void addUserToSession(Integer id, String user) {
 		ModelDirectory child = null;
-		for(ModelObject c : ((ModelDirectory)getModelRoot()).getChildren())
-			if(c instanceof ModelDirectory && c.getName().equals(session)) {
+		for(ModelObject c : ((ModelDirectory)getModelRoot()).getChildren()) {
+			if(!(c instanceof ModelDirectory))
+				continue;
+			Integer childId = Integer.parseInt(((ModelDirectory)c).getMeta());
+			if(childId.equals(id)) {
 				child = (ModelDirectory)c;
 				child.addObject(new ModelFile(child,user,""));
 				break;
 			}
+		}
 	}
 	
-	public void removeUserFromSession(String session, String user) {
+	public void removeUserFromSession(Integer id, String user) {
 		for(ModelObject c : ((ModelDirectory)getModelRoot()).getChildren()){
-			if(c instanceof ModelDirectory){
+			if(!(c instanceof ModelDirectory))
+				continue;
+			Integer childId = Integer.parseInt(((ModelDirectory)c).getMeta());
+			if(childId.equals(id)) {
 				for(ModelObject obj : ((ModelDirectory)c).getChildren()){
 					if (obj.getName().equals(user)){
 						((ModelDirectory)c).removeObject(obj);
@@ -142,17 +144,26 @@ public abstract class UsersView extends ViewPart implements IDoubleClickListener
 		}
 	}
 	
-	public void removeSession(String session) {
+	public void clearModel(){
+		Object root = getModelRoot();
+		assert root instanceof ModelDirectory;
+		((ModelDirectory)root).clearChildren();
+	}
+	
+	public void removeSession(Integer id) {
 		for(ModelObject c : ((ModelDirectory)getModelRoot()).getChildren()){
-			if((c instanceof ModelDirectory) && c.getName().equals(session)){
-					((ModelDirectory)getModelRoot()).removeObject(c);
-						break;
-					}
+			if(!(c instanceof ModelDirectory))
+				continue;
+			Integer childId = Integer.parseInt(((ModelDirectory)c).getMeta());
+			if(childId.equals(id)) {
+				((ModelDirectory)getModelRoot()).removeObject(c);
+				break;
+			}
 		}
 	}
 	
-	public void addSession(String session){
-		ModelDirectory dir = new ModelDirectory((ModelDirectory)getModelRoot(),session);
+	public void addSession(String session, Integer id){
+		ModelDirectory dir = new ModelDirectory((ModelDirectory)getModelRoot(),session, id.toString());
 		((ModelDirectory)getModelRoot()).addObject(dir);
 	}
 	

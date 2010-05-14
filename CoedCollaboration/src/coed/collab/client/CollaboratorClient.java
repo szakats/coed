@@ -35,6 +35,7 @@ import coed.collab.protocol.JoinReplyMsg;
 import coed.collab.protocol.JoinSessionMsg;
 import coed.collab.protocol.NewCollabSessionOnServerMsg;
 import coed.collab.protocol.RemoveCollabSessionMsg;
+import coed.collab.protocol.UserSessionChangeMsg;
 
 
 /**
@@ -53,11 +54,10 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	/// cache for storing path-CoedObject pairs
 	private String state;
 	private ConnectionListener connListener = new ConnectionListener();
-	private Map<Integer, ICollabFilePart> cache; 
+	private Map<Integer, CoedCollabFile> cache; 
 //	private NewSessionListener newSessionListener;
 	private String basePath;
 	private LinkedList<IAllSessionsListener> sessionListeners;
-	private LinkedList<IUserChangeListener> userListeners;
 	
 	private String host;
 	private int port;
@@ -70,7 +70,7 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		sessionListeners = new LinkedList<IAllSessionsListener>();
 		this.basePath = basePath;
 		this.conf = conf;
-		cache = new HashMap<Integer, ICollabFilePart>();
+		cache = new HashMap<Integer, CoedCollabFile>();
 		setState(STATUS_OFFLINE);
 
 		host = conf.getString("server.host");
@@ -144,17 +144,17 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 		public void received(CoedMessage msg) {
 			if(msg instanceof FileChangedMsg)
 				handleMessage((FileChangedMsg)msg);
-			if (msg instanceof NewCollabSessionOnServerMsg)
+			else if (msg instanceof NewCollabSessionOnServerMsg)
 				handleMessage((NewCollabSessionOnServerMsg)msg);
-			if (msg instanceof RemoveCollabSessionMsg)
+			else if (msg instanceof RemoveCollabSessionMsg)
 				handleMessage((RemoveCollabSessionMsg)msg);
+			else if (msg instanceof UserSessionChangeMsg)
+				handleMessage((UserSessionChangeMsg)msg);
 		}
 		
 		public void handleMessage(FileChangedMsg msg) {
 			System.out.println("in the collabclient, user is:"+conf.getString("user.name"));
-			ICollabFilePart obj = cache.get(msg.getId());
-			assert obj instanceof CoedCollabFile;
-			CoedCollabFile file = (CoedCollabFile)obj;
+			CoedCollabFile file = cache.get(msg.getId());
 			file.notifyChangeListeners(file.getParent());
 			
 		}
@@ -173,6 +173,15 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 				l.sessionRemoved(msg.getId(), msg.getPath());
 			//System.out.println("new session on server "+msg.getPath());
 			
+		}
+		
+		public void handleMessage(UserSessionChangeMsg msg) {
+			CoedCollabFile file = cache.get(msg.getSessionId());
+			if(file != null) {
+				String user = msg.getUser();
+				String path = file.getParent().getPath();
+				file.notifyUserChange(user, msg.hasJoined());
+			}
 		}
 
 		@Override
@@ -330,12 +339,10 @@ public class CollaboratorClient implements ICoedCollaboratorPart {
 	@Override
 	public void addAllSessionsListener(IAllSessionsListener listener) {
 		sessionListeners.add(listener);
-		
 	}
 
 	@Override
 	public void removeAllSessionsListener(IAllSessionsListener listener) {
 		sessionListeners.remove(listener);
-		
 	}
 }
