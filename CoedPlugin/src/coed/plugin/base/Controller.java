@@ -8,6 +8,8 @@ import org.eclipse.jface.action.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 
 import org.eclipse.core.resources.IFile;
@@ -72,7 +74,6 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	private Map<ICoedFile, AbstractDecoratedTextEditor> fileToEditor;
 	private AbstractDecoratedTextEditor activeEditor;
 	private ITextLockManager lockManager;
-	private ArrayList<IMarker> markers;
 	private int activeLine = -1;
 	/**
 	 * Index of the event to ignore in the IDocumentListener part
@@ -83,6 +84,104 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 	 * Reference to currently locked lines for the user - in form of an array of line numbers
 	 */
 	private TextPortion lockedLines = null;
+	
+	class MarkerExpireTask extends TimerTask {
+		private IMarker marker;
+		public IMarker getMarker() {
+			return marker;
+		}
+
+		public void setMarker(IMarker marker) {
+			this.marker = marker;
+		}
+
+		public MarkerKey getKey() {
+			return key;
+		}
+
+		public void setKey(MarkerKey key) {
+			this.key = key;
+		}
+
+		public MarkerExpireTask(IMarker marker, MarkerKey key) {
+			super();
+			this.marker = marker;
+			this.key = key;
+		}
+
+		private MarkerKey key;
+		
+		@Override
+		public void run() {
+			synchronized(markerLock) {
+				markerMap.remove(key);
+				try {
+					marker.delete();
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	class MarkerKey {
+		private Integer line;
+		private AbstractDecoratedTextEditor editor;
+		public Integer getLine() {
+			return line;
+		}
+		public void setLine(Integer line) {
+			this.line = line;
+		}
+		public AbstractDecoratedTextEditor getEditor() {
+			return editor;
+		}
+		public void setEditor(AbstractDecoratedTextEditor editor) {
+			this.editor = editor;
+		}
+		public MarkerKey(Integer line, AbstractDecoratedTextEditor editor) {
+			super();
+			this.line = line;
+			this.editor = editor;
+		}
+	}
+	
+	private HashMap<MarkerKey, MarkerExpireTask> markerMap;
+	private Object markerLock = new Object();
+	private Timer timer = new Timer();
+	
+	void addMarker(AbstractDecoratedTextEditor editor, Integer line, String user) {
+		// make a task if used from anywhere other than input processor !!
+		IFile file = (IFile) activeEditor.getEditorInput().getAdapter(IFile.class);
+		IMarker marker;
+		try {
+			MarkerKey key = new MarkerKey(line, editor);
+			
+			final Integer delay = 4000;
+			
+			synchronized(markerLock) {
+				MarkerExpireTask task = markerMap.get(key);
+				if(task == null) {
+					marker = file.createMarker(IMarker.TASK);
+					marker.setAttribute(IMarker.MESSAGE, "edited by " + user);
+					marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+					marker.setAttribute(IMarker.LINE_NUMBER, line);
+					task = new MarkerExpireTask(marker, key);
+					markerMap.put(key, task);
+					timer.schedule(task, delay);
+				} else {
+					task.cancel();
+					MarkerExpireTask newTask = new MarkerExpireTask(task.getMarker(), key);
+					markerMap.put(key, newTask);
+					timer.schedule(newTask, delay);
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public Controller() {
 		configPath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation()
@@ -120,7 +219,7 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 		editorToFile = new HashMap<AbstractDecoratedTextEditor, ICoedFile>();
 		fileToEditor = new HashMap<ICoedFile, AbstractDecoratedTextEditor>();
 		activeEditor = null;
-		markers = new ArrayList<IMarker>();
+		markerMap = new HashMap<MarkerKey, MarkerExpireTask>();
 	}
 
 	private IDocument getEditorDocument(AbstractDecoratedTextEditor editor) {
@@ -515,6 +614,9 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 			// e.g if the content is changed during join
 			if (!editorToFile.containsKey(activeEditor))
 				return;
+			
+			
+
 			/*try {
 				
 				Integer eLine;
@@ -656,6 +758,22 @@ public class Controller implements IController, ICollabStateListener, IUserChang
 				for (int i = 0; i < mods.length; i++) {
 					doc.replace(mods[i].getOffset(), mods[i].getLength(),
 							mods[i].getText());
+					
+					Integer eLine, eLine1;
+					try {
+						
+						eLine = doc.getLineOfOffset(mods[i].getOffset());
+						if( (mods[i].getText().length() >= 1 && mods[i].getText().charAt(0) == '\n') ||
+							(mods[i].getText().length() >= 2 && mods[i].getText().charAt(0) == '\r' && mods[i].getText().charAt(1) == '\n'))
+							eLine = eLine + 1;
+						
+						eLine1 = doc.getLineOfOffset(mods[i].getOffset() + mods[i].getText().length());
+						for(int j = eLine; j <= eLine1; j++)
+							addMarker(activeEditor, j+1, mods[i].getMetaInfo());
+					} catch (BadLocationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				doc.addDocumentListener(documentListener);
 			}
