@@ -655,8 +655,8 @@ public class Controller implements IController, ICollabStateListener,
 	public void documentAboutToBeChanged(DocumentEvent event) {
 		lockedLines = new TextPortion(event.fOffset, event.fLength
 				+ event.fText.length());
-		event.fOffset+=2;
-		event.
+		//event.fOffset+=2;
+		//event.
 		
 		/*try {
 			Thread.sleep(1000);
