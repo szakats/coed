@@ -655,12 +655,36 @@ public class Controller implements IController, ICollabStateListener,
 	public void documentAboutToBeChanged(DocumentEvent event) {
 		lockedLines = new TextPortion(event.fOffset, event.fLength
 				+ event.fText.length());
+		event.fOffset+=2;
+		event.
 		
+		/*try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
+		
+		synchronized(changeLock) {
+			while(gotChanges)
+				try {
+					changeLock.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		
+		System.out.println("Sending changes from offset " + event.fOffset
+				+ " with length " + event.fLength);
+		editorToFile.get(activeEditor).sendChanges(
+				new TextModification(event.fOffset, event.fLength,
+						event.fText, communicator.getUserName()));
 	}
 
 	@Override
 	public void documentChanged(DocumentEvent event) {
-		Display.getCurrent().asyncExec(new InputProcessor(event, lockedLines));
+		//Display.getCurrent().asyncExec(new InputProcessor(event, lockedLines));
 		
 	}
 
@@ -723,11 +747,11 @@ public class Controller implements IController, ICollabStateListener,
 			 * 
 			 * } else if (lock!=null) {
 			 */
-			System.out.println("Sending changes from offset " + event.fOffset
+			/*System.out.println("Sending changes from offset " + event.fOffset
 					+ " with length " + event.fLength);
 			editorToFile.get(activeEditor).sendChanges(
 					new TextModification(event.fOffset, event.fLength,
-							event.fText, communicator.getUserName()));
+							event.fText, communicator.getUserName()));*/
 			// }
 		}
 	}
@@ -769,11 +793,19 @@ public class Controller implements IController, ICollabStateListener,
 		// TODO Auto-generated method stub
 
 	}
+	
+	Object changeLock = new Object();
+	boolean gotChanges = false;
+	Object changeEvent = new Object();
 
 	// --------------------------------IFileChangeListener methods
 	// -------------------------//
 	@Override
 	public void hasChanges(ICoedFile file) {
+		synchronized(changeLock) {
+			gotChanges = true;
+		}
+		
 		file.getChanges().addListener(
 				new IFutureListener<TextModification[]>() {
 
@@ -848,7 +880,12 @@ public class Controller implements IController, ICollabStateListener,
 		@Override
 		public void run() {
 			try {
-				processChanges(mods, doc);
+				synchronized(changeLock) {
+					
+					processChanges(mods, doc);
+					gotChanges = false;
+					changeLock.notifyAll();
+				}
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
